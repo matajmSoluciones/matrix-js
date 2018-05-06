@@ -91,7 +91,7 @@ function Matrix(data, width, height, dimension, options) {
      * @returns {void}
      */
     function isTypeInstance(type) {
-        switch (type) {
+        switch (type.toLowerCase()) {
             case "int8":
                 self.typeInstance = Int8Array;
                 break;
