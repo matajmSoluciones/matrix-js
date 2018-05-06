@@ -19,9 +19,9 @@ function Matrix(data, width, height, dimension, options) {
     self.typeInstance = Array;
     self.length = 0; // tamaño del arreglo.
     self.dimension = 2;
-    assert(arguments.length > 0, "Es requerido un argumento");
+    console.assert(arguments.length > 0, "Es requerido un argumento");
     if (arguments.length == 1) {
-        assert(typeof data == "object", "config debe ser un objeto.");
+        console.assert(typeof data == "object", "config debe ser un objeto.");
         setOptions(data);
         if (data.data) {
             loadData(data.data);
@@ -35,7 +35,7 @@ function Matrix(data, width, height, dimension, options) {
         if (!options) {
             options = {};
         }
-        assert(typeof options == "object", "config debe ser un objeto.");
+        console.assert(typeof options == "object", "config debe ser un objeto.");
         options.width = width;
         options.height = height;
         if (dimension) {
@@ -48,7 +48,7 @@ function Matrix(data, width, height, dimension, options) {
     if (!self.data) {
         self.data = new self.typeInstance(self.length);
     }
-    assert(
+    console.assert(
         self.data.length == self.length,
         "No coinciden el numero de elementos de la matriz..."
     );
@@ -58,7 +58,7 @@ function Matrix(data, width, height, dimension, options) {
      * 
      */
     function loadData(data) {
-        assert(
+        console.assert(
             data instanceof self.typeInstance,
             `El parametro data debe ser un ${self.typeInstance}...`
         );
@@ -72,8 +72,8 @@ function Matrix(data, width, height, dimension, options) {
      * @returns {void}
      */
     function setOptions(config) {
-        assert(config.width, "Es necesario el ancho de la matriz.");
-        assert(config.height, "Es necesario el alto de la matriz.");
+        console.assert(config.width, "Es necesario el ancho de la matriz.");
+        console.assert(config.height, "Es necesario el alto de la matriz.");
         self.width = config.width;
         self.height = config.height;
         if (config.dimension) {
@@ -110,6 +110,9 @@ function Matrix(data, width, height, dimension, options) {
             case "buffer":
                 self.typeInstance = ArrayBuffer;
                 break;
+            case "array":
+                self.typeInstance = Array;
+                break;
             default:
                 throw new Error("El tipo de objeto no es valido...");
         }
@@ -128,16 +131,16 @@ function Matrix(data, width, height, dimension, options) {
         if (isNaN(y)) {
             y = 0;
         }
-        assert(
+        console.assert(
             typeof x == "number" && x >= 0 && x < self.width,
             "el par x no es numero valido..."
         );
-        assert(
+        console.assert(
             typeof y == "number" && y >= 0 && y < self.height,
             "el par y no es numero valido..."
         );
-        assert(typeof d == "number" && d >= 0, "La dimension no es numero valido...");
-        assert(d <= self.dimension, "La dimensión excede el de la matriz...");
+        console.assert(typeof d == "number" && d >= 0, "La dimension no es numero valido...");
+        console.assert(d <= self.dimension, "La dimensión excede el de la matriz...");
         return Math.round(x + y * self.width) * (d - 1);
     }    
     /**
@@ -156,7 +159,7 @@ function Matrix(data, width, height, dimension, options) {
      * Blucle para recorrer la matriz muldimensional.
      */
     this.forEach = function(callback) {
-        assert(callback instanceof Function, "callback debe ser una funcion.");
+        console.assert(callback instanceof Function, "callback debe ser una funcion.");
         var width = self.width * (self.dimension - 1);
         for(var index = 0, x = 0, y = 0, d = 0; index < this.length; index++) {
             var element = this.data[index];
@@ -173,4 +176,5 @@ function Matrix(data, width, height, dimension, options) {
         }
     };
 }
+
 module.exports = Matrix;
