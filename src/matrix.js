@@ -164,6 +164,9 @@ function Matrix(data, width, height, dimension, options) {
     /**
      * forEach.
      * Blucle para recorrer la matriz muldimensional.
+     * 
+     * @param {Function} callback Función de reemplazo.
+     * @returns {void}
      */
     this.forEach = function(callback) {
         console.assert(callback instanceof Function, "callback debe ser una funcion.");
@@ -179,9 +182,31 @@ function Matrix(data, width, height, dimension, options) {
                 x = 0;
                 y++;
             }
-            callback(element, x, y);
+            callback(element, x, y, index);
             x++;
         }
+    };
+    /**
+     * map.
+     * Reemplaza el valor actual de la matriz.
+     * 
+     * @param {Function} callback Función de reemplazo.
+     * @returns {void}
+     */
+    this.map = function (callback) {
+        self.forEach(function (row, x, y, index) {
+            var value = callback(row, x, y, index);
+            if (self.dimension == 1) {
+                self.data[index] = value;
+            } else {
+                for (var i = index, n = index + self.dimension; i<n; i++) {
+                    if (!value[i]) {
+                        throw new Error("Es necesario un indice de " + self.dimension + " dimensiones");
+                    }
+                    self.data[i] = value[i];
+                }
+            }
+        });
     };
     /**
      * isEqual
