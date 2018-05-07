@@ -62,10 +62,20 @@ function Matrix(data, width, height, dimension, options) {
      */
     function loadData(data) {
         console.assert(
-            data instanceof self.typeInstance,
-            `El parametro data debe ser un ${self.typeInstance}...`
+            (data instanceof Int8Array
+            || data instanceof Int16Array
+            || data instanceof Int32Array
+            || data instanceof Float32Array
+            || data instanceof Float64Array
+            || data instanceof ArrayBuffer
+            || Array.isArray(data)),
+            "El parametro data no es un objeto valido..."
         );
-        self.data = data;
+        if (data instanceof self.typeInstance) {
+            self.data = data;
+        } else {
+            self.data = self.typeInstance.from(data);            
+        }
     }
     /**
      * setOptions.
