@@ -239,6 +239,19 @@ describe("class Matrix", function() {
         assert.ok(matrix.data instanceof Int8Array);
         assertForEach(matrix, expect);
     });
+    it("test Constructor 2D: Equals two matrix", function () {
+        var expect = [1, 2, 3, 4, 5, 6];
+        var matrix = new Matrix(
+            {
+                type: "float64",
+                width: 3,
+                height: 2,
+                data: expect
+            }
+        );
+        assert.ok(matrix.isEqual(matrix), "No es el mismo objeto!");
+        assert.ok(!matrix.isNotEqual(matrix), "Dicese que es igual!");
+    });
 });
 /**
  * assertForEach.

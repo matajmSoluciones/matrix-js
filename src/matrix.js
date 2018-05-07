@@ -183,6 +183,32 @@ function Matrix(data, width, height, dimension, options) {
             x++;
         }
     };
+    /**
+     * isEqual
+     * Compara el nuevo objeto matriz con el actual.
+     * 
+     * @param {Matrix} vector Objeto de comparación.
+     * @returns {boolean}
+     */
+    this.isEqual = function(vector) {
+        console.assert(
+            vector instanceof Matrix,
+            "El parametro no es un objetos matrix de comparacion..."
+        );
+        return self.data.every(function(row, index) {
+            return row === vector.data[index];
+        });
+    };
+    /**
+     * isNotEqual
+     * Compara si el nuevo objeto matriz es diferente.
+     * 
+     * @param {Matrix} vector Objeto de comparación.
+     * @returns {boolean}
+     */
+    this.isNotEqual = function(vector) {
+        return !self.isEqual(vector);
+    };
 }
 
 module.exports = Matrix;
