@@ -199,11 +199,12 @@ function Matrix(data, width, height, dimension, options) {
             if (self.dimension == 1) {
                 self.data[index] = value;
             } else {
-                for (var i = index, n = index + self.dimension; i<n; i++) {
-                    if (!value[i]) {
-                        throw new Error("Es necesario un indice de " + self.dimension + " dimensiones");
-                    }
-                    self.data[i] = value[i];
+                console.assert(value.length != undefined, "Debe ser un array el retorno.");
+                if (value.length != self.dimension) {
+                    throw new Error("Es necesario un indice de " + self.dimension + " dimensiones");
+                }
+                for (var i = 0; i < self.dimension; i++) {
+                    self.data[index + i] = value[i];
                 }
             }
         });

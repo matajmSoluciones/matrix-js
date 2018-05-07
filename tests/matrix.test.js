@@ -252,6 +252,62 @@ describe("class Matrix", function() {
         assert.ok(matrix.isEqual(matrix), "No es el mismo objeto!");
         assert.ok(!matrix.isNotEqual(matrix), "Dicese que es igual!");
     });
+    it("test Constructor 2D: Replace value", function () {
+        var expect = [1, 2, 3, 4, 5, 6];
+        var matrix = new Matrix(
+            {
+                type: "float64",
+                width: 3,
+                height: 2,
+                data: expect
+            }
+        );
+        matrix.map(function (row, x, y) {
+            return row * 2;
+        });
+        var index = 0, _x = 0, _y = 0;
+        matrix.forEach(function (row, x, y) {
+            assert.equal(expect[index] * 2, row, "El valor de la matriz no coindice.");
+            assert.equal(x, _x, "Fallo coordenada X");
+            assert.equal(y, _y, "Fallo coordenada Y");
+            index++;
+            _x++;
+            if (_x >= matrix.width) {
+                _x = 0;
+                _y++;
+            }
+        });
+    });
+    it("test constructor 3D: recorrido agrupado", function () {
+        var expect = [
+            [1,2,3],[4,5,6],[7,8,9],
+            [10,11,12], [13,14,15], [16,17,18]
+        ], data = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18];
+        var matrix = new Matrix({
+            width: 3,
+            height: 2,
+            dimension: 3,
+            data: data
+        });
+        assert.equal(matrix.data.length, matrix.length);
+        assert.equal(matrix.width, 3);
+        assert.equal(matrix.height, 2);
+        assert.equal(matrix.dimension, 3);
+        var index = 0, _x = 0, _y = 0;
+        matrix.forEach(function (row, x, y) {
+            assert.ok(row.every(function(row, index2) {
+                return expect[index][index2] === row;
+            }), "El valor de la matriz no coindice.");
+            assert.equal(x, _x, "Fallo coordenada X");
+            assert.equal(y, _y, "Fallo coordenada Y");
+            index++;
+            _x++;
+            if (_x >= matrix.width) {
+                _x = 0;
+                _y++;
+            }
+        });
+    });
 });
 /**
  * assertForEach.
