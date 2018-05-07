@@ -257,10 +257,10 @@ function Matrix(data, width, height, dimension, options) {
     this.isNotEqual = function(vector) {
         return !self.isEqual(vector);
     };
-
     /**
      * sqrt.
      * Aplica raiz cuadrada de la matriz actual.
+     * @returns {Matrix}
      */
     this.sqrt = function() {
         var obj = self.clone();
@@ -270,6 +270,25 @@ function Matrix(data, width, height, dimension, options) {
             }
             return row.map(function(row2) {
                 return Math.sqrt(row2);
+            });
+        });
+        return obj;
+    };
+    /**
+     * pow.
+     * Aplica potencia enesima de la matriz actual.
+     * @param {Number} n Numero de veces que se eleva la potencia.
+     * @returns {Matrix}
+     */
+    this.pow = function(n) {
+        console.assert(typeof n == "number", "n debe ser un numero");
+        var obj = self.clone();
+        obj.map(function(row) {
+            if (obj.dimension == 1) {
+                return Math.pow(row, n);
+            }
+            return row.map(function(row2) {
+                return Math.pow(row2, n);
             });
         });
         return obj;
