@@ -339,6 +339,50 @@ describe("class Matrix", function() {
             }
         });
     });
+    it("test Constructor 2D: isNumber", function () {
+        var expect = [1, 2, 3, 4, 5, 6];
+        var matrix = new Matrix(
+            {
+                type: "float64",
+                width: 3,
+                height: 2,
+                data: expect
+            }
+        );
+        assert.ok(matrix.isNumber(), "No es numerico");
+    });
+    it("test Constructor 2D: isNumber not", function () {
+        var expect = ["hola", 2, 3, 4, 5, 6];
+        var matrix = new Matrix(
+            {
+                type: "float64",
+                width: 3,
+                height: 2,
+                data: expect
+            }
+        );
+        assert.ok(!matrix.isNumber(), "Es numerico");
+    });
+    it("test constructor 3D: isNumber", function () {
+        var data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+        var matrix = new Matrix({
+            width: 3,
+            height: 2,
+            dimension: 3,
+            data: data
+        });
+        assert.ok(matrix.isNumber(), "No es numerico");
+    });
+    it("test constructor 3D: isNumber not", function () {
+        var data = [1, 2, 3, 4, 5, 6, "hola", 8, 9, [10, 12], 11, 12, 13, 14, 15, 16, 17, 18];
+        var matrix = new Matrix({
+            width: 3,
+            height: 2,
+            dimension: 3,
+            data: data
+        });
+        assert.ok(!matrix.isNumber(), "Es numerico");
+    });
 });
 /**
  * assertForEach.
