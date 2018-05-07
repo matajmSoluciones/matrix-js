@@ -295,23 +295,6 @@ function Matrix(data, width, height, dimension, options) {
     };
     /**
      * clone.
-     * Privado metodo para clonar objetos.
-     */
-    function clone(obj) {
-        if (obj === null || typeof obj !== 'object') {
-            return obj;
-        }
-
-        var temp = null;
-        Object.assign(temp, obj);
-        for (var key in obj) {
-            temp[key] = clone(obj[key]);
-        }
-        console.log(temp);
-        return temp;
-    }
-    /**
-     * clone.
      */
     this.clone = function() {
         var obj = new Matrix(self.data.slice(), self.config);
