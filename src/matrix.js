@@ -18,7 +18,7 @@ function Matrix(data, width, height, dimension, options) {
     var self = this;
     self.typeInstance = Array;
     self.length = 0; // tamaño del arreglo.
-    self.dimension = 2;
+    self.dimension = 1;
     console.assert(arguments.length > 0, "Es requerido un argumento");
     if (arguments.length == 1) {
         console.assert(typeof data == "object", "config debe ser un objeto.");
@@ -44,7 +44,7 @@ function Matrix(data, width, height, dimension, options) {
         setOptions(options);
         loadData(data);
     }
-    self.length = self.width * self.height * (self.dimension - 1);
+    self.length = self.width * self.height * self.dimension;
     if (!self.data) {
         self.data = new self.typeInstance(self.length);
     }
@@ -124,11 +124,8 @@ function Matrix(data, width, height, dimension, options) {
      * @param {Array} arguments lista de argumentos del indice.
      * @return {Number}
      */
-    function getIndex(x, y, d) {
-        if (!d) {
-            d = (!isNaN(y)) ? 2 : 1;
-        }
-        if (isNaN(y)) {
+    function getIndex(x, y) {
+        if (y == undefined || y == null) {
             y = 0;
         }
         console.assert(
@@ -139,20 +136,21 @@ function Matrix(data, width, height, dimension, options) {
             typeof y == "number" && y >= 0 && y < self.height,
             "el par y no es numero valido..."
         );
-        console.assert(typeof d == "number" && d >= 0, "La dimension no es numero valido...");
-        console.assert(d <= self.dimension, "La dimensión excede el de la matriz...");
-        return Math.round(x + y * self.width) * (d - 1);
+        return Math.round(x + y * self.width);
     }    
     /**
-     * getElement.
-     * Obtiene el valor del elemento actual.
+     * getRow.
+     * Obtiene el valor del punto cardinal.
      * @param {Number} x Punto del plano cartesiano eje-x.
      * @param {Number} y Punto del plano cartesiano eje-y.
-     * @param {Number} d Punto de la dimensión.
+     * @returns {*}
      */
-    this.getElement = function(x, y, d) {
-        var index = getIndex(x, y, d);
-        return this.data[index];
+    this.getRow = function(x, y) {
+        var index = getIndex(x, y);
+        if (self.dimension == 1) {
+            return self.data[index];
+        }
+        return self.data.slice(index, index + self.dimension);
     };
     /**
      * forEach.
@@ -160,18 +158,19 @@ function Matrix(data, width, height, dimension, options) {
      */
     this.forEach = function(callback) {
         console.assert(callback instanceof Function, "callback debe ser una funcion.");
-        var width = self.width * (self.dimension - 1);
-        for(var index = 0, x = 0, y = 0, d = 0; index < this.length; index++) {
-            var element = this.data[index];
-            d++;
-            callback(element, x, y, d);
-            if (x >= width) {
+        //var width = self.width * (self.dimension - 1);
+        for (var index = 0, x = 0, y = 0; index < this.length; index += self.dimension) {
+            var element;
+            if (self.dimension == 1) {
+                element = this.data[index];
+            }else{
+                element = this.data.slice(index, index + self.dimension);                
+            }
+            if (x >= self.width) {
                 x = 0;
                 y++;
             }
-            if (d >= self.dimension) {
-                d = 0;
-            }
+            callback(element, x, y);
             x++;
         }
     };
