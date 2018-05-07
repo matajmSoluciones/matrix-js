@@ -48,6 +48,9 @@ function Matrix(data, width, height, dimension, options) {
     if (!self.data) {
         self.data = new self.typeInstance(self.length);
     }
+    console.assert(typeof self.width == "number", "El ancho no es un numero");
+    console.assert(typeof self.height == "number", "El alto no es un numero");
+    console.assert(typeof self.dimension == "number", "La dimension no es un numero");
     console.assert(
         self.data.length == self.length,
         "No coinciden el numero de elementos de la matriz..."
