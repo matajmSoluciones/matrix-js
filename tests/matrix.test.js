@@ -308,6 +308,37 @@ describe("class Matrix", function() {
             }
         });
     });
+    it("test Constructor 3D: Replace value", function () {
+        var expect = [
+            [1, 2, 3], [4, 5, 6], [7, 8, 9],
+            [10, 11, 12], [13, 14, 15], [16, 17, 18]
+        ], data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+        var matrix = new Matrix({
+            width: 3,
+            height: 2,
+            dimension: 3,
+            data: data
+        });
+        matrix.map(function (rows, x, y) {
+            return rows.map(function(row) {
+                return row * 2;
+            });
+        });
+        var index = 0, _x = 0, _y = 0;
+        matrix.forEach(function (row, x, y) {
+            assert.ok(row.every(function (row, index2) {
+                return expect[index][index2] * 2 === row;
+            }), "El valor de la matriz no coindice.");
+            assert.equal(x, _x, "Fallo coordenada X");
+            assert.equal(y, _y, "Fallo coordenada Y");
+            index++;
+            _x++;
+            if (_x >= matrix.width) {
+                _x = 0;
+                _y++;
+            }
+        });
+    });
 });
 /**
  * assertForEach.
