@@ -210,6 +210,22 @@ function Matrix(data, width, height, dimension, options) {
         });
     };
     /**
+     * isNumber.
+     * Valida que la matriz es numerica.
+     * 
+     * @returns {boolean}
+     */
+    this.isNumber = function() {
+        return self.data.every(function (row) {
+            if (self.dimension == 1) {
+                return !isNaN(row);
+            }
+            return row.every(function (row2) {
+                return !isNaN(row2);
+            });
+        });
+    };
+    /**
      * isEqual
      * Compara el nuevo objeto matriz con el actual.
      * 
