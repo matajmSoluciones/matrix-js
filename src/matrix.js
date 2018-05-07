@@ -19,6 +19,7 @@ function Matrix(data, width, height, dimension, options) {
     self.typeInstance = Array;
     self.length = 0; // tamaño del arreglo.
     self.dimension = 1;
+    self.config = {};
     console.assert(arguments.length > 0, "Es requerido un argumento");
     if (arguments.length == 1) {
         console.assert(typeof data == "object", "config debe ser un objeto.");
@@ -94,6 +95,7 @@ function Matrix(data, width, height, dimension, options) {
         if (config.type) {
             isTypeInstance(config.type);
         }
+        self.config = config;
     }
     /**
      * isTypeInstance.
@@ -145,7 +147,7 @@ function Matrix(data, width, height, dimension, options) {
             typeof y == "number" && y >= 0 && y < self.height,
             "el par y no es numero valido..."
         );
-        return Math.round(x + y * self.width);
+        return Math.round(x + y * self.width) * self.dimension;
     }    
     /**
      * getRow.
@@ -221,6 +223,15 @@ function Matrix(data, width, height, dimension, options) {
         });
     };
     /**
+     * isNotNumber.
+     * Valida que la matriz no es numerica.
+     * 
+     * @returns {boolean}
+     */
+    this.isNotNumber = function() {
+        return !self.isNumber();
+    };
+    /**
      * isEqual
      * Compara el nuevo objeto matriz con el actual.
      * 
@@ -245,6 +256,47 @@ function Matrix(data, width, height, dimension, options) {
      */
     this.isNotEqual = function(vector) {
         return !self.isEqual(vector);
+    };
+
+    /**
+     * sqrt.
+     * Aplica raiz cuadrada de la matriz actual.
+     */
+    this.sqrt = function() {
+        var obj = self.clone();
+        obj.map(function(row) {
+            if (obj.dimension == 1) {
+                return Math.sqrt(row);
+            }
+            return row.map(function(row2) {
+                return Math.sqrt(row2);
+            });
+        });
+        return obj;
+    };
+    /**
+     * clone.
+     * Privado metodo para clonar objetos.
+     */
+    function clone(obj) {
+        if (obj === null || typeof obj !== 'object') {
+            return obj;
+        }
+
+        var temp = null;
+        Object.assign(temp, obj);
+        for (var key in obj) {
+            temp[key] = clone(obj[key]);
+        }
+        console.log(temp);
+        return temp;
+    }
+    /**
+     * clone.
+     */
+    this.clone = function() {
+        var obj = new Matrix(self.data.slice(), self.config);
+        return obj;
     };
 }
 
