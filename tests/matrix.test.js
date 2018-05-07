@@ -383,6 +383,54 @@ describe("class Matrix", function() {
         });
         assert.ok(!matrix.isNumber(), "Es numerico");
     });
+    it("test Constructor 2D: sqrt", function () {
+        var expect = [1, 2, 3, 4, 5, 6];
+        var matrix = new Matrix(
+            {
+                type: "float64",
+                width: 3,
+                height: 2,
+                data: expect
+            }
+        );
+        matrix.sqrt().forEach(function (row, x, y, index) {
+            assert.equal(row, Math.sqrt(matrix.data[index]));
+        });
+    });
+    it("test constructor 3D: sqrt", function () {
+        var data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+        var matrix = new Matrix({
+            width: 3,
+            height: 2,
+            dimension: 3,
+            data: data
+        });
+        matrix.sqrt().forEach(function (row, x, y, index) {
+            var elements = matrix.getRow(x, y);
+            row.forEach(function(row2, index2) {
+                assert.equal(row2, Math.sqrt(elements[index2]));
+            });
+        });
+    });
+    it ("test constructor 3D: GetRow", function() {
+        var data = [1,2,3,4,5,6,7,8],
+            expect = [
+                [1,2], [3,4],
+                [5,6], [7,8]
+            ];
+        var matrix = new Matrix({
+            width: 2,
+            height: 2,
+            dimension: 2,
+            data: data
+        });
+        matrix.forEach(function(rows, x, y) {
+            var elements = matrix.getRow(x, y);
+            rows.forEach(function(row, index2){
+                assert.equal(row, elements[index2]);
+            });
+        });
+    });
 });
 /**
  * assertForEach.
