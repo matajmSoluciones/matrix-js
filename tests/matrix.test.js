@@ -90,13 +90,43 @@ describe("class Matrix", function() {
             console.log(matrix);
         }), assert.AssertionError, "Paso de largo");
     });
-    it("test Constructor 2D: options not found height", function() {
+    it("test Constructor 2D: options width type var invalid", function() {
+        var expect = [1, 2, 3, 4, 5, 6];
+        assert.throws((function () {
+            var matrix = new Matrix(
+                {
+                    type: "array",
+                    width: "3",
+                    height: 2,
+                    data: expect
+                }
+            );
+            console.log(matrix);
+        }), assert.AssertionError, "Paso de largo");
+    });
+    it("test Constructor 2D: options height type var invalid", function() {
         var expect = [1, 2, 3, 4, 5, 6];
         assert.throws((function () {
             var matrix = new Matrix(
                 {
                     type: "array",
                     width: 3,
+                    height: "2",
+                    data: expect
+                }
+            );
+            console.log(matrix);
+        }), assert.AssertionError, "Paso de largo");
+    });
+    it("test Constructor 2D: options dimension type var invalid", function() {
+        var expect = [1, 2, 3, 4, 5, 6];
+        assert.throws((function () {
+            var matrix = new Matrix(
+                {
+                    type: "array",
+                    width: 3,
+                    height: 2,
+                    dimension: "1",
                     data: expect
                 }
             );
