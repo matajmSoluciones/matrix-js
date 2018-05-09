@@ -4,7 +4,8 @@
   "description": "libreria para el procesamiento de matrices",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/mocha/bin/mocha tests/"
+    "test": "node_modules/mocha/bin/mocha tests/",
+    "coverage": "node_modules/nyc/bin/nyc.js --reporter=html node_modules/mocha/bin/mocha tests/"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,7 @@
   "license": "MIT",
   "devDependencies": {
     "chai": "^4.1.2",
-    "mocha": "^5.1.1"
+    "mocha": "^5.1.1",
+    "nyc": "^11.7.1"
   }
 }
