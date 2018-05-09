@@ -485,6 +485,11 @@ describe("class Matrix", function() {
         assert.equal(matrix.data.length, matrix.length);
         assert.equal(matrix.length, 4);
     });
+    it("test get eyes matrix 2D", function () {
+        var matrix = Matrix.eyes(2);
+        assert.equal(matrix.data.length, matrix.length);
+        assert.equal(matrix.length, 4);
+    });
 });
 /**
  * assertForEach.
