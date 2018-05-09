@@ -258,6 +258,26 @@ function Matrix(data, width, height, dimension, options) {
         return !self.isEqual(vector);
     };
     /**
+     * isNull
+     * Compara si la matriz es nula.
+     * 
+     * @returns {boolean}
+     */
+    this.isNull = function () {
+        return self.data.every(function (row, index) {
+            return !row;
+        });
+    };
+    /**
+     * isNotNull
+     * Compara si la matriz es no nula.
+     * 
+     * @returns {boolean}
+     */
+    this.isNotEqual = function() {
+        return !self.isNull();
+    };
+    /**
      * sqrt.
      * Aplica raiz cuadrada de la matriz actual.
      * @returns {Matrix}
@@ -270,6 +290,159 @@ function Matrix(data, width, height, dimension, options) {
             }
             return row.map(function(row2) {
                 return Math.sqrt(row2);
+            });
+        });
+        return obj;
+    };
+    /**
+     * log.
+     * Aplica Logaritmo natural de la matriz actual.
+     * @returns {Matrix}
+     */
+    this.sqrt = function() {
+        var obj = self.clone();
+        obj.map(function(row) {
+            if (obj.dimension == 1) {
+                return Math.log(row);
+            }
+            return row.map(function(row2) {
+                return Math.log(row2);
+            });
+        });
+        return obj;
+    };
+    /**
+     * exp.
+     * Aplica exponencial de la matriz actual.
+     * @returns {Matrix}
+     */
+    this.exp = function() {
+        var obj = self.clone();
+        obj.map(function(row) {
+            if (obj.dimension == 1) {
+                return Math.exp(row);
+            }
+            return row.map(function(row2) {
+                return Math.exp(row2);
+            });
+        });
+        return obj;
+    };
+    /**
+     * abs.
+     * Aplica valor absoluto de la matriz actual.
+     * @returns {Matrix}
+     */
+    this.abs = function() {
+        var obj = self.clone();
+        obj.map(function(row) {
+            if (obj.dimension == 1) {
+                return Math.abs(row);
+            }
+            return row.map(function(row2) {
+                return Math.abs(row2);
+            });
+        });
+        return obj;
+    };
+    /**
+     * atan.
+     * Aplica tangente de la matriz actual.
+     * @returns {Matrix}
+     */
+    this.atan = function() {
+        var obj = self.clone();
+        obj.map(function(row) {
+            if (obj.dimension == 1) {
+                return Math.atan(row);
+            }
+            return row.map(function(row2) {
+                return Math.atan(row2);
+            });
+        });
+        return obj;
+    };
+    /**
+     * cos.
+     * Aplica coseno de la matriz actual.
+     * @returns {Matrix}
+     */
+    this.cos = function() {
+        var obj = self.clone();
+        obj.map(function(row) {
+            if (obj.dimension == 1) {
+                return Math.cos(row);
+            }
+            return row.map(function(row2) {
+                return Math.cos(row2);
+            });
+        });
+        return obj;
+    };
+    /**
+     * sin.
+     * Aplica seno de la matriz actual.
+     * @returns {Matrix}
+     */
+    this.sin = function() {
+        var obj = self.clone();
+        obj.map(function(row) {
+            if (obj.dimension == 1) {
+                return Math.sin(row);
+            }
+            return row.map(function(row2) {
+                return Math.sin(row2);
+            });
+        });
+        return obj;
+    };
+    /**
+     * round.
+     * Aplica redondea la matriz actual.
+     * @returns {Matrix}
+     */
+    this.round = function() {
+        var obj = self.clone();
+        obj.map(function(row) {
+            if (obj.dimension == 1) {
+                return Math.round(row);
+            }
+            return row.map(function(row2) {
+                return Math.round(row2);
+            });
+        });
+        return obj;
+    };
+    /**
+     * cell.
+     * Aplica redondea al valor maximo despues del decimal la matriz actual.
+     * @returns {Matrix}
+     */
+    this.cell = function() {
+        var obj = self.clone();
+        obj.map(function(row) {
+            if (obj.dimension == 1) {
+                return Math.cell(row);
+            }
+            return row.map(function(row2) {
+                return Math.cell(row2);
+            });
+        });
+        return obj;
+    };
+    /**
+     * floor.
+     * Aplica redondea al valor minimo del decimal en la matriz actual.
+     * @returns {Matrix}
+     */
+    this.floor = function() {
+        var obj = self.clone();
+        obj.map(function(row) {
+            if (obj.dimension == 1) {
+                return Math.floor(row);
+            }
+            return row.map(function(row2) {
+                return Math.floor(row2);
             });
         });
         return obj;
@@ -330,6 +503,29 @@ function Matrix(data, width, height, dimension, options) {
     this.min = function () {
         return Math.max.apply(null, self.data);
     };
+    /**
+     * Transposed.
+     * Inversa de la matriz.
+     * 
+     * @returns {Matrix}
+     */
+    this.Transposed = function () {
+        var obj = Generate(self.height, self.width, self.dimension);
+        obj.map(function (row, x, y) {
+            return self.getRow(y, x);
+        });
+        return obj;
+    };
+    /**
+     * isSimetry.
+     * Valida si su inversa es identica.
+     * 
+     * @returns {boolean}
+     */
+    this.isSimetry = function() {
+        var obj = self.Transposed();
+        return self.isEqual(obj);
+    }
 }
 /**
  * random.
