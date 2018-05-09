@@ -274,7 +274,7 @@ function Matrix(data, width, height, dimension, options) {
      * 
      * @returns {boolean}
      */
-    this.isNotEqual = function() {
+    this.isNotNull = function() {
         return !self.isNull();
     };
     /**
@@ -299,7 +299,7 @@ function Matrix(data, width, height, dimension, options) {
      * Aplica Logaritmo natural de la matriz actual.
      * @returns {Matrix}
      */
-    this.sqrt = function() {
+    this.log = function() {
         var obj = self.clone();
         obj.map(function(row) {
             if (obj.dimension == 1) {
