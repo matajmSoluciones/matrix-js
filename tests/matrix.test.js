@@ -412,6 +412,35 @@ describe("class Matrix", function() {
             });
         });
     });
+    it("test Constructor 2D: pow", function () {
+        var expect = [1, 2, 3, 4, 5, 6];
+        var matrix = new Matrix(
+            {
+                type: "float64",
+                width: 3,
+                height: 2,
+                data: expect
+            }
+        );
+        matrix.pow(2).forEach(function (row, x, y, index) {
+            assert.equal(row, Math.pow(matrix.data[index], 2));
+        });
+    });
+    it("test constructor 3D: pow", function () {
+        var data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+        var matrix = new Matrix({
+            width: 3,
+            height: 2,
+            dimension: 3,
+            data: data
+        });
+        matrix.pow(2).forEach(function (row, x, y, index) {
+            var elements = matrix.getRow(x, y);
+            row.forEach(function(row2, index2) {
+                assert.equal(row2, Math.pow(elements[index2], 2));
+            });
+        });
+    });
     it ("test constructor 3D: GetRow", function() {
         var data = [1,2,3,4,5,6,7,8],
             expect = [
@@ -430,6 +459,31 @@ describe("class Matrix", function() {
                 assert.equal(row, elements[index2]);
             });
         });
+    });
+    it ("test get Random matrix 2D", function () {
+        var matrix = Matrix.random(2,2,1);
+        assert.equal(matrix.data.length, matrix.length);
+        assert.equal(matrix.length, 4);
+    });
+    it ("test get PI matrix 2D", function () {
+        var matrix = Matrix.PI(2,2,1);
+        assert.equal(matrix.data.length, matrix.length);
+        assert.equal(matrix.length, 4);
+    });
+    it ("test get Random matrix 2D 1 argument", function () {
+        var matrix = Matrix.random(2);
+        assert.equal(matrix.data.length, matrix.length);
+        assert.equal(matrix.length, 4);
+    });
+    it("test get PI matrix 2D 1 argument", function () {
+        var matrix = Matrix.PI(2);
+        assert.equal(matrix.data.length, matrix.length);
+        assert.equal(matrix.length, 4);
+    });
+    it("test get PI matrix 2D 2 argument", function () {
+        var matrix = Matrix.PI(2, 2);
+        assert.equal(matrix.data.length, matrix.length);
+        assert.equal(matrix.length, 4);
     });
 });
 /**
