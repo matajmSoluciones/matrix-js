@@ -303,6 +303,33 @@ function Matrix(data, width, height, dimension, options) {
         var obj = new Matrix(self.data.slice(), self.config);
         return obj;
     };
+    /**
+     * size.
+     * Tamaño matricial del objeto.
+     * 
+     * @returns {Array}
+     */
+    this.size = function () {
+        return [self.width, self.height, self.dimension];
+    };
+    /**
+     * max.
+     * Devuelve el valor máximo de la matriz.
+     * 
+     * @return {Number}
+     */
+    this.max = function () {
+        return Math.max.apply(null, self.data);
+    };
+    /**
+     * min.
+     * Devuelve el valor mínimo de la matriz.
+     * 
+     * @return {Number}
+     */
+    this.min = function () {
+        return Math.max.apply(null, self.data);
+    };
 }
 /**
  * random.
@@ -360,6 +387,62 @@ Matrix.zeros = function (width, height, dimension) {
     return obj;
 };
 
+/**
+ * ones.
+ * Genera una matriz rellena de unos.
+ * 
+ * @param {Number} width 
+ * @param {Number} height 
+ * @param {Number} dimension 
+ * @returns {Matrix}
+ */
+Matrix.ones = function (width, height, dimension) {
+    var obj = Generate(...arguments);
+    obj.map(function (row) {
+        if (obj.dimension == 1) {
+            return 1;
+        }
+        return row.map(function (row2) {
+            return 1;
+        });
+    });
+    return obj;
+};
+
+/**
+ * eyes.
+ * Genera una matriz identidad.
+ * 
+ * @param {Number} width 
+ * @param {Number} height 
+ * @param {Number} dimension 
+ * @returns {Matrix}
+ */
+Matrix.eyes = function (n, dimension) {
+    var options = {
+        type: "float32"
+    };
+    console.assert(arguments.length > 0 && arguments.length <= 2,
+        "El numero de argumentos es invalido...");
+    if (arguments.length == 1) {
+        options.width = options.height = n;
+        options.dimension = 1;
+    }
+    if (arguments.length == 2) {
+        options.width = options.height = n;
+        options.dimension = dimension;
+    }    
+    var obj = new Matrix(options);
+    obj.map(function (row, x, y) {
+        if (obj.dimension == 1) {
+            return (x == y) ? 1 : 0;
+        }
+        return row.map(function (row2) {
+            return (x == y) ? 1 : 0;
+        });
+    });
+    return obj;
+};
 
 /**
  * Generate.
