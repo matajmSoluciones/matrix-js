@@ -295,11 +295,98 @@ function Matrix(data, width, height, dimension, options) {
     };
     /**
      * clone.
+     * Genera una copia de la instancia actual.
+     * 
+     * @returns {Matrix}
      */
     this.clone = function() {
         var obj = new Matrix(self.data.slice(), self.config);
         return obj;
     };
+}
+/**
+ * random.
+ * Genera una matriz pseudo-aleatoria
+ * 
+ * @param {Number} width 
+ * @param {Number} height 
+ * @param {Number} dimension 
+ * @returns {Matrix}
+ */
+Matrix.random = function (width, height, dimension) {
+    var obj = Generate(...arguments);
+    obj.map(function (row) {
+        if (obj.dimension == 1) {
+            return Math.random();
+        }
+        return row.map(function (row2) {
+            return Math.random();
+        });
+    });
+    return obj;
+};
+/**
+ * PI.
+ * Genera una matriz rellena de constance PI
+ * 
+ * @param {Number} width 
+ * @param {Number} height 
+ * @param {Number} dimension 
+ * @returns {Matrix}
+ */
+Matrix.PI = function (width, height, dimension) {
+    var obj = Generate(...arguments);
+    obj.map(function (row) {
+        if (obj.dimension == 1) {
+            return Math.PI;
+        }
+        return row.map(function (row2) {
+            return Math.PI;
+        });
+    });
+    return obj;
+};
+/**
+ * zeros.
+ * Genera una matriz rellena de ceros.
+ * 
+ * @param {Number} width 
+ * @param {Number} height 
+ * @param {Number} dimension 
+ * @returns {Matrix}
+ */
+Matrix.zeros = function (width, height, dimension) {
+    var obj = Generate(...arguments);
+    return obj;
+};
+
+
+/**
+ * Generate.
+ * Generate Matrix Options.
+ */
+function Generate(width, height, dimension) {
+    var options = {
+        type: "float32"
+    };
+    console.assert(arguments.length > 0 && arguments.length <= 3,
+        "El numero de argumentos es invalido...");
+    if (arguments.length == 1) {
+        options.width = options.height = width;
+        options.dimension = 1;
+    }
+    if (arguments.length == 2) {
+        options.width = width;
+        options.height = height;
+        options.dimension = 1;
+    }
+    if (arguments.length == 3) {
+        options.width = width;
+        options.height = height;
+        options.dimension = dimension;
+    }
+    var obj = new Matrix(options);
+    return obj;
 }
 
 module.exports = Matrix;
