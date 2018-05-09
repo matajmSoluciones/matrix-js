@@ -405,10 +405,10 @@ describe("class Matrix", function() {
             dimension: 3,
             data: data
         });
-        matrix.sqrt().forEach(function (row, x, y, index) {
+        matrix.sqrt().forEach(function (rows, x, y, index) {
             var elements = matrix.getRow(x, y);
-            row.forEach(function(row2, index2) {
-                assert.equal(row2, Math.sqrt(elements[index2]));
+            rows.forEach(function(row, index2) {
+                assert.equal(row, Math.sqrt(elements[index2]));
             });
         });
     });
@@ -489,6 +489,18 @@ describe("class Matrix", function() {
         var matrix = Matrix.eyes(2);
         assert.equal(matrix.data.length, matrix.length);
         assert.equal(matrix.length, 4);
+    });
+    it("test get eyes Transposed matrix 2D", function () {
+        var matrix = new Matrix([1,2,3,4], {
+            width: 2,
+            height: 2,
+            dimension: 1
+        });
+        var obj = matrix.Transposed();
+        obj.forEach(function (row, x, y) {
+            var element = matrix.getRow(y, x);
+            assert.equal(element, row);
+        });
     });
 });
 /**
