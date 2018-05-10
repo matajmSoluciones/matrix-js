@@ -136,9 +136,6 @@ function Matrix(data, width, height, dimension, options) {
      * @return {Number}
      */
     function getIndex(x, y) {
-        if (y == undefined || y == null) {
-            y = 0;
-        }
         console.assert(
             typeof x == "number" && x >= 0 && x < self.width,
             "el par x no es numero valido..."
@@ -414,18 +411,18 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * cell.
+     * ceil.
      * Aplica redondea al valor maximo despues del decimal la matriz actual.
      * @returns {Matrix}
      */
-    this.cell = function() {
+    this.ceil = function() {
         var obj = self.clone();
         obj.map(function(row) {
             if (obj.dimension == 1) {
-                return Math.cell(row);
+                return Math.ceil(row);
             }
             return row.map(function(row2) {
-                return Math.cell(row2);
+                return Math.ceil(row2);
             });
         });
         return obj;
@@ -501,7 +498,7 @@ function Matrix(data, width, height, dimension, options) {
      * @return {Number}
      */
     this.min = function () {
-        return Math.max.apply(null, self.data);
+        return Math.min.apply(null, self.data);
     };
     /**
      * Transposed.
@@ -525,7 +522,16 @@ function Matrix(data, width, height, dimension, options) {
     this.isSimetry = function() {
         var obj = self.Transposed();
         return self.isEqual(obj);
-    }
+    };
+    /**
+     * isNotSimetry.
+     * Valida si su inversa no es identica.
+     * 
+     * @returns {boolean}
+     */
+    this.isNotSimetry = function() {
+        return !self.isSimetry();
+    };
 }
 /**
  * random.
@@ -537,7 +543,7 @@ function Matrix(data, width, height, dimension, options) {
  * @returns {Matrix}
  */
 Matrix.random = function (width, height, dimension) {
-    var obj = Generate(...arguments);
+    var obj = Generate.apply(this, arguments);
     obj.map(function (row) {
         if (obj.dimension == 1) {
             return Math.random();
@@ -558,7 +564,7 @@ Matrix.random = function (width, height, dimension) {
  * @returns {Matrix}
  */
 Matrix.PI = function (width, height, dimension) {
-    var obj = Generate(...arguments);
+    var obj = Generate.apply(this, arguments);
     obj.map(function (row) {
         if (obj.dimension == 1) {
             return Math.PI;
@@ -579,7 +585,7 @@ Matrix.PI = function (width, height, dimension) {
  * @returns {Matrix}
  */
 Matrix.zeros = function (width, height, dimension) {
-    var obj = Generate(...arguments);
+    var obj = Generate.apply(this, arguments);
     return obj;
 };
 
@@ -593,7 +599,7 @@ Matrix.zeros = function (width, height, dimension) {
  * @returns {Matrix}
  */
 Matrix.ones = function (width, height, dimension) {
-    var obj = Generate(...arguments);
+    var obj = Generate.apply(this, arguments);
     obj.map(function (row) {
         if (obj.dimension == 1) {
             return 1;
