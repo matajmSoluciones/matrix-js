@@ -898,6 +898,30 @@ describe("class Matrix", function() {
             assert.equal(row, expect[index]);            
         });
     });
+    it("test get sum matrix 2D", function () {
+        var expect = [2,0,0,2];
+        var matrix = Matrix.eyes(2);
+        var result = matrix.sum(matrix);
+        result.forEach(function (row, x, y, index) {
+            assert.equal(row, expect[index]);
+        });
+    });
+    it("test get sum matrix 3D", function () {
+        var expect = [2, 2, 2, 0,0,0,0,0,0,2,2,2];
+        var matrix = Matrix.eyes(2, 3);
+        var result = matrix.sum(matrix);
+        result.data.forEach(function (row, index) {
+            assert.equal(row, expect[index]);            
+        });
+    });
+    it("test get sum alpha matrix 3D", function () {
+        var expect = [3, 3, 3, 2,2,2,2,2,2,3,3,3];
+        var matrix = Matrix.eyes(2, 3);
+        var result = matrix.sum(2);
+        result.data.forEach(function (row, index) {
+            assert.equal(row, expect[index]);            
+        });
+    });
 });
 /**
  * assertForEach.
