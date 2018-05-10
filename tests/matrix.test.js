@@ -515,6 +515,11 @@ describe("class Matrix", function() {
         assert.equal(matrix.data.length, matrix.length);
         assert.equal(matrix.length, 4);
     });
+    it ("test get PI matrix 3D", function () {
+        var matrix = Matrix.PI(2,2,3);
+        assert.equal(matrix.data.length, matrix.length);
+        assert.equal(matrix.length, 12);
+    });
     it ("test get Random matrix 2D 1 argument", function () {
         var matrix = Matrix.random(2);
         assert.equal(matrix.data.length, matrix.length);
@@ -824,6 +829,74 @@ describe("class Matrix", function() {
         assert.equal(size[0], 2); // width
         assert.equal(size[1], 2); //height
         assert.equal(size[2], 3); //dimension
+    });
+    it("test Constructor 2D: isNotSimetry", function () {
+        var matrix = Matrix.random(2, 2);
+        assert.ok(!matrix.isSimetry(), "Dice que la matriz es asimetrica!");
+        assert.ok(matrix.isNotSimetry(), "Dice que la matriz es simetrica!");
+    });
+    it("test constructor 3D: min", function () {
+        var matrix = Matrix.random(2, 2, 3);
+        assert.ok(!matrix.isSimetry(), "Dice que la matriz es asimetrica!");
+        assert.ok(matrix.isNotSimetry(), "Dice que la matriz es simetrica!");
+    });
+    it("test get zeros matrix 2D 1 argument", function () {
+        var expect = [0,0,0,0];
+        var matrix = Matrix.zeros(2);
+        assert.equal(matrix.data.length, matrix.length);
+        assert.equal(matrix.length, 4);
+        matrix.forEach(function (row, x, y, index) {
+            assert.equal(row, expect[index]);
+        });
+    });
+    it("test get zeros matrix 3D", function () {
+        var expect = [0,0,0,0,0,0,0,0,0,0,0,0,0];
+        var matrix = Matrix.zeros(2, 2, 3);
+        assert.equal(matrix.data.length, matrix.length);
+        assert.equal(matrix.length, 12);
+        matrix.forEach(function (row, x, y, index) {
+            row.forEach(function (row2, index2) {
+                assert.equal(row2, expect[index2]);
+            });
+        });
+    });
+    it("test get ones matrix 2D 1 argument", function () {
+        var expect = [1,1,1,1];
+        var matrix = Matrix.ones(2);
+        assert.equal(matrix.data.length, matrix.length);
+        assert.equal(matrix.length, 4);
+        matrix.forEach(function (row, x, y, index) {
+            assert.equal(row, expect[index]);
+        });
+    });
+    it("test get ones matrix 3D", function () {
+        var expect = [1,1,1,1,1,1,1,1,1,1,1,1,1];
+        var matrix = Matrix.ones(2, 2, 3);
+        assert.equal(matrix.data.length, matrix.length);
+        assert.equal(matrix.length, 12);
+        matrix.forEach(function (row, x, y, index) {
+            row.forEach(function (row2, index2) {
+                assert.equal(row2, expect[index2]);
+            });
+        });
+    });
+    it("test get eyes matrix 2D 1 argument", function () {
+        var expect = [1,0,0,1];
+        var matrix = Matrix.eyes(2);
+        assert.equal(matrix.data.length, matrix.length);
+        assert.equal(matrix.length, 4);
+        matrix.forEach(function (row, x, y, index) {
+            assert.equal(row, expect[index]);
+        });
+    });
+    it("test get eyes matrix 3D", function () {
+        var expect = [1, 1, 1, 0,0,0,0,0,0,1,1,1];
+        var matrix = Matrix.eyes(2, 3);
+        assert.equal(matrix.data.length, matrix.length);
+        assert.equal(matrix.length, 12);
+        matrix.data.forEach(function (row, index) {
+            assert.equal(row, expect[index]);            
+        });
     });
 });
 /**
