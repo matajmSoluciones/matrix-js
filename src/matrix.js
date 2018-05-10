@@ -532,6 +532,60 @@ function Matrix(data, width, height, dimension, options) {
     this.isNotSimetry = function() {
         return !self.isSimetry();
     };
+    /**
+     * sum.
+     * Privada funcion de suma.
+     * 
+     * @param {Matrix} A objeto 1 de la matriz.
+     * @param {Matrix} B objeto 2 de la matriz.
+     * @returns {Matrix}
+     */
+    function sum(A, B) {
+        var obj = A.clone();
+        console.assert(
+            typeof B == "number" || (B.width == obj.width && B.height == obj.height && B.dimension == obj.dimension),
+            "Las matrices no son identicas en tamaño..."
+        );
+        var col2;
+        if (typeof B == "number") {
+            col2 = B;
+        }
+        obj.map(function (row, x, y) {
+            if (B instanceof Matrix) {
+                col2 = B.getRow(x, y);
+            }
+            if (obj.dimension == 1) {
+                return row + col2;
+            }
+            return row.map(function (row2, index) {
+                if (typeof col2 == "number") {
+                    return row2 + col2;
+                }
+                return row2 + col2[index];
+            });
+        });
+        return obj;
+    }
+    /**
+     * sum.
+     * Suma la matriz actual al conjunto de matrices.
+     *
+     * @returns {Matrix}
+     */
+    this.sum = function () {
+        var matrixs = arguments;
+        var obj = self;
+        console.assert(matrixs.length, "Es necesario un objeto");
+        for (var i = 0, n = matrixs.length; i < n; i++) {
+            var matrix = matrixs[i];
+            console.assert(
+                matrix instanceof Matrix || typeof matrix == "number" ,
+                "Debe pasar un objeto Matrix o un escalar"
+            );
+            obj = sum(obj, matrix);
+        }
+        return obj;
+    };
 }
 /**
  * random.
