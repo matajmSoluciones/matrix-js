@@ -61,6 +61,23 @@ describe("class Matrix", function() {
         assert.ok(matrix.data instanceof Array);
         assertForEach(matrix, expect);
     });
+    it("test Constructor 3D: map invalid row return", function() {
+        var expect = [1, 2, 3, 4, 5, 6];
+        var matrix = new Matrix(
+            {
+                type: "array",
+                width: 2,
+                height: 1,
+                dimension: 3,
+                data: expect
+            }
+        );
+        assert.throws((function () {
+            matrix.map(function (row) {
+                return [row[1]];
+            });
+        }), Error, "Reemplazo el valor de un vector 3D");
+    });
     it("test Constructor 2D: void data", function() {
         var expect = new Array(6);
         var matrix = new Matrix(
@@ -69,6 +86,20 @@ describe("class Matrix", function() {
                 width: 3,
                 height: 2,
             }
+        );
+        assert.equal(matrix.data.length, matrix.length);
+        assert.equal(matrix.width, 3);
+        assert.equal(matrix.height, 2);
+        assert.equal(matrix.dimension, 1);
+        assert.ok(matrix.data instanceof Array);
+        assertForEach(matrix, expect);
+    });
+    it("test Constructor 2D: void options", function() {
+        var expect = [1, 2, 3, 4, 5, 6];
+        var matrix = new Matrix(
+            expect,
+            3,
+            2
         );
         assert.equal(matrix.data.length, matrix.length);
         assert.equal(matrix.width, 3);
@@ -89,6 +120,20 @@ describe("class Matrix", function() {
             );
             console.log(matrix);
         }), assert.AssertionError, "Paso de largo");
+    });
+    it("test Constructor 2D: type Invalid", function() {
+        var expect = [1, 2, 3, 4, 5, 6];
+        assert.throws((function () {
+            var matrix = new Matrix(
+                {
+                    type: "object",
+                    width: 3,
+                    height: 2,
+                    data: expect
+                }
+            );
+            console.log(matrix);
+        }), Error, "Paso de largo");
     });
     it("test Constructor 2D: options width type var invalid", function() {
         var expect = [1, 2, 3, 4, 5, 6];
@@ -501,6 +546,42 @@ describe("class Matrix", function() {
             var element = matrix.getRow(y, x);
             assert.equal(element, row);
         });
+    });
+    it("test isNumber 2D", function () {
+        var matrix = new Matrix([1,2,3,4], {
+            width: 2,
+            height: 2,
+            dimension: 1
+        });
+        assert.ok(!matrix.isNotNumber(), "Es una matriz no numerico");
+        assert.ok(matrix.isNumber(), " No es una matriz numerica");
+    });
+    it("test isNotNumber 2D", function () {
+        var matrix = new Matrix([1,2,3,"hola"], {
+            width: 2,
+            height: 2,
+            dimension: 1
+        });
+        assert.ok(matrix.isNotNumber(), "No es una matriz no numerico");
+        assert.ok(!matrix.isNumber(), " Es una matriz numerica");
+    });
+    it("test isNull 2D", function () {
+        var matrix = new Matrix({
+            width: 2,
+            height: 2,
+            dimension: 1
+        });
+        assert.ok(!matrix.isNotNull(), "Es una matriz nula");
+        assert.ok(matrix.isNull(), " No es una matriz nula");
+    });
+    it("test isNull 2D", function () {
+        var matrix = new Matrix([1, 2, 3, 4], {
+            width: 2,
+            height: 2,
+            dimension: 1
+        });
+        assert.ok(matrix.isNotNull(), "No es una matriz no nula");
+        assert.ok(!matrix.isNull(), " Es una matriz nula");
     });
 });
 /**
