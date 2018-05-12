@@ -586,6 +586,63 @@ function Matrix(data, width, height, dimension, options) {
         }
         return obj;
     };
+    /**
+     * inmultiply.
+     * Privada función multiplicar.
+     * 
+     * @param {Matrix} A Objeto matriz 1.
+     * @param {Matrix} B Objeto matriz 2.
+     * @returns {Matrix}
+     */
+    function inmultiply (A, B) {
+        var obj = Generate(A.width, B.height, A.dimension);
+        console.assert(
+            typeof B == "number" || (A.width == B.height && B.dimension == obj.dimension),
+            "Las matrices no son multiplicables..."
+        );
+        var col2, index = 0;
+        if (typeof B == "number") {
+            col2 = B;
+        }
+        A.forEach(function (row, x, y) {
+            if (B instanceof Matrix) {
+                col2 = B.getRow(y, x);
+            }
+            if (obj.dimension == 1) {
+                obj.data[index] += row * col2;
+            } else {
+                for(var i = 0, n = row.length; i < n; i++) {
+                    if (typeof col2 == "number") {
+                        obj.data[index + i] += row[i] + col2;
+                    } else {
+                        obj.data[index + i] += row[i] + col2[i];
+                    }
+                }
+            }
+            index+= A.dimension;
+        });
+        return obj;
+    }
+    /**
+     * inmultiply.
+     * Publica funcion multiplicar.
+     * 
+     * @returns {Matrix}
+     */
+    this.inmultiply = function () {
+        var matrixs = arguments;
+        var obj = self;
+        console.assert(matrixs.length, "Es necesario un objeto");
+        for (var i = 0, n = matrixs.length; i < n; i++) {
+            var matrix = matrixs[i];
+            console.assert(
+                matrix instanceof Matrix || typeof matrix == "number",
+                "Debe pasar un objeto Matrix o un escalar"
+            );
+            obj = inmultiply(obj, matrix);
+        }
+        return obj;
+    };
 }
 /**
  * random.
