@@ -922,6 +922,22 @@ describe("class Matrix", function() {
             assert.equal(row, expect[index]);            
         });
     });
+    it("test get sum alpha vector", function () {
+        var expect = [3, 3, 3];
+        var matrix = Matrix.ones(3,1);
+        var result = matrix.sum(2);
+        result.data.forEach(function (row, index) {
+            assert.equal(row, expect[index]);            
+        });
+    });
+    it("test get sum vector", function () {
+        var expect = [2, 2, 2];
+        var matrix = Matrix.ones(3,1);
+        var result = matrix.sum(matrix);
+        result.data.forEach(function (row, index) {
+            assert.equal(row, expect[index]);            
+        });
+    });
 });
 /**
  * assertForEach.
