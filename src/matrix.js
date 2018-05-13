@@ -147,13 +147,13 @@ function Matrix(data, width, height, dimension, options) {
         return Math.round(x + y * self.width) * self.dimension;
     }    
     /**
-     * getRow.
+     * getField.
      * Obtiene el valor del punto cardinal.
      * @param {Number} x Punto del plano cartesiano eje-x.
      * @param {Number} y Punto del plano cartesiano eje-y.
      * @returns {*}
      */
-    this.getRow = function(x, y) {
+    this.getField = function(x, y) {
         var index = getIndex(x, y);
         if (self.dimension == 1) {
             return self.data[index];
@@ -509,7 +509,7 @@ function Matrix(data, width, height, dimension, options) {
     this.Transposed = function () {
         var obj = Generate(self.height, self.width, self.dimension);
         obj.map(function (row, x, y) {
-            return self.getRow(y, x);
+            return self.getField(y, x);
         });
         return obj;
     };
@@ -552,7 +552,7 @@ function Matrix(data, width, height, dimension, options) {
         }
         obj.map(function (row, x, y) {
             if (B instanceof Matrix) {
-                col2 = B.getRow(x, y);
+                col2 = B.getField(x, y);
             }
             if (obj.dimension == 1) {
                 return row + col2;
@@ -587,6 +587,59 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
+     * getRow.
+     * Obtiene la fila seleccionada.
+     * 
+     * @param {Number} y numero de fila.
+     * @return {Matrix}
+     */
+    this.getRow = function(y) {
+        console.assert(
+            typeof y == "number" && y >= 0 && y < self.height,
+            "No es valido el numero de fila"
+        );
+        var min = getIndex(0, y, self.dimension),
+            max = getIndex(self.width -1, y, self.dimension);
+        var data = self.data.slice(
+            min, min + (self.width * self.dimension));
+        return new Matrix({
+            width: self.width,
+            height: 1,
+            dimension: self.dimension,
+            data: data
+        });
+    };
+    /**
+     * getCol.
+     * Obtiene la columna seleccionada.
+     * 
+     * @param {Number} x numero de la columna.
+     * @returns {Matrix}
+     */
+    this.getCol = function (x) {
+        console.assert(
+            typeof x == "number" && x >= 0 && x < self.width,
+            "No es valido el numero de columna"
+        );
+        var data = new self.typeInstance(self.height * self.dimension);
+        for (var y = 0, i = 0; y < self.height; y++, i += self.dimension) {
+            var index = getIndex(x, y, self.dimension);
+            if (self.dimension == 1) {
+                data[i] = self.data[index];
+            } else {
+                for(var j = 0; j < self.dimension; j++) {
+                    data[i + j] = self.data[index + j];
+                }
+            }
+        }
+        return new Matrix({
+            width: 1,
+            height: self.height,
+            dimension: self.dimension,
+            data: data
+        });
+    };
+    /**
      * inmultiply.
      * Privada función multiplicar.
      * 
@@ -595,32 +648,40 @@ function Matrix(data, width, height, dimension, options) {
      * @returns {Matrix}
      */
     function inmultiply (A, B) {
-        var obj = Generate(A.width, B.height, A.dimension);
+        var obj = Generate(B.width, A.height, A.dimension);
         console.assert(
             typeof B == "number" || (A.width == B.height && B.dimension == obj.dimension),
             "Las matrices no son multiplicables..."
         );
-        var col2, index = 0;
+        var col2, index = 0, y2 = 0, rows;
         if (typeof B == "number") {
             col2 = B;
         }
-        A.forEach(function (row, x, y) {
-            if (B instanceof Matrix) {
-                col2 = B.getRow(y, x);
-            }
+        obj.map(function (row1, x1, y1) {
+            var val, col = B.getCol(x1);
             if (obj.dimension == 1) {
-                obj.data[index] += row * col2;
-            } else {
-                for(var i = 0, n = row.length; i < n; i++) {
-                    if (typeof col2 == "number") {
-                        obj.data[index + i] += row[i] + col2;
-                    } else {
-                        obj.data[index + i] += row[i] + col2[i];
+                val = 0;
+            }else {
+                val = new obj.typeInstance(obj.dimension);
+            }
+            if (y2 != y1 || !rows) {
+                rows = A.getRow(y1);
+            }
+            rows.forEach(function (row, x, y) {
+                var var2 = col.getField(0, x);
+                if (self.dimension == 1) {
+                    val += row * var2;
+                } else {
+                    for (var i = 0, n = var2.length; i < n; i++) {
+                        val[i] += row[i] * var2[i];
                     }
                 }
-            }
-            index+= A.dimension;
+            });
+            return val;
         });
+        if (obj.width == obj.height && obj.width == 1) {
+            return obj.data[0];
+        }
         return obj;
     }
     /**
@@ -642,6 +703,26 @@ function Matrix(data, width, height, dimension, options) {
             obj = inmultiply(obj, matrix);
         }
         return obj;
+    };
+    /**
+     * toString.
+     * Parsear objeto como String.
+     * 
+     * @returns {String}
+     */
+    this.toString = function() {
+        var str = "", length = 0;
+        self.forEach(function (row, x, y) {
+            if (self.dimension == 1) {
+                str += row + " ";
+            } else {
+                str += row.toString() + " ";
+            }
+            if (x == self.width - 1) {
+                str += "\n";
+            }
+        });
+        return str;
     };
 }
 /**
