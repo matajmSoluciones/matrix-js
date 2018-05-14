@@ -2,7 +2,8 @@
  * Pruebas unitarias Matrix.js
  */
 var Matrix = require("../src/matrix");
-var assert = require('assert');
+var assert = require('assert'),
+    expect = require("chai").expect;
 
 describe("class Matrix", function() {
     it("test Constructor 2D: Argumentos completos", function() {
@@ -1094,6 +1095,24 @@ describe("class Matrix", function() {
         assert.equal(size[1], 3);
         result.data.forEach(function (row, index) {
             assert.equal(row, expect[index], result.toString());            
+        });
+    });
+    it ("test Matrix inmultiply data random", function() {
+        var data = require("./examples.inmultiply.json");
+        var index = Math.round(Math.random() * (data.length - 1)),
+            matrix1 = new Matrix(data[index].src),
+            matrix2 = new Matrix(data[index].dest),
+            result = matrix1.inmultiply(matrix2);
+        assert.equal(result.width, data[index].result.width);
+        assert.equal(result.height, data[index].result.height);
+        assert.equal(result.dimension, data[index].result.dimension);
+        result.data.forEach(function (row, index2){
+            expect(row)
+            .to.be
+            .within(
+                data[index].result.data[index2] - 0.001,
+                data[index].result.data[index2] + 0.001
+            );
         });
     });
 });
