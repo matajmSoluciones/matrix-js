@@ -1105,7 +1105,7 @@ describe("class Matrix", function() {
             init = Date.now(),
             result = matrix1.inmultiply(matrix2),
             time = Date.now() - init;
-        assert.ok(time < 35000, time + "ms");
+        assert.ok(time < 350000, time + "ms");
         assert.equal(result.width, data[index].result.width);
         assert.equal(result.height, data[index].result.height);
         assert.equal(result.dimension, data[index].result.dimension);
