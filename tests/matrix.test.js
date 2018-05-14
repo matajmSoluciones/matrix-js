@@ -1036,6 +1036,20 @@ describe("class Matrix", function() {
             assert.equal(row, expect[index], result.toString());            
         });
     });
+    it("test get inmultiply matrix result 1x1", function () {
+        var expect = 14;
+        var matrix1 = new Matrix({
+            width: 3,
+            height: 1,
+            data: [1, 2, 3]
+        }), matrix2 = new Matrix({
+            width: 1,
+            height: 3,
+            data: [1, 2, 3]
+        });
+        var result = matrix1.inmultiply(matrix2);
+        assert.equal(result, expect);
+    });
     it("test get inmultiply 3D vector", function () {
         var expect = [174,
             219,
