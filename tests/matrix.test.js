@@ -1102,7 +1102,10 @@ describe("class Matrix", function() {
         var index = Math.round(Math.random() * (data.length - 1)),
             matrix1 = new Matrix(data[index].src),
             matrix2 = new Matrix(data[index].dest),
-            result = matrix1.inmultiply(matrix2);
+            init = Date.now(),
+            result = matrix1.inmultiply(matrix2),
+            time = Date.now() - init;
+        assert.ok(time < 35000, time + "ms");
         assert.equal(result.width, data[index].result.width);
         assert.equal(result.height, data[index].result.height);
         assert.equal(result.dimension, data[index].result.dimension);
