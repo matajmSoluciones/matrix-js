@@ -547,7 +547,7 @@ describe("class Matrix", function() {
             height: 2,
             dimension: 1
         });
-        var obj = matrix.Transposed();
+        var obj = matrix.transposed();
         obj.forEach(function (row, x, y) {
             var element = matrix.getField(y, x);
             assert.equal(element, row);
@@ -1037,6 +1037,134 @@ describe("class Matrix", function() {
             assert.equal(row, expect[index], result.toString());            
         });
     });
+    it("test get adj matrix 3 x 3", function () {
+        var matrix = new Matrix({
+            width: 3,
+            height: 3,
+            data: [3, 1, -1, 2, -2, 0, 1, 2, -1]
+        });
+        var expect = [
+            2, -1, -2,
+            2, -2, -2,
+            6, -5, -8
+        ];
+        var result = matrix.adj();
+        result.data.forEach(function (row, index) {
+            assert.equal(row, expect[index]);
+        });
+    });
+    it("test get determinant matrix 2 x 2", function () {
+        var matrix = new Matrix({
+            width: 2,
+            height: 2,
+            data: [7, 4, 2, 3]
+        });
+        var result = matrix.determinant();
+        assert.equal(result, 13);
+    });
+    it("test get determinant matrix 3 x 3", function () {
+        var matrix = new Matrix({
+            width: 3,
+            height: 3,
+            data: [
+                5, 3, -1,
+                1, 4, 2,
+                2, 0, -1
+            ]
+        });
+        result = matrix.determinant();
+        assert.equal(result, 3);
+    });
+    it("test get determinant matrix 3 x 3 cero", function () {
+        var matrix = new Matrix({
+            width: 3,
+            height: 3,
+            data: [1, 2, 3, 1, 2, 3, 1, 2, 3]
+        });
+        result = matrix.determinant();
+        assert.equal(result, 0);
+    });
+    it("test get determinant matrix 3 x 3 octave", function () {
+        var matrix = new Matrix({
+            width: 3,
+            height: 3,
+            data: [8, 1, 6, 3, 5, 7, 4, 9, 2]
+        });
+        var result = matrix.determinant();
+        assert.equal(result, -360);
+    });
+    it("test get inverse matrix 2 x 2", function () {
+        var matrix = new Matrix({
+            width: 2,
+            height: 2,
+            data: [3, -4, -2, 7]
+        });
+        var result = [
+            3/13,
+            -4/13,
+            -2/13,
+            7/13
+        ];
+        var matrix2 = matrix.inverse();
+        matrix2.data.forEach(function(row, index){
+            expect(row)
+            .to.be
+            .within(
+                result[index] - 0.001,
+                result[index] + 0.001
+            );
+        });
+    });
+    it("test get inverse matrix 3 x 3", function () {
+        var matrix = new Matrix({
+            width: 3,
+            height: 3,
+            data: [8, 1, 6, 3, 5, 7, 4, 9, 2]
+        });
+        var result = [
+            0.147222,
+            -0.144444,
+            0.063889,
+            -0.061111,
+            0.022222,
+            0.105556,
+            -0.019444,
+            0.188889,
+            -0.102778
+        ];
+        var matrix2 = matrix.inverse();
+        matrix2.data.forEach(function(row, index){
+            expect(row)
+            .to.be
+            .within(
+                result[index] - 0.001,
+                result[index] + 0.001
+            );
+        });
+    });
+    /*
+    it("test get divide matrix", function () {
+        var expect = [
+            0.33333,
+            0.33333,
+            0.33333,
+            0.33333,
+            0.33333,
+            0.33333
+        ];
+        var matrix = new Matrix({
+            width: 3,
+            height: 3,
+            data: [1,2,3,1,2,3,1,2,3]
+        });
+        var result = matrix.divide(matrix);
+        var size = result.size();
+        assert.equal(size[0], 3);
+        assert.equal(size[1], 3);
+        result.data.forEach(function (row, index) {
+            assert.equal(row, expect[index], result.toString());            
+        });
+    });*/
     it("test get inmultiply matrix result 1x1", function () {
         var expect = 14;
         var matrix1 = new Matrix({
