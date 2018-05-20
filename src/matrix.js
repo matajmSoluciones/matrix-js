@@ -15,7 +15,7 @@
  * @param {object} options Opciones de la matriz.
  */
 function Matrix(data, width, height, dimension, options) {
-    var self = this;
+    var self = this, determinant = null;
     self.typeInstance = Array;
     self.length = 0; // tamaño del arreglo.
     self.dimension = 1;
@@ -501,12 +501,12 @@ function Matrix(data, width, height, dimension, options) {
         return Math.min.apply(null, self.data);
     };
     /**
-     * Transposed.
+     * transposed.
      * Inversa de la matriz.
      * 
      * @returns {Matrix}
      */
-    this.Transposed = function () {
+    this.transposed = function () {
         var obj = Generate(self.height, self.width, self.dimension);
         obj.map(function (row, x, y) {
             return self.getField(y, x);
@@ -520,7 +520,7 @@ function Matrix(data, width, height, dimension, options) {
      * @returns {boolean}
      */
     this.isSimetry = function() {
-        var obj = self.Transposed();
+        var obj = self.transposed();
         return self.isEqual(obj);
     };
     /**
@@ -640,6 +640,68 @@ function Matrix(data, width, height, dimension, options) {
         });
     };
     /**
+     * slice.
+     * Retorna un nuevo objeto matrix
+     * con el tamaño seleccionado.
+     * 
+     * @param {Number} x coordenada de inicio.
+     * @param {Number} Y coordenada de inicio.
+     * @param {Number} width Ancho.
+     * @param {Number} height Alto.
+     * @returns {Matrix}
+     */
+    this.slice = function (x1, y1, width, height) {
+        console.assert(
+            typeof x1 == "number" && x1 >= 0 && x1 < self.width,
+            "No es valido el numero de columna"
+        );
+        console.assert(
+            typeof y1 == "number" && y1 >= 0 && y1 < self.height,
+            "No es valido el numero de filas"
+        );
+        var xend = x1 + (width - 1), yend = y1 + (height - 1);
+        console.assert(
+            typeof xend == "number" && xend >= 0 && xend < self.width,
+            "No es valido el ancho"
+        );
+        console.assert(
+            typeof yend == "number" && yend >= 0 && yend < self.height,
+            "No es valido el alto"
+        );
+        var data = new self.typeInstance(width * height * self.dimension);
+        var i = 0;
+        for (var y = y1; y <= yend; y++) {
+            for( var x = x1; x <= xend; x++) {
+                var index = getIndex(x, y, self.dimension);
+                if (self.dimension == 1) {
+                    data[i] = self.data[index];
+                } else {
+                    for (var j = 0; j < self.dimension; j++) {
+                        data[i + j] = self.data[index + j];
+                    }
+                }
+                i += self.dimension;
+            }
+        }
+        return new Matrix({
+            width: width,
+            height: height,
+            dimension: self.dimension,
+            data: data
+        });
+    };
+    /**
+     * isMultiply.
+     * Es multiplicable dos matrices.
+     * 
+     * @param {Matrix} A Objeto matriz 1.
+     * @param {Matrix} B Objeto matriz 2.
+     * @returns {Boolean}
+     */
+    function isMultiply(A, B) {
+        return typeof B == "number" || (A.width == B.height && B.dimension == A.dimension);
+    }
+    /**
      * inmultiply.
      * Privada función multiplicar.
      * 
@@ -648,16 +710,27 @@ function Matrix(data, width, height, dimension, options) {
      * @returns {Matrix}
      */
     function inmultiply (A, B) {
-        var obj = Generate(B.width, A.height, A.dimension);
+        var obj = Generate(
+            (typeof B == "number") ? A.width : B.width,
+            A.height,
+            A.dimension
+        );
         console.assert(
-            typeof B == "number" || (A.width == B.height && B.dimension == obj.dimension),
+            isMultiply(A, B),
             "Las matrices no son multiplicables..."
         );
         var col2, index = 0, y2 = 0, rows;
-        if (typeof B == "number") {
-            col2 = B;
-        }
         obj.map(function (row1, x1, y1) {
+            if (typeof B == "number") {
+                var element = A.getField(x1, y1);
+                if (obj.dimension == 1) {
+                    return element * B;
+                } else {
+                    return element.map(function (row) {
+                        return row * B;
+                    });
+                }
+            }
             var val, col = B.getCol(x1);
             if (obj.dimension == 1) {
                 val = 0;
@@ -703,6 +776,200 @@ function Matrix(data, width, height, dimension, options) {
             obj = inmultiply(obj, matrix);
         }
         return obj;
+    };
+    /**
+     * inverse.
+     * Genera la matriz inversa.
+     * 
+     * @returns {Matrix}
+     */
+    this.inverse = function() {
+        var D = self.determinant();
+        var obj = self.clone();
+        return obj.inmultiply(1 / D);
+    };
+    /**
+     * divide.
+     * Publica funcion dividir.
+     * 
+     * @returns {Matrix}
+     */
+    this.divide = function () {
+        var matrixs = arguments;
+        var obj = self;
+        console.assert(matrixs.length, "Es necesario un objeto");
+        for (var i = 0, n = matrixs.length; i < n; i++) {
+            var matrix = matrixs[i];
+            console.assert(
+                matrix instanceof Matrix || typeof matrix == "number",
+                "Debe pasar un objeto Matrix o un escalar"
+            );
+            if (typeof matrix == "number") {
+                obj = obj.clone();
+                obj.map(function (row) {
+                    return row / matrix;
+                });
+                continue;
+            }
+            var determ = 0, C = null;
+            if (matrix.isSingular()) {
+                determ = matrix.determinant();
+                C = matrix;
+            } else {
+                determ = obj.determinant();
+                C = obj;
+            }
+            console.assert(C.isSimetry() && determ != 0,
+                           "Las matrices no son divisibles");
+
+            if (isMultiply(obj, C)) {
+                obj = inmultiply(obj, C);
+            } else {
+                obj = inmultiply(matrix, obj.transposed());
+            }
+        }
+        return obj;
+    };
+    /**
+     * isSingular.
+     * 
+     * @returns {Boolean}
+     */
+    this.isSingular = function () {
+        return self.width == self.height;
+    };
+    /**
+     * sumRow.
+     * 
+     * @returns {Integer}
+     */
+    function sumRow(rows) {
+        var sum = 0;
+        for (var i = 0, n = rows.length; i < n; i++) {
+            sum += rows[i];
+        }
+        return sum;
+    }
+    /**
+     * determinant2.
+     */
+    function determinant2 (A) {
+        var row1 = 1, row2 = 1;
+        console.assert(A.isSingular(), "La matriz no es cuadrada");
+        if (determinant != null) {
+            return determinant;
+        }
+        A.forEach(function (row, x, y) {
+            if (x == y) {
+                if (A.dimension == 1) {
+                    row1 *= row;
+                } else {
+                    row1 *= sumRow(row);
+                }
+            }
+            if (x == A.width - 1 - y) {
+                if (A.dimension == 1) {
+                    row2 *= row;
+                } else {
+                    row2 *= sumRow(row);
+                }
+            }
+        });
+        determinant = row1 - row2;
+        return determinant;
+    }
+    /**
+     * removeRow.
+     * Elimina una fila del objeto.
+     * 
+     * @param {Number} y1 num. de fila
+     * @returns {Matrix}
+     */
+    this.removeRow = function (y1) {
+        var obj = Generate(self.width, self.height -1, self.dimension);
+        obj.map(function(row, x, y){
+            if (y >= y1) {
+                return self.getField(x, y + 1);
+            }
+            return self.getField(x, y);
+        });
+        return obj;
+    };
+    /**
+     * removeCol.
+     * Elimina una columna del objeto.
+     * 
+     * @param {Number} x1 num. de columna
+     * @returns {Matrix}
+     */
+    this.removeCol = function (x1) {
+        var obj = Generate(self.width - 1, self.height, self.dimension);
+        obj.map(function(row, x, y){
+            if (x >= x1) {
+                return self.getField(x + 1, y);
+            }
+            return self.getField(x, y);
+        });
+        return obj;
+    };
+    /**
+     * removeRow.
+     * Elimina la fila y columna
+     * que intersecta el par (x, y).
+     * 
+     * @param {Number} x1 num. de columna
+     * @param {Number} y1 num. de fila
+     * @returns {Matrix}
+     */
+    this.remove = function (x1, y1) {
+        var obj = Generate(
+            self.width - 1, self.height -1, self.dimension);
+        obj.map(function(row, x, y){
+            var inx = 0, iny = 0;
+            if (y >= y1) {
+                iny = 1;
+            }
+            if (x >= x1) {
+                inx = 1;
+            }
+            return self.getField(x + inx, y + iny);
+        });
+        return obj;
+    };
+    /**
+     * adj.
+     * Genera la matriz cofactor
+     * transpuesta.
+     * 
+     * @returns {Matrix}
+     */
+    this.adj = function (transposed) {
+        console.assert(self.isSingular(), "Debe ser una matriz cuadrada");
+        var matrix = Generate(self.width, self.height, 1);
+        var index = 0;
+        self.forEach(function (row, x, y) {
+            var obj = self.remove(x, y);
+            var cof = Math.pow(-1, x + y) * obj.determinant();
+            matrix.data[index++] = cof;
+        });
+        if (transposed != undefined && !transposed) {
+            return matrix;
+        }
+        return matrix.transposed();
+    };
+    /**
+     * determinant.
+     */
+    this.determinant = function() {
+        if (self.width == self.height && self.width == 2) {
+            return determinant2(self);
+        }
+        var det = 0;
+        var obj = self.adj(false);
+        for( var index = 0; index < self.width; index++) {
+            det += self.data[index] * obj.data[index];
+        }
+        return det;
     };
     /**
      * toString.
