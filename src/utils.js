@@ -50,15 +50,14 @@
             index = index | 0;
             var i = 0, n = B.length | 0,
                 end = (index + B) | 0,
-                n2 = A.length | 0,
-                C = type.from(A);
+                n2 = A.length | 0;
             if (n >= n2 ||  end >= n2) {
                 throw new Error("El reemplazo es incorrecto!. Repare los indices");
             }
             for (i = 0; (i | 0) < n; i = (i + 1) | 0) {
-                    C[index + i | 0] = B[i];
+                    A[index + i | 0] = B[i];
             }
-            return C;
+            return A;
         }
     
         return {
