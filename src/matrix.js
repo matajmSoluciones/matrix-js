@@ -808,27 +808,13 @@ function Matrix(data, width, height, dimension, options) {
                 "Debe pasar un objeto Matrix o un escalar"
             );
             if (typeof matrix == "number") {
-                obj = obj.clone();
-                obj.map(function (row) {
-                    return row / matrix;
-                });
+                obj = obj.inmultiply(1 / matrix);
                 continue;
             }
-            var determ = 0, C = null;
-            if (matrix.isSingular()) {
-                determ = matrix.det();
-                C = matrix;
-            } else {
-                determ = obj.det();
-                C = obj;
-            }
-            console.assert(C.isSimetry() && determ != 0,
-                           "Las matrices no son divisibles");
-
-            if (isMultiply(obj, C)) {
-                obj = inmultiply(obj, C);
-            } else {
-                obj = inmultiply(matrix, obj.transposed());
+            try {
+                obj = obj.inmultiply(matrix.inverse());
+            }catch(error) {
+                obj = matrix.inmultiply(obj.inverse());
             }
         }
         return obj;
