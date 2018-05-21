@@ -1041,28 +1041,50 @@ describe("class Matrix", function() {
         var matrix = new Matrix({
             width: 3,
             height: 3,
-            data: [3, 1, -1, 2, -2, 0, 1, 2, -1]
+            data: [
+                1, 2, 3,
+                3, 2, 1,
+                1, 0, 1
+            ]
         });
         var expect = [
-            2, -1, -2,
             2, -2, -2,
-            6, -5, -8
+            -2, -2, 2,
+            -4, 8, -4
         ];
         var result = matrix.adj();
         result.data.forEach(function (row, index) {
-            assert.equal(row, expect[index]);
+            assert.equal(row, expect[index], index);
         });
     });
-    it("test get determinant matrix 2 x 2", function () {
+    it("test get adj matrix 2 x 2", function () {
+        var matrix = new Matrix({
+            width: 2,
+            height: 2,
+            data: [
+                1, 2,
+                2, -1
+            ]
+        });
+        var expect = [
+            -1, -2,
+            -2, 1
+        ];
+        var result = matrix.adj();
+        result.data.forEach(function (row, index) {
+            assert.equal(row, expect[index], index);
+        });
+    });
+    it("test get det matrix 2 x 2", function () {
         var matrix = new Matrix({
             width: 2,
             height: 2,
             data: [7, 4, 2, 3]
         });
-        var result = matrix.determinant();
+        var result = matrix.det();
         assert.equal(result, 13);
     });
-    it("test get determinant matrix 3 x 3", function () {
+    it("test get det matrix 3 x 3", function () {
         var matrix = new Matrix({
             width: 3,
             height: 3,
@@ -1072,46 +1094,74 @@ describe("class Matrix", function() {
                 2, 0, -1
             ]
         });
-        result = matrix.determinant();
+        result = matrix.det();
         assert.equal(result, 3);
     });
-    it("test get determinant matrix 3 x 3 cero", function () {
+    it("test get det matrix 3 x 3 cero", function () {
         var matrix = new Matrix({
             width: 3,
             height: 3,
             data: [1, 2, 3, 1, 2, 3, 1, 2, 3]
         });
-        result = matrix.determinant();
+        result = matrix.det();
         assert.equal(result, 0);
     });
-    it("test get determinant matrix 3 x 3 octave", function () {
+    it("test get det matrix 3 x 3 octave", function () {
         var matrix = new Matrix({
             width: 3,
             height: 3,
             data: [8, 1, 6, 3, 5, 7, 4, 9, 2]
         });
-        var result = matrix.determinant();
+        var result = matrix.det();
         assert.equal(result, -360);
     });
     it("test get inverse matrix 2 x 2", function () {
         var matrix = new Matrix({
             width: 2,
             height: 2,
-            data: [3, -4, -2, 7]
+            data: [
+                1, 2,
+                2, -1
+            ]
         });
         var result = [
-            3/13,
-            -4/13,
-            -2/13,
-            7/13
+            0.20,
+            0.40,
+            0.40,
+            -0.20
         ];
         var matrix2 = matrix.inverse();
         matrix2.data.forEach(function(row, index){
             expect(row)
             .to.be
             .within(
-                result[index] - 0.001,
-                result[index] + 0.001
+                Math.min(result[index] - 0.001, result[index] + 0.001),
+                Math.max(result[index] - 0.001, result[index] + 0.001),
+                index
+            );
+        });
+    });
+    it("test get inverse matrix 2 x 2 example 2", function () {
+        var matrix = new Matrix({
+            width: 2,
+            height: 2,
+            data: [
+                4, 3,
+                1, 2
+            ]
+        });
+        var result = [
+            0.40, -0.60,
+            -0.20, 0.80
+        ];
+        var matrix2 = matrix.inverse();
+        matrix2.data.forEach(function(row, index){
+            expect(row)
+            .to.be
+            .within(
+                Math.min(result[index] - 0.001, result[index] + 0.001),
+                Math.max(result[index] - 0.001, result[index] + 0.001),
+                index
             );
         });
     });
@@ -1122,23 +1172,18 @@ describe("class Matrix", function() {
             data: [8, 1, 6, 3, 5, 7, 4, 9, 2]
         });
         var result = [
-            8/-360,
-            1/-360,
-            6/-360,
-            3/-360,
-            5/-360,
-            7/-360,
-            4/-360,
-            9/-360,
-            2/-360
+            0.147222, -0.144444, 0.063889,
+            -0.061111, 0.022222, 0.105556,
+            -0.019444, 0.188889, -0.102778
         ];
         var matrix2 = matrix.inverse();
         matrix2.data.forEach(function(row, index){
             expect(row)
             .to.be
             .within(
-                result[index] - 0.001,
-                result[index] + 0.001
+                Math.min(result[index] - 0.001, result[index] + 0.001),
+                Math.max(result[index] - 0.001, result[index] + 0.001),
+                index
             );
         });
     });

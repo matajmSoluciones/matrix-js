@@ -15,7 +15,9 @@
  * @param {object} options Opciones de la matriz.
  */
 function Matrix(data, width, height, dimension, options) {
-    var self = this, determinant = null;
+    var self = this,
+        determinant = null,
+        adj = null;
     self.typeInstance = Array;
     self.length = 0; // tamaño del arreglo.
     self.dimension = 1;
@@ -784,8 +786,9 @@ function Matrix(data, width, height, dimension, options) {
      * @returns {Matrix}
      */
     this.inverse = function() {
-        var D = self.determinant();
-        var obj = self.clone();
+        var D = self.det();
+        var obj = self.adj()
+                    .transposed();
         return obj.inmultiply(1 / D);
     };
     /**
@@ -813,10 +816,10 @@ function Matrix(data, width, height, dimension, options) {
             }
             var determ = 0, C = null;
             if (matrix.isSingular()) {
-                determ = matrix.determinant();
+                determ = matrix.det();
                 C = matrix;
             } else {
-                determ = obj.determinant();
+                determ = obj.det();
                 C = obj;
             }
             console.assert(C.isSimetry() && determ != 0,
@@ -854,11 +857,8 @@ function Matrix(data, width, height, dimension, options) {
      * determinant2.
      */
     function determinant2 (A) {
-        var row1 = 1, row2 = 1;
+        var row1 = 1, row2 = 1, determ = 0;
         console.assert(A.isSingular(), "La matriz no es cuadrada");
-        if (determinant != null) {
-            return determinant;
-        }
         A.forEach(function (row, x, y) {
             if (x == y) {
                 if (A.dimension == 1) {
@@ -875,8 +875,7 @@ function Matrix(data, width, height, dimension, options) {
                 }
             }
         });
-        determinant = row1 - row2;
-        return determinant;
+        return row1 - row2;
     }
     /**
      * removeRow.
@@ -943,32 +942,42 @@ function Matrix(data, width, height, dimension, options) {
      * 
      * @returns {Matrix}
      */
-    this.adj = function (transposed) {
+    this.adj = function () {
         console.assert(self.isSingular(), "Debe ser una matriz cuadrada");
         var matrix = Generate(self.width, self.height, 1);
         var index = 0;
+        if (adj) {
+            return adj;
+        }
         self.forEach(function (row, x, y) {
             var obj = self.remove(x, y);
-            var cof = Math.pow(-1, x + y) * obj.determinant();
+            var cof = Math.pow(-1, x + y + 2) * obj.det();
             matrix.data[index++] = cof;
         });
-        if (transposed != undefined && !transposed) {
-            return matrix;
-        }
-        return matrix.transposed();
+        adj = matrix;
+        return adj;
     };
     /**
-     * determinant.
+     * det.
      */
-    this.determinant = function() {
+    this.det = function() {
+        if (determinant) {
+            return determinant;
+        }
+        if (self.width == 1) {
+            determinant = self.data[0];
+            return determinant;
+        }
         if (self.width == self.height && self.width == 2) {
-            return determinant2(self);
+            determinant = determinant2(self);
+            return determinant;
         }
         var det = 0;
-        var obj = self.adj(false);
+        var obj = self.adj();
         for( var index = 0; index < self.width; index++) {
             det += self.data[index] * obj.data[index];
         }
+        determinant = det;
         return det;
     };
     /**
