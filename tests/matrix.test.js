@@ -14,7 +14,7 @@ describe("class Matrix", function() {
             2,
             1,
             {
-                type: "array"
+                type: "float32"
             }
         );
         assert.equal(matrix.data.length, matrix.length);
@@ -22,7 +22,7 @@ describe("class Matrix", function() {
         assert.equal(matrix.height, 2);
         assert.equal(matrix.dimension, 1);
         assert.equal(matrix.getField(1,1), 5);
-        assert.ok(matrix.data instanceof Array);
+        assert.ok(matrix.data instanceof Float32Array);
         assertForEach(matrix, expect);
     });
     it("test Constructor 2D: Argumentos data y options", function() {
@@ -30,7 +30,7 @@ describe("class Matrix", function() {
         var matrix = new Matrix(
             expect,
             {
-                type: "array",
+                type: "float32",
                 width: 3,
                 height: 2,
                 dimension: 1
@@ -41,14 +41,14 @@ describe("class Matrix", function() {
         assert.equal(matrix.height, 2);
         assert.equal(matrix.dimension, 1);
         assert.equal(matrix.getField(1,1), 5);
-        assert.ok(matrix.data instanceof Array);
+        assert.ok(matrix.data instanceof Float32Array);
         assertForEach(matrix, expect);
     });
     it("test Constructor 2D: Argumentos options", function() {
         var expect = [1, 2, 3, 4, 5, 6];
         var matrix = new Matrix(
             {
-                type: "array",
+                type: "float32",
                 width: 3,
                 height: 2,
                 data: expect
@@ -59,14 +59,14 @@ describe("class Matrix", function() {
         assert.equal(matrix.height, 2);
         assert.equal(matrix.dimension, 1);
         assert.equal(matrix.getField(1,1), 5);
-        assert.ok(matrix.data instanceof Array);
+        assert.ok(matrix.data instanceof Float32Array);
         assertForEach(matrix, expect);
     });
     it("test Constructor 3D: map invalid row return", function() {
         var expect = [1, 2, 3, 4, 5, 6];
         var matrix = new Matrix(
             {
-                type: "array",
+                type: "float32",
                 width: 2,
                 height: 1,
                 dimension: 3,
@@ -80,10 +80,10 @@ describe("class Matrix", function() {
         }), Error, "Reemplazo el valor de un vector 3D");
     });
     it("test Constructor 2D: void data", function() {
-        var expect = new Array(6);
+        var expect = new Float32Array(6);
         var matrix = new Matrix(
             {
-                type: "array",
+                type: "float32",
                 width: 3,
                 height: 2,
             }
@@ -92,7 +92,7 @@ describe("class Matrix", function() {
         assert.equal(matrix.width, 3);
         assert.equal(matrix.height, 2);
         assert.equal(matrix.dimension, 1);
-        assert.ok(matrix.data instanceof Array);
+        assert.ok(matrix.data instanceof Float32Array);
         assertForEach(matrix, expect);
     });
     it("test Constructor 2D: void options", function() {
@@ -106,7 +106,7 @@ describe("class Matrix", function() {
         assert.equal(matrix.width, 3);
         assert.equal(matrix.height, 2);
         assert.equal(matrix.dimension, 1);
-        assert.ok(matrix.data instanceof Array);
+        assert.ok(matrix.data instanceof Float32Array);
         assertForEach(matrix, expect);
     });
     it("test Constructor 2D: options not found width", function() {
@@ -114,7 +114,7 @@ describe("class Matrix", function() {
         assert.throws((function () {
             var matrix = new Matrix(
                 {
-                    type: "array",
+                    type: "float32",
                     height: 2,
                     data: expect
                 }
@@ -141,7 +141,7 @@ describe("class Matrix", function() {
         assert.throws((function () {
             var matrix = new Matrix(
                 {
-                    type: "array",
+                    type: "float32",
                     width: "3",
                     height: 2,
                     data: expect
@@ -155,7 +155,7 @@ describe("class Matrix", function() {
         assert.throws((function () {
             var matrix = new Matrix(
                 {
-                    type: "array",
+                    type: "float32",
                     width: 3,
                     height: "2",
                     data: expect
@@ -169,7 +169,7 @@ describe("class Matrix", function() {
         assert.throws((function () {
             var matrix = new Matrix(
                 {
-                    type: "array",
+                    type: "float32",
                     width: 3,
                     height: 2,
                     dimension: "1",
@@ -430,17 +430,20 @@ describe("class Matrix", function() {
         assert.ok(!matrix.isNumber(), "Es numerico");
     });
     it("test Constructor 2D: sqrt", function () {
-        var expect = [1, 2, 3, 4, 5, 6];
+        var data = [1, 2, 3, 4, 5, 6];
         var matrix = new Matrix(
             {
                 type: "float64",
                 width: 3,
                 height: 2,
-                data: expect
+                data: data
             }
         );
-        matrix.sqrt().forEach(function (row, x, y, index) {
-            assert.equal(row, Math.sqrt(matrix.data[index]));
+        var expect = Float32Array.from(data).map(function (row, index) {
+            return Math.sqrt(row);
+        });
+        matrix.sqrt().data.forEach(function (row, index) {
+            sameEqual(row, expect[index], index, 0.1);
         });
     });
     it("test constructor 3D: sqrt", function () {
@@ -451,11 +454,11 @@ describe("class Matrix", function() {
             dimension: 3,
             data: data
         });
-        matrix.sqrt().forEach(function (rows, x, y, index) {
-            var elements = matrix.getField(x, y);
-            rows.forEach(function(row, index2) {
-                assert.equal(row, Math.sqrt(elements[index2]));
-            });
+        var expect = Float32Array.from(data).map(function (row, index) {
+            return Math.sqrt(row);
+        });
+        matrix.sqrt().data.forEach(function (row, index) {
+            sameEqual(row, expect[index], index, 0.1);
         });
     });
     it("test Constructor 2D: pow", function () {
@@ -599,37 +602,37 @@ describe("class Matrix", function() {
                 data: expect
             }
         );
-        matrix.log().forEach(function (row, x, y, index) {
-            assert.equal(row, Math.log(matrix.data[index]));
+        matrix.log().data.forEach(function (row, index) {
+            sameEqual(row, Math.log(expect[index]), index);
         });
     });
     it("test constructor 3D: log", function () {
-        var data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+        var expect = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
         var matrix = new Matrix({
             width: 3,
             height: 2,
             dimension: 3,
-            data: data
+            data: expect
         });
-        matrix.log().forEach(function (row, x, y, index) {
-            var elements = matrix.getField(x, y);
-            row.forEach(function(row2, index2) {
-                assert.equal(row2, Math.log(elements[index2]));
-            });
+        matrix.log().data.forEach(function (row, index) {
+            sameEqual(row, Math.log(expect[index]), index);
         });
     });
     it("test Constructor 2D: exp", function () {
-        var expect = [1, 2, 3, 4, 5, 6];
+        var data = [1, 2, 3, 4, 5, 6];
         var matrix = new Matrix(
             {
                 type: "float64",
                 width: 3,
                 height: 2,
-                data: expect
+                data: data
             }
         );
-        matrix.exp().forEach(function (row, x, y, index) {
-            assert.equal(row, Math.exp(matrix.data[index]));
+        var expect = Float32Array.from(data).map(function (row, index) {
+            return Math.exp(row);
+        });
+        matrix.exp().data.forEach(function (row, index) {
+            sameEqual(row, expect[index], index, 0.1);
         });
     });
     it("test constructor 3D: exp", function () {
@@ -640,11 +643,11 @@ describe("class Matrix", function() {
             dimension: 3,
             data: data
         });
-        matrix.exp().forEach(function (row, x, y, index) {
-            var elements = matrix.getField(x, y);
-            row.forEach(function(row2, index2) {
-                assert.equal(row2, Math.exp(elements[index2]));
-            });
+        var expect = Float32Array.from(data).map(function (row, index) {
+            return Math.exp(row);
+        });
+        matrix.exp().data.forEach(function (row, index) {
+            sameEqual(row, expect[index], index, 0.1);
         });
     });
     it("test Constructor 2D: abs", function () {
@@ -657,23 +660,20 @@ describe("class Matrix", function() {
                 data: expect
             }
         );
-        matrix.abs().forEach(function (row, x, y, index) {
-            assert.equal(row, Math.abs(matrix.data[index]));
+        matrix.abs().data.forEach(function (row, index) {
+            sameEqual(row, Math.abs(expect[index]), index);
         });
     });
     it("test constructor 3D: abs", function () {
-        var data = [-1, 2, 3, 4, 5, -6, 7, 8, 9, 10, -11, 12, 13, 14, -15, 16, 17, -18];
+        var expect = [-1, 2, 3, 4, 5, -6, 7, 8, 9, 10, -11, 12, 13, 14, -15, 16, 17, -18];
         var matrix = new Matrix({
             width: 3,
             height: 2,
             dimension: 3,
-            data: data
+            data: expect
         });
-        matrix.abs().forEach(function (row, x, y, index) {
-            var elements = matrix.getField(x, y);
-            row.forEach(function(row2, index2) {
-                assert.equal(row2, Math.abs(elements[index2]));
-            });
+        matrix.abs().data.forEach(function (row, index) {
+            sameEqual(row, Math.abs(expect[index]), index);
         });
     });
     it("test Constructor 2D: sin", function () {
@@ -686,23 +686,20 @@ describe("class Matrix", function() {
                 data: expect
             }
         );
-        matrix.sin().forEach(function (row, x, y, index) {
-            assert.equal(row, Math.sin(matrix.data[index]));
+        matrix.sin().data.forEach(function (row, index) {
+            sameEqual(row, Math.sin(expect[index]), index);
         });
     });
     it("test constructor 3D: sin", function () {
-        var data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+        var expect = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
         var matrix = new Matrix({
             width: 3,
             height: 2,
             dimension: 3,
-            data: data
+            data: expect
         });
-        matrix.sin().forEach(function (row, x, y, index) {
-            var elements = matrix.getField(x, y);
-            row.forEach(function (row2, index2) {
-                assert.equal(row2, Math.sin(elements[index2]));
-            });
+        matrix.sin().data.forEach(function (row, index) {
+            sameEqual(row, Math.sin(expect[index]), index);
         });
     });
     it("test Constructor 2D: cos", function () {
@@ -715,23 +712,20 @@ describe("class Matrix", function() {
                 data: expect
             }
         );
-        matrix.cos().forEach(function (row, x, y, index) {
-            assert.equal(row, Math.cos(matrix.data[index]));
+        matrix.cos().data.forEach(function (row, index) {
+            sameEqual(row, Math.cos(expect[index]), index);
         });
     });
     it("test constructor 3D: cos", function () {
-        var data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+        var expect = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
         var matrix = new Matrix({
             width: 3,
             height: 2,
             dimension: 3,
-            data: data
+            data: expect
         });
-        matrix.cos().forEach(function (row, x, y, index) {
-            var elements = matrix.getField(x, y);
-            row.forEach(function (row2, index2) {
-                assert.equal(row2, Math.cos(elements[index2]));
-            });
+        matrix.cos().data.forEach(function (row, index) {
+            sameEqual(row, Math.cos(expect[index]), index);
         });
     });
     it("test Constructor 2D: atan", function () {
@@ -744,23 +738,20 @@ describe("class Matrix", function() {
                 data: expect
             }
         );
-        matrix.atan().forEach(function (row, x, y, index) {
-            assert.equal(row, Math.atan(matrix.data[index]));
+        matrix.atan().data.forEach(function (row, index) {
+            sameEqual(row, Math.atan(expect[index]), index);
         });
     });
     it("test constructor 3D: atan", function () {
-        var data = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+        var expect = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
         var matrix = new Matrix({
             width: 3,
             height: 2,
             dimension: 3,
-            data: data
+            data: expect
         });
-        matrix.atan().forEach(function (row, x, y, index) {
-            var elements = matrix.getField(x, y);
-            row.forEach(function (row2, index2) {
-                assert.equal(row2, Math.atan(elements[index2]));
-            });
+        matrix.atan().data.forEach(function (row, index) {
+            sameEqual(row, Math.atan(expect[index]), index);
         });
     });
     it("test Constructor 2D: round", function () {
@@ -799,15 +790,6 @@ describe("class Matrix", function() {
             assert.equal(row, Math.floor(matrix.data[index]));
         });
     });
-    it("test constructor 3D: floor", function () {
-        var matrix = Matrix.random(2, 2, 3);
-        matrix.floor().forEach(function (row, x, y, index) {
-            var elements = matrix.getField(x, y);
-            row.forEach(function (row2, index2) {
-                assert.equal(row2, Math.floor(elements[index2]));
-            });
-        });
-    });
     it("test Constructor 2D: max", function () {
         var matrix = Matrix.random(2, 2);
         assert.equal(matrix.max(), Math.max.apply(null, matrix.data));
@@ -836,7 +818,7 @@ describe("class Matrix", function() {
         assert.ok(!matrix.isSimetry(), "Dice que la matriz es asimetrica!");
         assert.ok(matrix.isNotSimetry(), "Dice que la matriz es simetrica!");
     });
-    it("test constructor 3D: min", function () {
+    it("test constructor 3D: isSimetry", function () {
         var matrix = Matrix.random(2, 2, 3);
         assert.ok(!matrix.isSimetry(), "Dice que la matriz es asimetrica!");
         assert.ok(matrix.isNotSimetry(), "Dice que la matriz es simetrica!");
@@ -1132,13 +1114,7 @@ describe("class Matrix", function() {
         ];
         var matrix2 = matrix.inverse();
         matrix2.data.forEach(function(row, index){
-            expect(row)
-            .to.be
-            .within(
-                Math.min(result[index] - 0.001, result[index] + 0.001),
-                Math.max(result[index] - 0.001, result[index] + 0.001),
-                index
-            );
+            sameEqual(row, result[index], index);
         });
     });
     it("test get inverse matrix 2 x 2 example 2", function () {
@@ -1156,13 +1132,7 @@ describe("class Matrix", function() {
         ];
         var matrix2 = matrix.inverse();
         matrix2.data.forEach(function(row, index){
-            expect(row)
-            .to.be
-            .within(
-                Math.min(result[index] - 0.001, result[index] + 0.001),
-                Math.max(result[index] - 0.001, result[index] + 0.001),
-                index
-            );
+            sameEqual(row, result[index], index);
         });
     });
     it("test get inverse matrix 3 x 3", function () {
@@ -1178,13 +1148,7 @@ describe("class Matrix", function() {
         ];
         var matrix2 = matrix.inverse();
         matrix2.data.forEach(function(row, index){
-            expect(row)
-            .to.be
-            .within(
-                Math.min(result[index] - 0.001, result[index] + 0.001),
-                Math.max(result[index] - 0.001, result[index] + 0.001),
-                index
-            );
+            sameEqual(row, result[index], index);
         });
     });
     it("test get inmultiply matrix result 1x1", function () {
@@ -1199,7 +1163,7 @@ describe("class Matrix", function() {
             data: [1, 2, 3]
         });
         var result = matrix1.inmultiply(matrix2);
-        assert.equal(result, expect);
+        sameEqual(result, expect);
     });
     it("test get inmultiply 3D vector", function () {
         var expect = [174,
@@ -1244,7 +1208,7 @@ describe("class Matrix", function() {
         assert.equal(size[0], 3);
         assert.equal(size[1], 3);
         result.data.forEach(function (row, index) {
-            assert.equal(row, expect[index], result.toString());            
+            sameEqual(row, expect[index], result.toString());
         });
     });
     it ("test Matrix inmultiply data random", function() {
@@ -1259,19 +1223,8 @@ describe("class Matrix", function() {
         assert.equal(result.width, data[index].result.width);
         assert.equal(result.height, data[index].result.height);
         assert.equal(result.dimension, data[index].result.dimension);
-        result.data.forEach(function (row, index2) {expect(row)
-            .to.be
-            .within(
-                Math.min(
-                    data[index].result.data[index2] - 0.001,
-                    data[index].result.data[index2] + 0.001
-                ),
-                Math.max(
-                    data[index].result.data[index2] - 0.001,
-                    data[index].result.data[index2] + 0.001
-                ),
-                index
-            );
+        result.data.forEach(function (row, index2) {
+            sameEqual(row, data[index].result.data[index2], index2);
         });
     });
     it("test get divide matrix", function () {
@@ -1294,13 +1247,7 @@ describe("class Matrix", function() {
         assert.equal(size[0], 3);
         assert.equal(size[1], 3);
         result.data.forEach(function (row, index) {
-            expect(row)
-            .to.be
-            .within(
-                Math.min(expect1[index] - 0.001, expect1[index] + 0.001),
-                Math.max(expect1[index] - 0.001, expect1[index] + 0.001),
-                index
-            );
+            sameEqual(row, expect1[index], index);
         });
     });
 });
@@ -1326,4 +1273,17 @@ function assertForEach(matrix, expect) {
             _y++;
         }
     });
+}
+
+function sameEqual(value, expected, msg, alpha) {
+    if (!alpha) {
+        alpha = 0.001;
+    }
+    expect(value)
+        .to.be
+        .within(
+            Math.min(expected - alpha, expected + alpha),
+            Math.max(expected - alpha, expected + alpha),
+            msg
+        );
 }
