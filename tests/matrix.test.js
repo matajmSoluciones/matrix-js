@@ -1187,29 +1187,6 @@ describe("class Matrix", function() {
             );
         });
     });
-    /*
-    it("test get divide matrix", function () {
-        var expect = [
-            0.33333,
-            0.33333,
-            0.33333,
-            0.33333,
-            0.33333,
-            0.33333
-        ];
-        var matrix = new Matrix({
-            width: 3,
-            height: 3,
-            data: [1,2,3,1,2,3,1,2,3]
-        });
-        var result = matrix.divide(matrix);
-        var size = result.size();
-        assert.equal(size[0], 3);
-        assert.equal(size[1], 3);
-        result.data.forEach(function (row, index) {
-            assert.equal(row, expect[index], result.toString());            
-        });
-    });*/
     it("test get inmultiply matrix result 1x1", function () {
         var expect = 14;
         var matrix1 = new Matrix({
@@ -1288,6 +1265,35 @@ describe("class Matrix", function() {
             .within(
                 data[index].result.data[index2] - 0.001,
                 data[index].result.data[index2] + 0.001
+            );
+        });
+    });
+    it("test get divide matrix", function () {
+        var expect1 = [
+            1, 0, 0,
+            0, 1, 0,
+            0, 0, 1
+        ];
+        var matrix = new Matrix({
+            width: 3,
+            height: 3,
+            data: [
+                8, 1, 6,
+                3, 5, 7,
+                4, 9, 2
+            ]
+        });
+        var result = matrix.divide(matrix);
+        var size = result.size();
+        assert.equal(size[0], 3);
+        assert.equal(size[1], 3);
+        result.data.forEach(function (row, index) {
+            expect(row)
+            .to.be
+            .within(
+                Math.min(expect1[index] - 0.001, expect1[index] + 0.001),
+                Math.max(expect1[index] - 0.001, expect1[index] + 0.001),
+                index
             );
         });
     });
