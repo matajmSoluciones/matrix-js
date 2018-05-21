@@ -1,3 +1,4 @@
+"use stric";
 /**
  * Matrix
  * 
@@ -15,10 +16,11 @@
  * @param {object} options Opciones de la matriz.
  */
 function Matrix(data, width, height, dimension, options) {
+    "use asm";
     var self = this,
         determinant = null,
         adj = null;
-    self.typeInstance = Array;
+    self.typeInstance = Float32Array;
     self.length = 0; // tamaño del arreglo.
     self.dimension = 1;
     self.config = {};
@@ -122,9 +124,6 @@ function Matrix(data, width, height, dimension, options) {
                 break;
             case "float64":
                 self.typeInstance = Float64Array;
-                break;
-            case "array":
-                self.typeInstance = Array;
                 break;
             default:
                 throw new Error("El tipo de objeto no es valido...");
@@ -542,8 +541,11 @@ function Matrix(data, width, height, dimension, options) {
      * @param {Matrix} B objeto 2 de la matriz.
      * @returns {Matrix}
      */
-    function sum(A, B) {
+    function sum(A, B, sum) {
         var obj = A.clone();
+        if (sum == undefined || sum == null) {
+            sum = true;
+        }
         console.assert(
             typeof B == "number" || (B.width == obj.width && B.height == obj.height && B.dimension == obj.dimension),
             "Las matrices no son identicas en tamaño..."
@@ -557,11 +559,20 @@ function Matrix(data, width, height, dimension, options) {
                 col2 = B.getField(x, y);
             }
             if (obj.dimension == 1) {
+                if (!sum) {
+                    return row2 - col2;
+                }
                 return row + col2;
             }
             return row.map(function (row2, index) {
                 if (typeof col2 == "number") {
+                    if (!sum) {
+                        return row2 - col2;
+                    }
                     return row2 + col2;
+                }
+                if (!sum) {
+                    return row2 - col2[index];
                 }
                 return row2 + col2[index];
             });
@@ -584,7 +595,27 @@ function Matrix(data, width, height, dimension, options) {
                 matrix instanceof Matrix || typeof matrix == "number" ,
                 "Debe pasar un objeto Matrix o un escalar"
             );
-            obj = sum(obj, matrix);
+            obj = sum(obj, matrix, true);
+        }
+        return obj;
+    };
+    /**
+     * subtract.
+     * Suma la matriz actual al conjunto de matrices.
+     *
+     * @returns {Matrix}
+     */
+    this.subtract = function () {
+        var matrixs = arguments;
+        var obj = self;
+        console.assert(matrixs.length, "Es necesario un objeto");
+        for (var i = 0, n = matrixs.length; i < n; i++) {
+            var matrix = matrixs[i];
+            console.assert(
+                matrix instanceof Matrix || typeof matrix == "number" ,
+                "Debe pasar un objeto Matrix o un escalar"
+            );
+            obj = sum(obj, matrix, false);
         }
         return obj;
     };
@@ -965,6 +996,19 @@ function Matrix(data, width, height, dimension, options) {
         }
         determinant = det;
         return det;
+    };
+    /**
+     * promd.
+     * Calcula el promedio de la matriz.
+     * 
+     * @returns {Number}
+     */
+    this.promd = function () {
+        var promd = 0;
+        for(var i = 0, n = self.data.length; i < n; i++) {
+            promd += self.data[i];
+        }
+        return promd;
     };
     /**
      * toString.
