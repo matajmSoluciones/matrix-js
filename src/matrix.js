@@ -1,4 +1,5 @@
 "use stric";
+var Utils = require("./utils");
 /**
  * Matrix
  * 
@@ -155,7 +156,9 @@ function Matrix(data, width, height, dimension, options) {
      * @returns {*}
      */
     this.getField = function(x, y) {
-        var index = getIndex(x, y);
+        var index = Utils.getIndex(
+            x, y, self.width, self.height, self.dimension
+        );
         if (self.dimension == 1) {
             return self.data[index];
         }
@@ -170,8 +173,15 @@ function Matrix(data, width, height, dimension, options) {
      */
     this.forEach = function(callback) {
         console.assert(callback instanceof Function, "callback debe ser una funcion.");
-        //var width = self.width * (self.dimension - 1);
-        for (var index = 0, x = 0, y = 0; index < this.length; index += self.dimension) {
+        Utils.forEach(
+            self.data,
+            self.width,
+            self.height,
+            self.dimension,
+            callback,
+            self.typeInstance
+        );
+        /*for (var index = 0, x = 0, y = 0; index < this.length; index += self.dimension) {
             var element;
             if (self.dimension == 1) {
                 element = this.data[index];
@@ -184,7 +194,7 @@ function Matrix(data, width, height, dimension, options) {
             }
             callback(element, x, y, index);
             x++;
-        }
+        }*/
     };
     /**
      * map.
@@ -203,9 +213,9 @@ function Matrix(data, width, height, dimension, options) {
                 if (value.length != self.dimension) {
                     throw new Error("Es necesario un indice de " + self.dimension + " dimensiones");
                 }
-                for (var i = 0; i < self.dimension; i++) {
-                    self.data[index + i] = value[i];
-                }
+                self.data = Utils.replace(
+                    self.data, value, index, self.typeInstance
+                );
             }
         });
     };
@@ -631,8 +641,12 @@ function Matrix(data, width, height, dimension, options) {
             typeof y == "number" && y >= 0 && y < self.height,
             "No es valido el numero de fila"
         );
-        var min = getIndex(0, y, self.dimension),
-            max = getIndex(self.width -1, y, self.dimension);
+        var min = Utils.getIndex(
+                0, y, self.width, self.height, self.dimension
+            ),
+            max = Utils.getIndex(
+                self.width - 1, y, self.width, self.height, self.dimension
+            );
         var data = self.data.slice(
             min, min + (self.width * self.dimension));
         return new Matrix({
@@ -656,7 +670,9 @@ function Matrix(data, width, height, dimension, options) {
         );
         var data = new self.typeInstance(self.height * self.dimension);
         for (var y = 0, i = 0; y < self.height; y++, i += self.dimension) {
-            var index = getIndex(x, y, self.dimension);
+            var index = Utils.getIndex(
+                x, y, self.width, self.height, self.dimension
+            );
             if (self.dimension == 1) {
                 data[i] = self.data[index];
             } else {
@@ -705,7 +721,9 @@ function Matrix(data, width, height, dimension, options) {
         var i = 0;
         for (var y = y1; y <= yend; y++) {
             for( var x = x1; x <= xend; x++) {
-                var index = getIndex(x, y, self.dimension);
+                var index = Utils.getIndex(
+                    x, y, self.width, self.height, self.dimension
+                );
                 if (self.dimension == 1) {
                     data[i] = self.data[index];
                 } else {
