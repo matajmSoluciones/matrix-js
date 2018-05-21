@@ -1259,12 +1259,18 @@ describe("class Matrix", function() {
         assert.equal(result.width, data[index].result.width);
         assert.equal(result.height, data[index].result.height);
         assert.equal(result.dimension, data[index].result.dimension);
-        result.data.forEach(function (row, index2){
-            expect(row)
+        result.data.forEach(function (row, index2) {expect(row)
             .to.be
             .within(
-                data[index].result.data[index2] - 0.001,
-                data[index].result.data[index2] + 0.001
+                Math.min(
+                    data[index].result.data[index2] - 0.001,
+                    data[index].result.data[index2] + 0.001
+                ),
+                Math.max(
+                    data[index].result.data[index2] - 0.001,
+                    data[index].result.data[index2] + 0.001
+                ),
+                index
             );
         });
     });
