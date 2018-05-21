@@ -10,6 +10,11 @@
          * Obtiene el indice del un arreglo unidimencional de la matriz.
          * 
          * @param {Array} arguments lista de argumentos del indice.
+         * @param {Number} x primer elemento del par.
+         * @param {Number} y segundo elemento del par.
+         * @param {Number} width ancho.
+         * @param {Number} height alto.
+         * @param {Number} dimension dimension.
          * @return {Number}
          */
         function getIndex(x, y, width, height, dimension) {
@@ -20,6 +25,17 @@
             dimension = dimension | 0;
             return ~~stdlib.Math.round(Math.fround(x + y * width)) * dimension | 0;
         }
+        /**
+         * forEach.
+         * Recorre un vector como una matriz.
+         * @param {Array} data Arreglo.
+         * @param {Number} width ancho.
+         * @param {Number} height alto.
+         * @param {Number} dimension dimension.
+         * @param {Function} callback funcion de llamada.
+         * @param {Function} type Tipo de arreglo.
+         * @returns {Void}
+         */
         function forEach (data, width, height, dimension, callback, type) {
             var index = 0, x = 0, y = 0, n = data.length | 0;
             x = x | 0;
@@ -45,6 +61,10 @@
         /**
          * replace.
          * Reemplaza un fragmento de dos areglos.
+         * 
+         * @param {Array} A primer arreglo donde se reemplaza.
+         * @param {Array} B segundo arreglo que reemplaza.
+         * @returns {Array}
          */
         function replace(A, B, index, type) {
             index = index | 0;
@@ -59,11 +79,49 @@
             }
             return A;
         }
-    
+        /**
+         * map.
+         * Recorre un vector como una matriz.
+         * @param {Array} data Arreglo.
+         * @param {Number} width ancho.
+         * @param {Number} height alto.
+         * @param {Number} dimension dimension.
+         * @param {Function} callback funcion de llamada.
+         * @param {Function} type Tipo de arreglo.
+         * @returns {Void}
+         */
+        function map(data, width, height, dimension, callback, type) {
+            forEach(
+                data,
+                width,
+                height,
+                dimension,
+                function (row, x, y, index) {
+                    var value = callback(row, x | 0, y | 0, index | 0);
+                    if (dimension == 1) {
+                        data[index | 0] = value;
+                    } else {
+                        if (value == undefined || value == null || value.length == undefined) {
+                            throw new Error("Debe ser un array el retorno.");
+                        }
+                        if (value.length != dimension) {
+                            throw new Error("Es necesario un indice de " + dimension + " dimensiones");
+                        }
+                        data = replace(
+                            data, value, index, type
+                        );
+                    }
+                },
+                type
+            );
+            return data;
+        }
+
         return {
             getIndex: getIndex,
             forEach: forEach,
-            replace: replace
+            replace: replace,
+            map: map
         };
     }
     module.exports = Utils(global);
