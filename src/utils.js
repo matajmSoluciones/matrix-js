@@ -23,7 +23,7 @@
             width = width | 0;
             height = height | 0;
             dimension = dimension | 0;
-            return ~~stdlib.Math.round(Math.fround(x + y * width)) * dimension | 0;
+            return stdlib.Math.round(stdlib.Math.fround(x + y * width)) * dimension | 0;
         }
         /**
          * forEach.
@@ -116,12 +116,71 @@
             );
             return data;
         }
+        /**
+     * sum.
+     * funcion de suma de dos vectores.
+     * 
+     * @param {Matrix} A objeto 1 de la matriz.
+     * @param {Matrix} B objeto 2 de la matriz.
+     * @returns {Matrix}
+     */
+        function sum(A, B, sum) {
+            var obj = A.clone(), col2;
+            if (sum == undefined || sum == null) {
+                sum = true;
+            }
+            if (!(typeof B == "number" || (B.width == obj.width && B.height == obj.height && B.dimension == obj.dimension))) {
+                throw new Error("Las matrices no son identicas en tamaño...");
+            }
+            if (typeof B == "number") {
+                col2 = B;
+            }
+            obj.map(function (row, x, y) {
+                if (typeof B === "object") {
+                    col2 = B.getField(x, y);
+                }
+                if (obj.dimension == 1) {
+                    if (!sum) {
+                        return stdlib.Math.fround(row - col2);
+                    }
+                    return stdlib.Math.fround(row + col2);
+                }
+                return row.map(function (row2, index) {
+                    if (typeof col2 == "number") {
+                        if (!sum) {
+                            return stdlib.Math.fround(row2 - col2);
+                        }
+                        return stdlib.Math.fround(row2 + col2);
+                    }
+                    if (!sum) {
+                        return stdlib.Math.fround(row2 - col2[index]);
+                    }
+                    return stdlib.Math.fround(row2 + col2[index]);
+                });
+            });
+            return obj;
+        }
+        /**
+         * slice.
+         * Retorna un array de los elementos seleccionados
+         * 
+         * @param {Array} data Origen.
+         * @param {Number} index inicio de la seleccion
+         * @param {Number} length numero de elementos
+         * @returns {Array}
+         */
+        function slice(data, index, length) {
+            index = index | 0;
+            return data.slice(index, index + length);
+        }
 
         return {
             getIndex: getIndex,
             forEach: forEach,
             replace: replace,
-            map: map
+            map: map,
+            slice: slice,
+            sum: sum
         };
     }
     module.exports = Utils(global);
