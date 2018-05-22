@@ -17,7 +17,6 @@ var Utils = require("./utils");
  * @param {object} options Opciones de la matriz.
  */
 function Matrix(data, width, height, dimension, options) {
-    "use asm";
     var self = this,
         determinant = null,
         adj = null;
@@ -162,7 +161,7 @@ function Matrix(data, width, height, dimension, options) {
         if (self.dimension == 1) {
             return self.data[index];
         }
-        return self.data.slice(index, index + self.dimension);
+        return Utils.slice(self.data, index, self.dimension);
     };
     /**
      * forEach.
@@ -552,7 +551,7 @@ function Matrix(data, width, height, dimension, options) {
             }
             if (obj.dimension == 1) {
                 if (!sum) {
-                    return row2 - col2;
+                    return row - col2;
                 }
                 return row + col2;
             }
@@ -587,7 +586,7 @@ function Matrix(data, width, height, dimension, options) {
                 matrix instanceof Matrix || typeof matrix == "number" ,
                 "Debe pasar un objeto Matrix o un escalar"
             );
-            obj = sum(obj, matrix, true);
+            obj = Utils.sum(obj, matrix, true);
         }
         return obj;
     };
