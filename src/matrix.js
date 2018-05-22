@@ -181,20 +181,6 @@ function Matrix(data, width, height, dimension, options) {
             callback,
             self.typeInstance
         );
-        /*for (var index = 0, x = 0, y = 0; index < this.length; index += self.dimension) {
-            var element;
-            if (self.dimension == 1) {
-                element = this.data[index];
-            }else{
-                element = this.data.slice(index, index + self.dimension);                
-            }
-            if (x >= self.width) {
-                x = 0;
-                y++;
-            }
-            callback(element, x, y, index);
-            x++;
-        }*/
     };
     /**
      * map.
@@ -204,20 +190,16 @@ function Matrix(data, width, height, dimension, options) {
      * @returns {void}
      */
     this.map = function (callback) {
-        self.forEach(function (row, x, y, index) {
-            var value = callback(row, x, y, index);
-            if (self.dimension == 1) {
-                self.data[index] = value;
-            } else {
-                console.assert(value.length != undefined, "Debe ser un array el retorno.");
-                if (value.length != self.dimension) {
-                    throw new Error("Es necesario un indice de " + self.dimension + " dimensiones");
-                }
-                self.data = Utils.replace(
-                    self.data, value, index, self.typeInstance
-                );
-            }
-        });
+        console.assert(callback instanceof Function, "callback debe ser una funcion.");
+        var obj = Utils.map(
+            self.data,
+            self.width,
+            self.height,
+            self.dimension,
+            callback,
+            self.typeInstance
+        );
+        return obj;
     };
     /**
      * isNumber.
