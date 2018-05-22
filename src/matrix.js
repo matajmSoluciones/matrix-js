@@ -462,8 +462,7 @@ function Matrix(data, width, height, dimension, options) {
      * @returns {Matrix}
      */
     this.clone = function() {
-        var obj = new Matrix(self.data.slice(), self.config);
-        return obj;
+        return Utils.clone(self, Matrix);
     };
     /**
      * size.

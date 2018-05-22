@@ -173,6 +173,18 @@
             index = index | 0;
             return data.slice(index, index + length);
         }
+        /**
+         * clone.
+         * 
+         * @param {object} obj Objeto a clonar.
+         * @param {Function} instance Clase del objeto.
+         * @returns {Matrix}
+         */
+        function clone(obj, instance) {
+            obj.config.data = obj.data.slice();
+            var obj1 = new instance(obj.config);
+            return obj1;
+        }
 
         return {
             getIndex: getIndex,
@@ -180,7 +192,8 @@
             replace: replace,
             map: map,
             slice: slice,
-            sum: sum
+            sum: sum,
+            clone: clone
         };
     }
     module.exports = Utils(global);
