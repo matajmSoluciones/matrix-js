@@ -164,6 +164,31 @@ function Matrix(data, width, height, dimension, options) {
         return Utils.slice(self.data, index, self.dimension);
     };
     /**
+     * setField.
+     * Reemplaza el valor del punto cardinal.
+     * @param {Number} x Punto del plano cartesiano eje-x.
+     * @param {Number} y Punto del plano cartesiano eje-y.
+     * @param {Number} val Punto del plano cartesiano eje-y.
+     * @returns {*}
+     */
+    this.setField = function(x, y, val) {
+        var index = Utils.getIndex(
+            x, y, self.width, self.height, self.dimension
+        );
+        if (self.dimension == 1) {
+            self.data[index] = val;
+        }
+        if (val == undefined || val == null || val.length == undefined) {
+            throw new Error("Debe ser un array el retorno.");
+        }
+        if (val.length != self.dimension) {
+            throw new Error("Es necesario un indice de " + self.dimension + " dimensiones");
+        }
+        return Utils.replace(
+            self.data, val, index, self.typeInstance
+        );
+    };
+    /**
      * forEach.
      * Blucle para recorrer la matriz muldimensional.
      * 
