@@ -747,62 +747,6 @@ function Matrix(data, width, height, dimension, options) {
     }
     /**
      * inmultiply.
-     * Privada función multiplicar.
-     * 
-     * @param {Matrix} A Objeto matriz 1.
-     * @param {Matrix} B Objeto matriz 2.
-     * @returns {Matrix}
-     */
-    function inmultiply (A, B) {
-        var obj = Generate(
-            (typeof B == "number") ? A.width : B.width,
-            A.height,
-            A.dimension
-        );
-        console.assert(
-            isMultiply(A, B),
-            "Las matrices no son multiplicables..."
-        );
-        var col2, index = 0, y2 = 0, rows;
-        obj.map(function (row1, x1, y1) {
-            if (typeof B == "number") {
-                var element = A.getField(x1, y1);
-                if (obj.dimension == 1) {
-                    return element * B;
-                } else {
-                    return element.map(function (row) {
-                        return row * B;
-                    });
-                }
-            }
-            var val, col = B.getCol(x1);
-            if (obj.dimension == 1) {
-                val = 0;
-            }else {
-                val = new obj.typeInstance(obj.dimension);
-            }
-            if (y2 != y1 || !rows) {
-                rows = A.getRow(y1);
-            }
-            rows.forEach(function (row, x, y) {
-                var var2 = col.getField(0, x);
-                if (self.dimension == 1) {
-                    val += row * var2;
-                } else {
-                    for (var i = 0, n = var2.length; i < n; i++) {
-                        val[i] += row[i] * var2[i];
-                    }
-                }
-            });
-            return val;
-        });
-        if (obj.width == obj.height && obj.width == 1) {
-            return obj.data[0];
-        }
-        return obj;
-    }
-    /**
-     * inmultiply.
      * Publica funcion multiplicar.
      * 
      * @returns {Matrix}
@@ -817,7 +761,12 @@ function Matrix(data, width, height, dimension, options) {
                 matrix instanceof Matrix || typeof matrix == "number",
                 "Debe pasar un objeto Matrix o un escalar"
             );
-            obj = inmultiply(obj, matrix);
+            var temp = Generate(
+                (typeof matrix == "number") ? obj.width : matrix.width,
+                obj.height,
+                obj.dimension
+            );
+            obj = Utils.inmultiply(temp, obj, matrix);
         }
         return obj;
     };
@@ -1362,6 +1311,74 @@ module.exports = Matrix;
             return data.slice(index, index + length);
         }
         /**
+         * isMultiply.
+         * Es multiplicable dos matrices.
+         * 
+         * @param {Matrix} A Objeto matriz 1.
+         * @param {Matrix} B Objeto matriz 2.
+         * @returns {Boolean}
+         */
+        function isMultiply(A, B) {
+            return typeof B == "number" || (A.width == B.height && B.dimension == A.dimension);
+        }
+        /**
+         * inmultiply.
+         * 
+         * @param {Matrix} obj Matrix donde se almacena la operacion.
+         * @param {Matrix} A Matrix primera.
+         * @param {Matrix | Number} B Matrix o numero multiplo.
+         * @returns {Matrix}
+         */
+        function inmultiply(obj, A, B) {
+            var col2, y2 = 0 | 0, rows;
+            if (!isMultiply(A, B)) {
+                throw new Error("Las matrices no son multiplicables...");
+            }
+            //Multiplicacion de una matrix por un escalar.
+            if (typeof B === "number") {
+                obj.map(function (row, x1, y1) {
+                    x1 = x1 | 0;
+                    y1 = y1 | 0;
+                    var element = A.getField(x1, y1);
+                    if (obj.dimension == 1) {
+                        return stdlib.Math.fround(element * B);
+                    }
+                    var i = 0, n = element.length;
+                    for (i = 0; (i | 0) < n; i = (i + 1) | 0) {
+                        element[i] = stdlib.Math.fround(element[i] * B);
+                    }
+                    return element;
+                });
+                return obj;
+            }
+            //Multiplicacion de dos matrices MxN
+            obj.map(function (row1, x1, y1) {
+                var y = 0, z = 0, x = 0,
+                    val = (obj.dimension == 1) ? 0 : new obj.typeInstance(obj.dimension),
+                    min = getIndex(
+                        0, y1, B.width, B.height, B.dimension
+                    ) | 0,
+                    max = getIndex(
+                        B.width - 1, y1, B.width, B.height, B.dimension
+                    ) | 0;
+                for (x = 0; (x | 0) < A.width; x = (x + 1) | 0) {
+                    var row = A.getField(x, y1), col = B.getField(x1, x);
+                    if (obj.dimension == 1) {
+                        val += stdlib.Math.fround(col * row);
+                    } else {
+                        for (k = 0; (k | 0) < obj.dimension; k = (k + 1) | 0) {
+                            val[k] += stdlib.Math.fround(row[k] * col[k]);
+                        }
+                    }
+                }
+                return val;
+            });
+            if (obj.width == obj.height && obj.width == 1) {
+                return obj.data[0];
+            }
+            return obj;
+        }
+        /**
          * clone.
          * 
          * @param {object} obj Objeto a clonar.
@@ -1381,7 +1398,8 @@ module.exports = Matrix;
             map: map,
             slice: slice,
             sum: sum,
-            clone: clone
+            clone: clone,
+            inmultiply: inmultiply
         };
     }
     module.exports = Utils(global);
