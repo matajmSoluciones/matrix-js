@@ -1328,6 +1328,23 @@ describe("class Matrix", function() {
         });
         assert.ok(matrix.isAsimetry(), "No es una matriz antisimetrica");
     });
+    it("test not 2D", function () {
+        var matrix = new Matrix({
+            width: 3,
+            height: 3,
+            dimension: 1,
+            data: [
+                0, 12, 2,
+                -12, 0, -3,
+                -2, 3, 0
+            ]
+        });
+        var result = matrix.not();
+        var expect = [0, -12, -2, 12, 0, 3, 2, -3, 0];
+        result.data.forEach(function (row, index) {
+            assert.ok(row == expect[index], row + " != " + expect[index]);
+        });
+    });
 });
 /**
  * assertForEach.

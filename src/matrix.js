@@ -912,6 +912,15 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
+     * not.
+     * Genera una matriz negativa de la actual.
+     * 
+     * @return {Matrix}
+     */
+    this.not = function () {
+        return self.inmultiply(-1);
+    };
+    /**
      * isSingular.
      * 
      * @returns {Boolean}
