@@ -734,62 +734,6 @@ function Matrix(data, width, height, dimension, options) {
     }
     /**
      * inmultiply.
-     * Privada función multiplicar.
-     * 
-     * @param {Matrix} A Objeto matriz 1.
-     * @param {Matrix} B Objeto matriz 2.
-     * @returns {Matrix}
-     */
-    function inmultiply (A, B) {
-        var obj = Generate(
-            (typeof B == "number") ? A.width : B.width,
-            A.height,
-            A.dimension
-        );
-        console.assert(
-            isMultiply(A, B),
-            "Las matrices no son multiplicables..."
-        );
-        var col2, index = 0, y2 = 0, rows;
-        obj.map(function (row1, x1, y1) {
-            if (typeof B == "number") {
-                var element = A.getField(x1, y1);
-                if (obj.dimension == 1) {
-                    return element * B;
-                } else {
-                    return element.map(function (row) {
-                        return row * B;
-                    });
-                }
-            }
-            var val, col = B.getCol(x1);
-            if (obj.dimension == 1) {
-                val = 0;
-            }else {
-                val = new obj.typeInstance(obj.dimension);
-            }
-            if (y2 != y1 || !rows) {
-                rows = A.getRow(y1);
-            }
-            rows.forEach(function (row, x, y) {
-                var var2 = col.getField(0, x);
-                if (self.dimension == 1) {
-                    val += row * var2;
-                } else {
-                    for (var i = 0, n = var2.length; i < n; i++) {
-                        val[i] += row[i] * var2[i];
-                    }
-                }
-            });
-            return val;
-        });
-        if (obj.width == obj.height && obj.width == 1) {
-            return obj.data[0];
-        }
-        return obj;
-    }
-    /**
-     * inmultiply.
      * Publica funcion multiplicar.
      * 
      * @returns {Matrix}
@@ -804,7 +748,12 @@ function Matrix(data, width, height, dimension, options) {
                 matrix instanceof Matrix || typeof matrix == "number",
                 "Debe pasar un objeto Matrix o un escalar"
             );
-            obj = inmultiply(obj, matrix);
+            var temp = Generate(
+                (typeof matrix == "number") ? obj.width : matrix.width,
+                obj.height,
+                obj.dimension
+            );
+            obj = Utils.inmultiply(temp, obj, matrix);
         }
         return obj;
     };
