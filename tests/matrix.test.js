@@ -1302,6 +1302,32 @@ describe("class Matrix", function() {
         });
         assert.ok(!matrix.isUnderTriangle(), "Es una matriz triangular");
     });
+    it("test isSimetry 2D", function () {
+        var matrix = new Matrix({
+            width: 3,
+            height: 3,
+            dimension: 1,
+            data: [
+                2, 0, 1,
+                0, 3, 5,
+                1, 5, -1
+            ]
+        });
+        assert.ok(matrix.isSimetry(), "No es una matriz simetrica");
+    });
+    it("test isAsimetry 2D", function () {
+        var matrix = new Matrix({
+            width: 3,
+            height: 3,
+            dimension: 1,
+            data: [
+                0, 12, 2,
+                -12, 0, -3,
+                -2, 3, 0
+            ]
+        });
+        assert.ok(matrix.isAsimetry(), "No es una matriz antisimetrica");
+    });
 });
 /**
  * assertForEach.

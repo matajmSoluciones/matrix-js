@@ -330,6 +330,61 @@ function Matrix(data, width, height, dimension, options) {
         return isTriangle;
     };
     /**
+     * isSimetry.
+     * Es una matrix simetrica.
+     * 
+     * @returns {Boolean}
+     */
+    this.isSimetry = function() {
+        var isSimetry = true;
+        if (self.width != self.height) {
+            return false;
+        }
+        self.forEach(function (row, x, y) {
+            var row2 = self.getField(y, x);
+            if (self.dimension == 1) {
+                isSimetry = isSimetry && (row === row2);
+            } else {
+                for(var i = 0, n = row.length; i<n; i++) {
+                    isSimetry = isSimetry && (row[i] === row2[i]);
+                }
+            }
+        });
+        return isSimetry;
+    };
+    /**
+     * isAsimetry.
+     * Es una matrix asimetrica.
+     * 
+     * @returns {Boolean}
+     */
+    this.isAsimetry = function() {
+        var isSimetry = true;
+        if (self.width != self.height) {
+            return false;
+        }
+        self.forEach(function (row, x, y) {
+            var row2 = self.getField(y, x);
+            if (self.dimension == 1) {
+                isSimetry = isSimetry && (row === -row2);
+            } else {
+                for(var i = 0, n = row.length; i<n; i++) {
+                    isSimetry = isSimetry && (row[i] === -row2[i]);
+                }
+            }
+        });
+        return isSimetry;
+    };
+    /**
+     * isNotSimetry.
+     * Valida si su inversa no es identica.
+     * 
+     * @returns {boolean}
+     */
+    this.isNotSimetry = function() {
+        return !self.isSimetry();
+    };
+    /**
      * sqrt.
      * Aplica raiz cuadrada de la matriz actual.
      * @returns {Matrix}
@@ -566,25 +621,6 @@ function Matrix(data, width, height, dimension, options) {
             return self.getField(y, x);
         });
         return obj;
-    };
-    /**
-     * isSimetry.
-     * Valida si su inversa es identica.
-     * 
-     * @returns {boolean}
-     */
-    this.isSimetry = function() {
-        var obj = self.transposed();
-        return self.isEqual(obj);
-    };
-    /**
-     * isNotSimetry.
-     * Valida si su inversa no es identica.
-     * 
-     * @returns {boolean}
-     */
-    this.isNotSimetry = function() {
-        return !self.isSimetry();
     };
     /**
      * sum.
