@@ -67,12 +67,15 @@ function Matrix(data, width, height, dimension, options) {
      */
     function loadData(data) {
         console.assert(
-            (data instanceof Int8Array
-            || data instanceof Int16Array
-            || data instanceof Int32Array
-            || data instanceof Float32Array
-            || data instanceof Float64Array
-            || Array.isArray(data)),
+            (
+                data instanceof Int8Array
+                || data instanceof Int16Array
+                || data instanceof Int32Array
+                || data instanceof Float32Array
+                || data instanceof Float64Array
+                || data instanceof Uint8ClampedArray
+                || Array.isArray(data)
+            ),
             "El parametro data no es un objeto valido..."
         );
         if (data instanceof self.typeInstance) {
@@ -112,6 +115,18 @@ function Matrix(data, width, height, dimension, options) {
         switch (type.toLowerCase()) {
             case "int8":
                 self.typeInstance = Int8Array;
+                break;
+            case "uint8":
+                self.typeInstance = Uint8Array;
+                break;
+            case "uint16":
+                self.typeInstance = Uint16Array;
+                break;
+            case "uint32":
+                self.typeInstance = Uint32Array;
+                break;
+            case "uint8clamped":
+                self.typeInstance = Uint8ClampedArray;
                 break;
             case "int16":
                 self.typeInstance = Int16Array;
