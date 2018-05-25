@@ -80,12 +80,15 @@ function Matrix(data, width, height, dimension, options) {
      */
     function loadData(data) {
         console.assert(
-            (data instanceof Int8Array
-            || data instanceof Int16Array
-            || data instanceof Int32Array
-            || data instanceof Float32Array
-            || data instanceof Float64Array
-            || Array.isArray(data)),
+            (
+                data instanceof Int8Array
+                || data instanceof Int16Array
+                || data instanceof Int32Array
+                || data instanceof Float32Array
+                || data instanceof Float64Array
+                || data instanceof Uint8ClampedArray
+                || Array.isArray(data)
+            ),
             "El parametro data no es un objeto valido..."
         );
         if (data instanceof self.typeInstance) {
@@ -125,6 +128,18 @@ function Matrix(data, width, height, dimension, options) {
         switch (type.toLowerCase()) {
             case "int8":
                 self.typeInstance = Int8Array;
+                break;
+            case "uint8":
+                self.typeInstance = Uint8Array;
+                break;
+            case "uint16":
+                self.typeInstance = Uint16Array;
+                break;
+            case "uint32":
+                self.typeInstance = Uint32Array;
+                break;
+            case "uint8clamped":
+                self.typeInstance = Uint8ClampedArray;
                 break;
             case "int16":
                 self.typeInstance = Int16Array;
@@ -175,6 +190,31 @@ function Matrix(data, width, height, dimension, options) {
             return self.data[index];
         }
         return Utils.slice(self.data, index, self.dimension);
+    };
+    /**
+     * setField.
+     * Reemplaza el valor del punto cardinal.
+     * @param {Number} x Punto del plano cartesiano eje-x.
+     * @param {Number} y Punto del plano cartesiano eje-y.
+     * @param {Number} val Punto del plano cartesiano eje-y.
+     * @returns {*}
+     */
+    this.setField = function(x, y, val) {
+        var index = Utils.getIndex(
+            x, y, self.width, self.height, self.dimension
+        );
+        if (self.dimension == 1) {
+            self.data[index] = val;
+        }
+        if (val == undefined || val == null || val.length == undefined) {
+            throw new Error("Debe ser un array el retorno.");
+        }
+        if (val.length != self.dimension) {
+            throw new Error("Es necesario un indice de " + self.dimension + " dimensiones");
+        }
+        return Utils.replace(
+            self.data, val, index, self.typeInstance
+        );
     };
     /**
      * forEach.
@@ -278,6 +318,99 @@ function Matrix(data, width, height, dimension, options) {
      */
     this.isNotNull = function() {
         return !self.isNull();
+    };
+    /**
+     * isOverTriangle.
+     * Es una matrix triangular superior.
+     * 
+     * @returns {Boolean}
+     */
+    this.isOverTriangle = function() {
+        var isTriangle = true;
+        self.forEach(function (row, x, y) {
+            if (self.dimension == 1) {
+                isTriangle = isTriangle && ((x > y && row === 0) || (x <= y && row !== 0));
+            } else {
+                for(var i = 0, n = row.length; i<n; i++) {
+                    isTriangle = isTriangle && ((x > y && row[i] === 0 ) || (x <= y && row[i] !== 0));
+                }
+            }
+        });
+        return isTriangle;
+    };
+    /**
+     * isUnderTriangle.
+     * Es una matrix triangular inferior.
+     * 
+     * @returns {Boolean}
+     */
+    this.isUnderTriangle = function() {
+        var isTriangle = true;
+        self.forEach(function (row, x, y) {
+            if (self.dimension == 1) {
+                isTriangle = isTriangle && ((x < y && row === 0) || (x >= y && row !== 0));
+            } else {
+                for(var i = 0, n = row.length; i<n; i++) {
+                    isTriangle = isTriangle && ((x < y && row[i] === 0 ) || (x >= y && row[i] !== 0));
+                }
+            }
+        });
+        return isTriangle;
+    };
+    /**
+     * isSimetry.
+     * Es una matrix simetrica.
+     * 
+     * @returns {Boolean}
+     */
+    this.isSimetry = function() {
+        var isSimetry = true;
+        if (self.width != self.height) {
+            return false;
+        }
+        self.forEach(function (row, x, y) {
+            var row2 = self.getField(y, x);
+            if (self.dimension == 1) {
+                isSimetry = isSimetry && (row === row2);
+            } else {
+                for(var i = 0, n = row.length; i<n; i++) {
+                    isSimetry = isSimetry && (row[i] === row2[i]);
+                }
+            }
+        });
+        return isSimetry;
+    };
+    /**
+     * isAsimetry.
+     * Es una matrix asimetrica.
+     * 
+     * @returns {Boolean}
+     */
+    this.isAsimetry = function() {
+        var isSimetry = true;
+        if (self.width != self.height) {
+            return false;
+        }
+        self.forEach(function (row, x, y) {
+            var row2 = self.getField(y, x);
+            if (self.dimension == 1) {
+                isSimetry = isSimetry && (row === -row2);
+            } else {
+                for(var i = 0, n = row.length; i<n; i++) {
+                    isSimetry = isSimetry && (row[i] === -row2[i]);
+                }
+            }
+        });
+        return isSimetry;
+    };
+    /**
+     * isNotSimetry.
+     * Valida si su inversa no es identica.
+     * 
+     * @returns {boolean}
+     */
+    this.isNotSimetry = function() {
+        return !self.isSimetry();
     };
     /**
      * sqrt.
@@ -516,25 +649,6 @@ function Matrix(data, width, height, dimension, options) {
             return self.getField(y, x);
         });
         return obj;
-    };
-    /**
-     * isSimetry.
-     * Valida si su inversa es identica.
-     * 
-     * @returns {boolean}
-     */
-    this.isSimetry = function() {
-        var obj = self.transposed();
-        return self.isEqual(obj);
-    };
-    /**
-     * isNotSimetry.
-     * Valida si su inversa no es identica.
-     * 
-     * @returns {boolean}
-     */
-    this.isNotSimetry = function() {
-        return !self.isSimetry();
     };
     /**
      * sum.
