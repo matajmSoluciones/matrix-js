@@ -292,6 +292,44 @@ function Matrix(data, width, height, dimension, options) {
         return !self.isNull();
     };
     /**
+     * isOverTriangle.
+     * Es una matrix triangular superior.
+     * 
+     * @returns {Boolean}
+     */
+    this.isOverTriangle = function() {
+        var isTriangle = true;
+        self.forEach(function (row, x, y) {
+            if (self.dimension == 1) {
+                isTriangle = isTriangle && ((x > y && row === 0) || (x <= y && row !== 0));
+            } else {
+                for(var i = 0, n = row.length; i<n; i++) {
+                    isTriangle = isTriangle && ((x > y && row[i] === 0 ) || (x <= y && row[i] !== 0));
+                }
+            }
+        });
+        return isTriangle;
+    };
+    /**
+     * isUnderTriangle.
+     * Es una matrix triangular inferior.
+     * 
+     * @returns {Boolean}
+     */
+    this.isUnderTriangle = function() {
+        var isTriangle = true;
+        self.forEach(function (row, x, y) {
+            if (self.dimension == 1) {
+                isTriangle = isTriangle && ((x < y && row === 0) || (x >= y && row !== 0));
+            } else {
+                for(var i = 0, n = row.length; i<n; i++) {
+                    isTriangle = isTriangle && ((x < y && row[i] === 0 ) || (x >= y && row[i] !== 0));
+                }
+            }
+        });
+        return isTriangle;
+    };
+    /**
      * sqrt.
      * Aplica raiz cuadrada de la matriz actual.
      * @returns {Matrix}

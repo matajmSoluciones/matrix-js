@@ -1250,6 +1250,58 @@ describe("class Matrix", function() {
             sameEqual(row, expect1[index], index);
         });
     });
+    it("test isOverTriangle 2D", function () {
+        var matrix = new Matrix({
+            width: 3,
+            height: 3,
+            dimension: 1,
+            data: [
+                1, 0, 0,
+                1, 1, 0,
+                1, 1, 1
+            ]
+        });
+        assert.ok(matrix.isOverTriangle(), "No es una matriz triangular");
+    });
+    it("test isOverNotTriangle 2D", function () {
+        var matrix = new Matrix({
+            width: 3,
+            height: 3,
+            dimension: 1,
+            data: [
+                1, 1, 0,
+                0, 1, 1,
+                0, 0, 1
+            ]
+        });
+        assert.ok(!matrix.isOverTriangle(), "Es una matriz triangular");
+    });
+    it("test isUnderTriangle 2D", function () {
+        var matrix = new Matrix({
+            width: 3,
+            height: 3,
+            dimension: 1,
+            data: [
+                1, 1, 1,
+                0, 1, 1,
+                0, 0, 1
+            ]
+        });
+        assert.ok(matrix.isUnderTriangle(), "No es una matriz triangular");
+    });
+    it("test isUnderNotTriangle 2D", function () {
+        var matrix = new Matrix({
+            width: 3,
+            height: 3,
+            dimension: 1,
+            data: [
+                1, 1, 0,
+                0, 1, 1,
+                0, 0, 1
+            ]
+        });
+        assert.ok(!matrix.isUnderTriangle(), "Es una matriz triangular");
+    });
 });
 /**
  * assertForEach.
