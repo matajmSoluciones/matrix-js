@@ -897,6 +897,22 @@ describe("class Matrix", function() {
             assert.equal(row, expect[index]);            
         });
     });
+    it("test get subtract matrix 2D", function () {
+        var expect = [0,0,0,0];
+        var matrix = Matrix.eyes(2);
+        var result = matrix.subtract(matrix);
+        result.forEach(function (row, x, y, index) {
+            assert.equal(row, expect[index]);
+        });
+    });
+    it("test get subtract matrix 3D", function () {
+        var expect = [0, 0, 0, 0,0,0,0,0,0,0,0,0];
+        var matrix = Matrix.eyes(2, 3);
+        var result = matrix.subtract(matrix);
+        result.data.forEach(function (row, index) {
+            assert.equal(row, expect[index]);            
+        });
+    });
     it("test get sum alpha matrix 3D", function () {
         var expect = [3, 3, 3, 2,2,2,2,2,2,3,3,3];
         var matrix = Matrix.eyes(2, 3);
@@ -909,6 +925,22 @@ describe("class Matrix", function() {
         var expect = [3, 3, 3];
         var matrix = Matrix.ones(3,1);
         var result = matrix.sum(2);
+        result.data.forEach(function (row, index) {
+            assert.equal(row, expect[index]);            
+        });
+    });
+    it("test get subtract alpha matrix 3D", function () {
+        var expect = [-1, -1, -1, -1,-1,-1,-1,-1,-1,-1,-1,-1];
+        var matrix = Matrix.ones(2, 3);
+        var result = matrix.subtract(2);
+        result.data.forEach(function (row, index) {
+            assert.equal(row, expect[index]);
+        });
+    });
+    it("test get subtract alpha vector", function () {
+        var expect = [-1, -1, -1];
+        var matrix = Matrix.ones(3,1);
+        var result = matrix.subtract(2);
         result.data.forEach(function (row, index) {
             assert.equal(row, expect[index]);            
         });

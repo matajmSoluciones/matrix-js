@@ -145,24 +145,6 @@ function Matrix(data, width, height, dimension, options) {
         }
     }
     /**
-     * getIndex.
-     * Obtiene el indice del un arreglo unidimencional de la matriz.
-     * 
-     * @param {Array} arguments lista de argumentos del indice.
-     * @return {Number}
-     */
-    function getIndex(x, y) {
-        console.assert(
-            typeof x == "number" && x >= 0 && x < self.width,
-            "el par x no es numero valido..."
-        );
-        console.assert(
-            typeof y == "number" && y >= 0 && y < self.height,
-            "el par y no es numero valido..."
-        );
-        return Math.round(x + y * self.width) * self.dimension;
-    }    
-    /**
      * getField.
      * Obtiene el valor del punto cardinal.
      * @param {Number} x Punto del plano cartesiano eje-x.
@@ -639,52 +621,6 @@ function Matrix(data, width, height, dimension, options) {
     };
     /**
      * sum.
-     * Privada funcion de suma.
-     * 
-     * @param {Matrix} A objeto 1 de la matriz.
-     * @param {Matrix} B objeto 2 de la matriz.
-     * @returns {Matrix}
-     */
-    function sum(A, B, sum) {
-        var obj = A.clone();
-        if (sum == undefined || sum == null) {
-            sum = true;
-        }
-        console.assert(
-            typeof B == "number" || (B.width == obj.width && B.height == obj.height && B.dimension == obj.dimension),
-            "Las matrices no son identicas en tamaño..."
-        );
-        var col2;
-        if (typeof B == "number") {
-            col2 = B;
-        }
-        obj.map(function (row, x, y) {
-            if (B instanceof Matrix) {
-                col2 = B.getField(x, y);
-            }
-            if (obj.dimension == 1) {
-                if (!sum) {
-                    return row - col2;
-                }
-                return row + col2;
-            }
-            return row.map(function (row2, index) {
-                if (typeof col2 == "number") {
-                    if (!sum) {
-                        return row2 - col2;
-                    }
-                    return row2 + col2;
-                }
-                if (!sum) {
-                    return row2 - col2[index];
-                }
-                return row2 + col2[index];
-            });
-        });
-        return obj;
-    }
-    /**
-     * sum.
      * Suma la matriz actual al conjunto de matrices.
      *
      * @returns {Matrix}
@@ -719,7 +655,7 @@ function Matrix(data, width, height, dimension, options) {
                 matrix instanceof Matrix || typeof matrix == "number" ,
                 "Debe pasar un objeto Matrix o un escalar"
             );
-            obj = sum(obj, matrix, false);
+            obj = Utils.sum(obj, matrix, false);
         }
         return obj;
     };
