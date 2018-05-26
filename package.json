@@ -2,14 +2,15 @@
   "name": "matrix-js",
   "version": "0.0.1",
   "description": "libreria para el procesamiento de matrices",
-  "main": "index.js",
+  "main": "src/matrix.js",
   "scripts": {
     "test": "node_modules/mocha/bin/mocha tests/",
-    "coverage": "node_modules/nyc/bin/nyc.js --reporter=html node_modules/mocha/bin/mocha tests/"
+    "coverage": "node_modules/nyc/bin/nyc.js --reporter=html node_modules/mocha/bin/mocha tests/",
+    "build": "node_modules/grunt/bin/grunt"
   },
   "repository": {
     "type": "git",
-    "url": "http://192.168.1.102:8100/matajm/matrix-js.git"
+    "url": "https://github.com/matajmSoluciones/matrix-js.git"
   },
   "keywords": [
     "matrix",
@@ -21,7 +22,11 @@
   "author": "Jhonny Mata",
   "license": "MIT",
   "devDependencies": {
+    "browserify": "^16.2.2",
     "chai": "^4.1.2",
+    "grunt": "^1.0.2",
+    "grunt-browserify": "^5.3.0",
+    "grunt-contrib-uglify": "^3.3.0",
     "mocha": "^5.1.1",
     "nyc": "^11.7.1"
   }
