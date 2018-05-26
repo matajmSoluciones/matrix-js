@@ -1,7 +1,7 @@
 "use stric";
 var Utils = require("./utils");
 /**
- * Matrix
+ * Matrix.
  * 
  * Clase para el manejo de arreglos multidimenciones.
  * new Matrix ([1,2,3,4,5,6], 3, 2, 2, {});
@@ -10,11 +10,15 @@ var Utils = require("./utils");
  * new Matrix ([1,2,3,4,5,6], {width: 3, height: 2});
  * new Matrix ({width: 3, height: 2, data: [1,2,3,4,5,6]}); 
  *
+ * @constructor
  * @param {Array|Int8Array|Int16Array|Int32Array|Float32Array|Float64Array|ArrayBuffer} data Arreglo de datos.
- * @param {Number} width Ancho de la matriz.
- * @param {Number} height Alto de la matriz.
- * @param {Number} dimension Dimensión de la matriz.
- * @param {object} options Opciones de la matriz.
+ * @param {Number} width  - Ancho de la matriz.
+ * @param {Number} height - Alto de la matriz.
+ * @param {Number} dimension - Dimensión de la matriz.
+ * @param {object} options - Opciones de la matriz.
+ * @author Jhonny Mata <solucionesmatajm@gmai.com>
+ * @exports Matrix
+ * @version 0.0.1
  */
 function Matrix(data, width, height, dimension, options) {
     var self = this,
@@ -61,9 +65,11 @@ function Matrix(data, width, height, dimension, options) {
         "No coinciden el numero de elementos de la matriz..."
     );
     /**
-     * loadData.
-     * Carga el arreglo de datos matricial.
-     * 
+     * @function loadData
+     * @private
+     * @summary Carga el arreglo de datos matricial.
+     * @param {Array} data - Arreglo de datos.
+     * @returns {void}
      */
     function loadData(data) {
         console.assert(
@@ -74,6 +80,7 @@ function Matrix(data, width, height, dimension, options) {
                 || data instanceof Float32Array
                 || data instanceof Float64Array
                 || data instanceof Uint8ClampedArray
+                || data instanceof Buffer
                 || Array.isArray(data)
             ),
             "El parametro data no es un objeto valido..."
@@ -85,10 +92,10 @@ function Matrix(data, width, height, dimension, options) {
         }
     }
     /**
-     * setOptions.
-     * Establece las opciones de la clase.
-     * 
-     * @param {object} config Objetos.
+     * @function setOptions
+     * @private
+     * @summary Establece las opciones de la clase.     * 
+     * @param {object} config - Objetos.
      * @returns {void}
      */
     function setOptions(config) {
@@ -105,9 +112,9 @@ function Matrix(data, width, height, dimension, options) {
         self.config = config;
     }
     /**
-     * isTypeInstance.
-     * 
-     * Obtiene la clase Arreglo para generar datos. 
+     * @function isTypeInstance
+     * @private
+     * @summary Obtiene la clase Arreglo para generar datos. 
      * @param {string} type Tipo de arreglo.
      * @returns {void}
      */
@@ -125,7 +132,7 @@ function Matrix(data, width, height, dimension, options) {
             case "uint32":
                 self.typeInstance = Uint32Array;
                 break;
-            case "uint8clamped":
+            case "uint8_clamped":
                 self.typeInstance = Uint8ClampedArray;
                 break;
             case "int16":
@@ -140,13 +147,17 @@ function Matrix(data, width, height, dimension, options) {
             case "float64":
                 self.typeInstance = Float64Array;
                 break;
+            case "buffer":
+                self.typeInstance = Buffer;
+                break;
             default:
                 throw new Error("El tipo de objeto no es valido...");
         }
     }
     /**
-     * getField.
-     * Obtiene el valor del punto cardinal.
+     * @function getField
+     * @public
+     * @summary Obtiene el valor del punto cardinal.
      * @param {Number} x Punto del plano cartesiano eje-x.
      * @param {Number} y Punto del plano cartesiano eje-y.
      * @returns {*}
@@ -161,8 +172,9 @@ function Matrix(data, width, height, dimension, options) {
         return Utils.slice(self.data, index, self.dimension);
     };
     /**
-     * setField.
-     * Reemplaza el valor del punto cardinal.
+     * @function setField
+     * @public
+     * @summary Reemplaza el valor del punto cardinal.
      * @param {Number} x Punto del plano cartesiano eje-x.
      * @param {Number} y Punto del plano cartesiano eje-y.
      * @param {Number} val Punto del plano cartesiano eje-y.
@@ -186,9 +198,9 @@ function Matrix(data, width, height, dimension, options) {
         );
     };
     /**
-     * forEach.
-     * Blucle para recorrer la matriz muldimensional.
-     * 
+     * @function forEach
+     * @public
+     * @summary Blucle para recorrer la matriz muldimensional.     * 
      * @param {Function} callback Función de reemplazo.
      * @returns {void}
      */
@@ -204,9 +216,9 @@ function Matrix(data, width, height, dimension, options) {
         );
     };
     /**
-     * map.
-     * Reemplaza el valor actual de la matriz.
-     * 
+     * @function map
+     * @public
+     * @summary Reemplaza el valor actual de la matriz.     * 
      * @param {Function} callback Función de reemplazo.
      * @returns {void}
      */
@@ -223,9 +235,9 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * isNumber.
-     * Valida que la matriz es numerica.
-     * 
+     * @function isNumber
+     * @public
+     * @summary Valida que la matriz es numerica.
      * @returns {boolean}
      */
     this.isNumber = function() {
@@ -234,18 +246,18 @@ function Matrix(data, width, height, dimension, options) {
         });
     };
     /**
-     * isNotNumber.
-     * Valida que la matriz no es numerica.
-     * 
+     * @function isNotNumber
+     * @public
+     * @summary Valida que la matriz no es numerica.
      * @returns {boolean}
      */
     this.isNotNumber = function() {
         return !self.isNumber();
     };
     /**
-     * isEqual
-     * Compara el nuevo objeto matriz con el actual.
-     * 
+     * @function isEqual
+     * @public
+     * @summary Compara el nuevo objeto matriz con el actual.
      * @param {Matrix} vector Objeto de comparación.
      * @returns {boolean}
      */
@@ -259,9 +271,9 @@ function Matrix(data, width, height, dimension, options) {
         });
     };
     /**
-     * isNotEqual
-     * Compara si el nuevo objeto matriz es diferente.
-     * 
+     * @function isNotEqual
+     * @public
+     * @summary Compara si el nuevo objeto matriz es diferente.
      * @param {Matrix} vector Objeto de comparación.
      * @returns {boolean}
      */
@@ -269,9 +281,9 @@ function Matrix(data, width, height, dimension, options) {
         return !self.isEqual(vector);
     };
     /**
-     * isNull
-     * Compara si la matriz es nula.
-     * 
+     * @function isNull
+     * @public
+     * @summary Compara si la matriz es nula.     * 
      * @returns {boolean}
      */
     this.isNull = function () {
@@ -280,18 +292,18 @@ function Matrix(data, width, height, dimension, options) {
         });
     };
     /**
-     * isNotNull
-     * Compara si la matriz es no nula.
-     * 
+     * @function isNotNull
+     * @public
+     * @summary Compara si la matriz es no nula.
      * @returns {boolean}
      */
     this.isNotNull = function() {
         return !self.isNull();
     };
     /**
-     * isOverTriangle.
-     * Es una matrix triangular superior.
-     * 
+     * @function isOverTriangle
+     * @public
+     * @summary Es una matrix triangular superior.
      * @returns {Boolean}
      */
     this.isOverTriangle = function() {
@@ -308,9 +320,9 @@ function Matrix(data, width, height, dimension, options) {
         return isTriangle;
     };
     /**
-     * isUnderTriangle.
-     * Es una matrix triangular inferior.
-     * 
+     * @function isUnderTriangle
+     * @public
+     * @summary Es una matrix triangular inferior.
      * @returns {Boolean}
      */
     this.isUnderTriangle = function() {
@@ -327,9 +339,9 @@ function Matrix(data, width, height, dimension, options) {
         return isTriangle;
     };
     /**
-     * isSimetry.
-     * Es una matrix simetrica.
-     * 
+     * @function isSimetry
+     * @public
+     * @summary Es una matrix simetrica.
      * @returns {Boolean}
      */
     this.isSimetry = function() {
@@ -350,9 +362,9 @@ function Matrix(data, width, height, dimension, options) {
         return isSimetry;
     };
     /**
-     * isAsimetry.
-     * Es una matrix asimetrica.
-     * 
+     * @function isAsimetry
+     * @public
+     * @summary Es una matrix asimetrica.
      * @returns {Boolean}
      */
     this.isAsimetry = function() {
@@ -373,17 +385,18 @@ function Matrix(data, width, height, dimension, options) {
         return isSimetry;
     };
     /**
-     * isNotSimetry.
-     * Valida si su inversa no es identica.
-     * 
+     * @function isNotSimetry
+     * @public
+     * @summary Valida si su inversa no es identica.
      * @returns {boolean}
      */
     this.isNotSimetry = function() {
         return !self.isSimetry();
     };
     /**
-     * sqrt.
-     * Aplica raiz cuadrada de la matriz actual.
+     * @function sqrt
+     * @public
+     * @summary Aplica raiz cuadrada de la matriz actual.
      * @returns {Matrix}
      */
     this.sqrt = function() {
@@ -399,8 +412,27 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * log.
-     * Aplica Logaritmo natural de la matriz actual.
+     * @function cbrt
+     * @public
+     * @summary Aplica raiz cubica de la matriz actual.
+     * @returns {Matrix}
+     */
+    this.cbrt = function() {
+        var obj = self.clone();
+        obj.map(function(row) {
+            if (obj.dimension == 1) {
+                return Math.cbrt(row);
+            }
+            return row.map(function(row2) {
+                return Math.cbrt(row2);
+            });
+        });
+        return obj;
+    };
+    /**
+     * @function log
+     * @public
+     * @summary Aplica Logaritmo natural de la matriz actual.
      * @returns {Matrix}
      */
     this.log = function() {
@@ -416,8 +448,9 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * exp.
-     * Aplica exponencial de la matriz actual.
+     * @function exp
+     * @public
+     * @summary Aplica exponencial de la matriz actual.
      * @returns {Matrix}
      */
     this.exp = function() {
@@ -433,8 +466,9 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * abs.
-     * Aplica valor absoluto de la matriz actual.
+     * @function abs
+     * @public
+     * @summary Aplica valor absoluto de la matriz actual.
      * @returns {Matrix}
      */
     this.abs = function() {
@@ -450,8 +484,9 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * atan.
-     * Aplica tangente de la matriz actual.
+     * @function atan
+     * @public
+     * @summary Aplica tangente de la matriz actual.
      * @returns {Matrix}
      */
     this.atan = function() {
@@ -467,8 +502,9 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * cos.
-     * Aplica coseno de la matriz actual.
+     * @function cos
+     * @public
+     * @summary Aplica coseno de la matriz actual.
      * @returns {Matrix}
      */
     this.cos = function() {
@@ -484,8 +520,9 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * sin.
-     * Aplica seno de la matriz actual.
+     * @function sin
+     * @public
+     * @summary Aplica seno de la matriz actual.
      * @returns {Matrix}
      */
     this.sin = function() {
@@ -501,8 +538,8 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * round.
-     * Aplica redondea la matriz actual.
+     * @function round
+     * @summary Aplica redondeo de la matriz actual.
      * @returns {Matrix}
      */
     this.round = function() {
@@ -518,8 +555,9 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * ceil.
-     * Aplica redondea al valor maximo despues del decimal la matriz actual.
+     * @function ceil
+     * @public
+     * @summary Aplica redondea al valor maximo despues del decimal la matriz actual.
      * @returns {Matrix}
      */
     this.ceil = function() {
@@ -535,8 +573,9 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * floor.
-     * Aplica redondea al valor minimo del decimal en la matriz actual.
+     * @function floor
+     * @public
+     * @summary Aplica redondea al valor minimo del decimal en la matriz actual.
      * @returns {Matrix}
      */
     this.floor = function() {
@@ -552,8 +591,9 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * pow.
-     * Aplica potencia enesima de la matriz actual.
+     * @function pow
+     * @public
+     * @summary Aplica potencia enesima de la matriz actual.
      * @param {Number} n Numero de veces que se eleva la potencia.
      * @returns {Matrix}
      */
@@ -571,45 +611,45 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * clone.
-     * Genera una copia de la instancia actual.
-     * 
+     * @function clone
+     * @public
+     * @summary Genera una copia de la instancia actual.
      * @returns {Matrix}
      */
     this.clone = function() {
         return Utils.clone(self, Matrix);
     };
     /**
-     * size.
-     * Tamaño matricial del objeto.
-     * 
+     * @function size
+     * @public
+     * @summary Tamaño matricial del objeto.
      * @returns {Array}
      */
     this.size = function () {
         return [self.width, self.height, self.dimension];
     };
     /**
-     * max.
-     * Devuelve el valor máximo de la matriz.
-     * 
+     * @function max
+     * @public
+     * @summary Devuelve el valor máximo de la matriz.
      * @return {Number}
      */
     this.max = function () {
         return Math.max.apply(null, self.data);
     };
     /**
-     * min.
-     * Devuelve el valor mínimo de la matriz.
-     * 
+     * @function min
+     * @public
+     * @summary Devuelve el valor mínimo de la matriz.
      * @return {Number}
      */
     this.min = function () {
         return Math.min.apply(null, self.data);
     };
     /**
-     * transposed.
-     * Inversa de la matriz.
-     * 
+     * @function transposed
+     * @public
+     * @summary Inversa de la matriz.
      * @returns {Matrix}
      */
     this.transposed = function () {
@@ -620,9 +660,9 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * sum.
-     * Suma la matriz actual al conjunto de matrices.
-     *
+     * @function sum
+     * @public
+     * @summary Suma la matriz actual al conjunto de matrices.
      * @returns {Matrix}
      */
     this.sum = function () {
@@ -640,9 +680,9 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * subtract.
-     * Suma la matriz actual al conjunto de matrices.
-     *
+     * @function subtract
+     * @public
+     * @summary Suma la matriz actual al conjunto de matrices.
      * @returns {Matrix}
      */
     this.subtract = function () {
@@ -660,9 +700,9 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * getRow.
-     * Obtiene la fila seleccionada.
-     * 
+     * @function getRow
+     * @public
+     * @summary Obtiene la fila seleccionada.
      * @param {Number} y numero de fila.
      * @return {Matrix}
      */
@@ -687,9 +727,9 @@ function Matrix(data, width, height, dimension, options) {
         });
     };
     /**
-     * getCol.
-     * Obtiene la columna seleccionada.
-     * 
+     * @function getCol.
+     * @public
+     * @summary Obtiene la columna seleccionada.
      * @param {Number} x numero de la columna.
      * @returns {Matrix}
      */
@@ -719,10 +759,9 @@ function Matrix(data, width, height, dimension, options) {
         });
     };
     /**
-     * slice.
-     * Retorna un nuevo objeto matrix
-     * con el tamaño seleccionado.
-     * 
+     * @function slice
+     * @public
+     * @summary Retorna un nuevo objeto matrix con el tamaño seleccionado.
      * @param {Number} x coordenada de inicio.
      * @param {Number} Y coordenada de inicio.
      * @param {Number} width Ancho.
@@ -772,9 +811,9 @@ function Matrix(data, width, height, dimension, options) {
         });
     };
     /**
-     * isMultiply.
-     * Es multiplicable dos matrices.
-     * 
+     * @function isMultiply
+     * @private
+     * @summary Es multiplicable dos matrices.
      * @param {Matrix} A Objeto matriz 1.
      * @param {Matrix} B Objeto matriz 2.
      * @returns {Boolean}
@@ -783,9 +822,10 @@ function Matrix(data, width, height, dimension, options) {
         return typeof B == "number" || (A.width == B.height && B.dimension == A.dimension);
     }
     /**
-     * inmultiply.
-     * Publica funcion multiplicar.
-     * 
+     * @function inmultiply.
+     * @public
+     * @summary Publica funcion multiplicar.
+     * @param {Array} arguments - argumentos de la funcion.
      * @returns {Matrix}
      */
     this.inmultiply = function () {
@@ -808,9 +848,9 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * inverse.
-     * Genera la matriz inversa.
-     * 
+     * @function inverse
+     * @public
+     * @summary Genera la matriz inversa.
      * @returns {Matrix}
      */
     this.inverse = function() {
@@ -820,9 +860,10 @@ function Matrix(data, width, height, dimension, options) {
         return obj.inmultiply(1 / D);
     };
     /**
-     * divide.
-     * Publica funcion dividir.
-     * 
+     * @function divide
+     * @public
+     * @summary Publica funcion dividir.
+     * @param {Array} arguments - argumentos de la funcion.
      * @returns {Matrix}
      */
     this.divide = function () {
@@ -848,26 +889,29 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * not.
-     * Genera una matriz negativa de la actual.
-     * 
+     * @function not
+     * @public
+     * @summary Genera una matriz negativa de la actual.
      * @return {Matrix}
      */
     this.not = function () {
         return self.inmultiply(-1);
     };
     /**
-     * isSingular.
-     * 
+     * @function isSingular
+     * @public
+     * @summary Es una matriz cuadrada.
      * @returns {Boolean}
      */
     this.isSingular = function () {
         return self.width == self.height;
     };
     /**
-     * sumRow.
-     * 
-     * @returns {Integer}
+     * @function sumRow
+     * @private
+     * @summary Suma todos los elementos del arreglo.
+     * @param {Array} rows - elementos a sumar.
+     * @returns {Number}
      */
     function sumRow(rows) {
         var sum = 0;
@@ -877,7 +921,11 @@ function Matrix(data, width, height, dimension, options) {
         return sum;
     }
     /**
-     * determinant2.
+     * @function determinant2
+     * @private
+     * @summary calcula la determinante de una matriz 2 x 2.
+     * @param {Matrix} A - matrix 2 x 2 a calcular.
+     * @return {Number}
      */
     function determinant2 (A) {
         var row1 = 1, row2 = 1, determ = 0;
@@ -901,9 +949,9 @@ function Matrix(data, width, height, dimension, options) {
         return row1 - row2;
     }
     /**
-     * removeRow.
-     * Elimina una fila del objeto.
-     * 
+     * @function removeRow
+     * @public
+     * @summary Elimina una fila del objeto.
      * @param {Number} y1 num. de fila
      * @returns {Matrix}
      */
@@ -918,9 +966,9 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * removeCol.
-     * Elimina una columna del objeto.
-     * 
+     * @function removeCol
+     * @public
+     * @summary Elimina una columna del objeto.
      * @param {Number} x1 num. de columna
      * @returns {Matrix}
      */
@@ -935,10 +983,9 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * removeRow.
-     * Elimina la fila y columna
-     * que intersecta el par (x, y).
-     * 
+     * @function remove
+     * @public
+     * @summary Elimina la fila y columna que intersecta el par (x, y).
      * @param {Number} x1 num. de columna
      * @param {Number} y1 num. de fila
      * @returns {Matrix}
@@ -959,10 +1006,9 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * adj.
-     * Genera la matriz cofactor
-     * transpuesta.
-     * 
+     * @function adj
+     * @public
+     * @summary Genera la matriz cofactor.
      * @returns {Matrix}
      */
     this.adj = function () {
@@ -981,7 +1027,10 @@ function Matrix(data, width, height, dimension, options) {
         return adj;
     };
     /**
-     * det.
+     * @function det
+     * @public
+     * @summary calcula el valor determinante de la matriz.
+     * @returns {Number}
      */
     this.det = function() {
         if (determinant) {
@@ -1004,9 +1053,9 @@ function Matrix(data, width, height, dimension, options) {
         return det;
     };
     /**
-     * promd.
-     * Calcula el promedio de la matriz.
-     * 
+     * @function promd.
+     * @public
+     * @summary Calcula el promedio de la matriz.
      * @returns {Number}
      */
     this.promd = function () {
@@ -1017,9 +1066,9 @@ function Matrix(data, width, height, dimension, options) {
         return promd;
     };
     /**
-     * toString.
-     * Parsear objeto como String.
-     * 
+     * @function toString
+     * @public
+     * @summary Parsear objeto como String.
      * @returns {String}
      */
     this.toString = function() {
@@ -1038,9 +1087,10 @@ function Matrix(data, width, height, dimension, options) {
     };
 }
 /**
- * random.
- * Genera una matriz pseudo-aleatoria
- * 
+ * @function random
+ * @static
+ * @public
+ * @summary Genera una matriz pseudo-aleatoria. * 
  * @param {Number} width 
  * @param {Number} height 
  * @param {Number} dimension 
@@ -1059,9 +1109,10 @@ Matrix.random = function (width, height, dimension) {
     return obj;
 };
 /**
- * PI.
- * Genera una matriz rellena de constance PI
- * 
+ * @function PI
+ * @static
+ * @public
+ * @summary Genera una matriz rellena de constance PI.
  * @param {Number} width 
  * @param {Number} height 
  * @param {Number} dimension 
@@ -1080,9 +1131,10 @@ Matrix.PI = function (width, height, dimension) {
     return obj;
 };
 /**
- * zeros.
- * Genera una matriz rellena de ceros.
- * 
+ * @function zeros
+ * @static
+ * @public
+ * @summary Genera una matriz rellena de ceros.
  * @param {Number} width 
  * @param {Number} height 
  * @param {Number} dimension 
@@ -1094,9 +1146,10 @@ Matrix.zeros = function (width, height, dimension) {
 };
 
 /**
- * ones.
- * Genera una matriz rellena de unos.
- * 
+ * @function ones
+ * @static
+ * @public
+ * @summary Genera una matriz rellena de unos.
  * @param {Number} width 
  * @param {Number} height 
  * @param {Number} dimension 
@@ -1116,12 +1169,13 @@ Matrix.ones = function (width, height, dimension) {
 };
 
 /**
- * eyes.
- * Genera una matriz identidad.
- * 
- * @param {Number} width 
- * @param {Number} height 
- * @param {Number} dimension 
+ * @function eyes
+ * @static
+ * @public
+ * @summary Genera una matriz identidad.
+ * @param {Number} width
+ * @param {Number} height
+ * @param {Number} dimension
  * @returns {Matrix}
  */
 Matrix.eyes = function (n, dimension) {
@@ -1151,8 +1205,13 @@ Matrix.eyes = function (n, dimension) {
 };
 
 /**
- * Generate.
- * Generate Matrix Options.
+ * @function Generate
+ * @private
+ * @summary Generate Matrix Options.
+ * @param {Number} width
+ * @param {Number} height
+ * @param {Number} dimension
+ * @returns {Matrix}
  */
 function Generate(width, height, dimension) {
     var options = {
