@@ -412,6 +412,24 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
+     * @function cbrt
+     * @public
+     * @summary Aplica raiz cubica de la matriz actual.
+     * @returns {Matrix}
+     */
+    this.cbrt = function() {
+        var obj = self.clone();
+        obj.map(function(row) {
+            if (obj.dimension == 1) {
+                return Math.cbrt(row);
+            }
+            return row.map(function(row2) {
+                return Math.cbrt(row2);
+            });
+        });
+        return obj;
+    };
+    /**
      * @function log
      * @public
      * @summary Aplica Logaritmo natural de la matriz actual.
