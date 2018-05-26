@@ -74,6 +74,7 @@ function Matrix(data, width, height, dimension, options) {
                 || data instanceof Float32Array
                 || data instanceof Float64Array
                 || data instanceof Uint8ClampedArray
+                || data instanceof Buffer
                 || Array.isArray(data)
             ),
             "El parametro data no es un objeto valido..."
@@ -125,7 +126,7 @@ function Matrix(data, width, height, dimension, options) {
             case "uint32":
                 self.typeInstance = Uint32Array;
                 break;
-            case "uint8clamped":
+            case "uint8_clamped":
                 self.typeInstance = Uint8ClampedArray;
                 break;
             case "int16":
@@ -139,6 +140,9 @@ function Matrix(data, width, height, dimension, options) {
                 break;
             case "float64":
                 self.typeInstance = Float64Array;
+                break;
+            case "buffer":
+                self.typeInstance = Buffer;
                 break;
             default:
                 throw new Error("El tipo de objeto no es valido...");
