@@ -41,6 +41,7 @@ La clase Matrix cuenta con sus propios getter y setter para el acceso rapido a l
 ## Soporte de datos
 
 De acuerto al tipo de matriz selecciona en las configuraciones, la Api soporta los siguientes tipos de datos.
+
 Data type | String
 --------: | :-----
 `Int8Array` | "int8"
