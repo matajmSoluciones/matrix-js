@@ -6,7 +6,7 @@ Librería para el procesamiento de matrices.
 
 instalar matrix-js es facil con el manejador de dependencias npm.
 
-    npm install --save matrix-js
+    npm install --save matrix-lib-js
 
 
 # Uso
@@ -14,7 +14,7 @@ instalar matrix-js es facil con el manejador de dependencias npm.
 Matrix-js es facil de usar y su sintaxis es muy similar Octave en el manejo de matrices.
 
 ```javascript
-    var Matrix = require("matrix-js");
+    var Matrix = require("matrix-lib-js");
     var A = new Matrix({
         width: 2,
         height: 2,
