@@ -8,6 +8,7 @@ instalar matrix-js es facil con el manejador de dependencias npm.
 
     npm install --save matrix-js
 
+
 # Uso
 
 Matrix-js es facil de usar y su sintaxis es muy similar Octave en el manejo de matrices.
@@ -28,6 +29,20 @@ Matrix-js es facil de usar y su sintaxis es muy similar Octave en el manejo de m
         3 4
     */
 ```
+
+## Uso del lado cliente
+
+Existe la versión transpilada para el lado cliente
+
+```html
+    <script type="text/javascript" src="dist/matrix.js"></script>
+```
+
+Tambien puedes transpilar el codigo con el siguiente comando.
+
+    npm run build
+
+Genera dos archivos el codigo fuente para navegadores y el comprimido.
 
 ## Getter/Setter
 
