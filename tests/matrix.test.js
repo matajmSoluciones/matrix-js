@@ -1243,22 +1243,6 @@ describe("class Matrix", function() {
             sameEqual(row, expect[index], result.toString());
         });
     });
-    it ("test Matrix inmultiply data random", function() {
-        var data = require("./examples.inmultiply.json");
-        var index = Math.round(Math.random() * (data.length - 1)),
-            matrix1 = new Matrix(data[index].src),
-            matrix2 = new Matrix(data[index].dest),
-            init = Date.now(),
-            result = matrix1.inmultiply(matrix2),
-            time = Date.now() - init;
-        assert.ok(time < 350000, time + "ms");
-        assert.equal(result.width, data[index].result.width);
-        assert.equal(result.height, data[index].result.height);
-        assert.equal(result.dimension, data[index].result.dimension);
-        result.data.forEach(function (row, index2) {
-            sameEqual(row, data[index].result.data[index2], index2);
-        });
-    });
     it("test get divide matrix", function () {
         var expect1 = [
             1, 0, 0,

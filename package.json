@@ -2,7 +2,7 @@
   "name": "matrix-js",
   "version": "0.0.1",
   "description": "libreria para el procesamiento de matrices",
-  "main": "index.js",
+  "main": "src/matrix.js",
   "scripts": {
     "test": "node_modules/mocha/bin/mocha tests/",
     "coverage": "node_modules/nyc/bin/nyc.js --reporter=html node_modules/mocha/bin/mocha tests/",
