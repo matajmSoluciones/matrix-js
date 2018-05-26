@@ -983,7 +983,7 @@ function Matrix(data, width, height, dimension, options) {
         return obj;
     };
     /**
-     * @function removeRow
+     * @function remove
      * @public
      * @summary Elimina la fila y columna que intersecta el par (x, y).
      * @param {Number} x1 num. de columna
