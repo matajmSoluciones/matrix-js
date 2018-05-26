@@ -1,5 +1,5 @@
 {
-  "name": "matrix-lib-js",
+  "name": "@matajm/matrix-js",
   "version": "0.0.1",
   "description": "libreria para el procesamiento de matrices",
   "main": "src/matrix.js",
