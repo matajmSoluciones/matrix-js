@@ -21,7 +21,7 @@ describe("class Matrix", function() {
         assert.equal(matrix.width, 3);
         assert.equal(matrix.height, 2);
         assert.equal(matrix.dimension, 1);
-        assert.equal(matrix.getField(1,1), 5);
+        assert.equal(matrix.get(1,1), 5);
         assert.ok(matrix.data instanceof Float32Array);
         assertForEach(matrix, expect);
     });
@@ -40,7 +40,7 @@ describe("class Matrix", function() {
         assert.equal(matrix.width, 3);
         assert.equal(matrix.height, 2);
         assert.equal(matrix.dimension, 1);
-        assert.equal(matrix.getField(1,1), 5);
+        assert.equal(matrix.get(1,1), 5);
         assert.ok(matrix.data instanceof Float32Array);
         assertForEach(matrix, expect);
     });
@@ -58,7 +58,7 @@ describe("class Matrix", function() {
         assert.equal(matrix.width, 3);
         assert.equal(matrix.height, 2);
         assert.equal(matrix.dimension, 1);
-        assert.equal(matrix.getField(1,1), 5);
+        assert.equal(matrix.get(1,1), 5);
         assert.ok(matrix.data instanceof Float32Array);
         assertForEach(matrix, expect);
     });
@@ -193,7 +193,7 @@ describe("class Matrix", function() {
         assert.equal(matrix.width, 3);
         assert.equal(matrix.height, 2);
         assert.equal(matrix.dimension, 1);
-        assert.equal(matrix.getField(1, 1), 5);
+        assert.equal(matrix.get(1, 1), 5);
         assert.ok(matrix.data instanceof Int8Array);
         assertForEach(matrix, expect);
     });
@@ -211,7 +211,7 @@ describe("class Matrix", function() {
         assert.equal(matrix.width, 3);
         assert.equal(matrix.height, 2);
         assert.equal(matrix.dimension, 1);
-        assert.equal(matrix.getField(1, 1), 5);
+        assert.equal(matrix.get(1, 1), 5);
         assert.ok(matrix.data instanceof Int16Array);
         assertForEach(matrix, expect);
     });
@@ -229,7 +229,7 @@ describe("class Matrix", function() {
         assert.equal(matrix.width, 3);
         assert.equal(matrix.height, 2);
         assert.equal(matrix.dimension, 1);
-        assert.equal(matrix.getField(1, 1), 5);
+        assert.equal(matrix.get(1, 1), 5);
         assert.ok(matrix.data instanceof Int32Array);
         assertForEach(matrix, expect);
     });
@@ -247,7 +247,7 @@ describe("class Matrix", function() {
         assert.equal(matrix.width, 3);
         assert.equal(matrix.height, 2);
         assert.equal(matrix.dimension, 1);
-        assert.equal(matrix.getField(1, 1), 5);
+        assert.equal(matrix.get(1, 1), 5);
         assert.ok(matrix.data instanceof Float32Array);
         assertForEach(matrix, expect);
     });
@@ -265,7 +265,7 @@ describe("class Matrix", function() {
         assert.equal(matrix.width, 3);
         assert.equal(matrix.height, 2);
         assert.equal(matrix.dimension, 1);
-        assert.equal(matrix.getField(1, 1), 5);
+        assert.equal(matrix.get(1, 1), 5);
         assert.ok(matrix.data instanceof Float64Array);
         assertForEach(matrix, expect);
     });
@@ -484,13 +484,13 @@ describe("class Matrix", function() {
             data: data
         });
         matrix.pow(2).forEach(function (row, x, y, index) {
-            var elements = matrix.getField(x, y);
+            var elements = matrix.get(x, y);
             row.forEach(function(row2, index2) {
                 assert.equal(row2, Math.pow(elements[index2], 2));
             });
         });
     });
-    it ("test constructor 3D: getField", function() {
+    it ("test constructor 3D: get", function() {
         var data = [1,2,3,4,5,6,7,8],
             expect = [
                 [1,2], [3,4],
@@ -503,7 +503,7 @@ describe("class Matrix", function() {
             data: data
         });
         matrix.forEach(function(rows, x, y) {
-            var elements = matrix.getField(x, y);
+            var elements = matrix.get(x, y);
             rows.forEach(function(row, index2){
                 assert.equal(row, elements[index2]);
             });
@@ -552,7 +552,7 @@ describe("class Matrix", function() {
         });
         var obj = matrix.transposed();
         obj.forEach(function (row, x, y) {
-            var element = matrix.getField(y, x);
+            var element = matrix.get(y, x);
             assert.equal(element, row);
         });
     });
@@ -763,7 +763,7 @@ describe("class Matrix", function() {
     it("test constructor 3D: round", function () {
         var matrix = Matrix.random(2, 2, 3);
         matrix.round().forEach(function (row, x, y, index) {
-            var elements = matrix.getField(x, y);
+            var elements = matrix.get(x, y);
             row.forEach(function (row2, index2) {
                 assert.equal(row2, Math.round(elements[index2]));
             });
@@ -778,7 +778,7 @@ describe("class Matrix", function() {
     it("test constructor 3D: ceil", function () {
         var matrix = Matrix.random(2, 2, 3);
         matrix.ceil().forEach(function (row, x, y, index) {
-            var elements = matrix.getField(x, y);
+            var elements = matrix.get(x, y);
             row.forEach(function (row2, index2) {
                 assert.equal(row2, Math.ceil(elements[index2]));
             });

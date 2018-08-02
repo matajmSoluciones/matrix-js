@@ -428,6 +428,23 @@
 	        }
 	    }
 	    /**
+	     * @function get
+	     * @public
+	     * @summary Obtiene el valor del punto cardinal.
+	     * @param {Number} x Punto del plano cartesiano eje-x.
+	     * @param {Number} y Punto del plano cartesiano eje-y.
+	     * @returns {*}
+	     */
+	    this.get = function(x, y) {
+	        var index = utils.getIndex(
+	            x, y, self.width, self.height, self.dimension
+	        );
+	        if (self.dimension == 1) {
+	            return self.data[index];
+	        }
+	        return utils.slice(self.data, index, self.dimension);
+	    };
+	    /**
 	     * @function getField
 	     * @public
 	     * @summary Obtiene el valor del punto cardinal.
@@ -436,13 +453,38 @@
 	     * @returns {*}
 	     */
 	    this.getField = function(x, y) {
+	        console.warn(
+	            "El metodo getField será descontinuado para la proxima version."
+	        );
+	        return this.get(x, y);
+	    };
+	    /**
+	     * @function set
+	     * @public
+	     * @summary Reemplaza el valor del punto cardinal.
+	     * @param {Number} x Punto del plano cartesiano eje-x.
+	     * @param {Number} y Punto del plano cartesiano eje-y.
+	     * @param {Number} val Punto del plano cartesiano eje-y.
+	     * @returns {*}
+	     */
+	    this.set = function(x, y, val) {
 	        var index = utils.getIndex(
 	            x, y, self.width, self.height, self.dimension
 	        );
 	        if (self.dimension == 1) {
-	            return self.data[index];
+	            self.data[index] = val;
+	            return;
 	        }
-	        return utils.slice(self.data, index, self.dimension);
+	        if (val == undefined || val == null || val.length == undefined) {
+	            throw new Error("Debe ser un array el retorno.");
+	        }
+	        if (val.length != self.dimension) {
+	            throw new Error("Es necesario un indice de " + self.dimension + " dimensiones");
+	        }
+	        self.data = utils.replace(
+	            self.data, val, index, self.typeInstance
+	        );
+	        return;
 	    };
 	    /**
 	     * @function setField
@@ -454,21 +496,10 @@
 	     * @returns {*}
 	     */
 	    this.setField = function(x, y, val) {
-	        var index = utils.getIndex(
-	            x, y, self.width, self.height, self.dimension
+	        console.warn(
+	            "El metodo setField será descontinuado para la proxima version."
 	        );
-	        if (self.dimension == 1) {
-	            self.data[index] = val;
-	        }
-	        if (val == undefined || val == null || val.length == undefined) {
-	            throw new Error("Debe ser un array el retorno.");
-	        }
-	        if (val.length != self.dimension) {
-	            throw new Error("Es necesario un indice de " + self.dimension + " dimensiones");
-	        }
-	        return utils.replace(
-	            self.data, val, index, self.typeInstance
-	        );
+	        return this.set(x, y, val);
 	    };
 	    /**
 	     * @function forEach
@@ -623,7 +654,7 @@
 	            return false;
 	        }
 	        self.forEach(function (row, x, y) {
-	            var row2 = self.getField(y, x);
+	            var row2 = self.get(y, x);
 	            if (self.dimension == 1) {
 	                isSimetry = isSimetry && (row === row2);
 	            } else {
@@ -646,7 +677,7 @@
 	            return false;
 	        }
 	        self.forEach(function (row, x, y) {
-	            var row2 = self.getField(y, x);
+	            var row2 = self.get(y, x);
 	            if (self.dimension == 1) {
 	                isSimetry = isSimetry && (row === -row2);
 	            } else {
@@ -928,7 +959,7 @@
 	    this.transposed = function () {
 	        var obj = Generate(self.height, self.width, self.dimension);
 	        obj.map(function (row, x, y) {
-	            return self.getField(y, x);
+	            return self.get(y, x);
 	        });
 	        return obj;
 	    };
@@ -1221,9 +1252,9 @@
 	        var obj = Generate(self.width, self.height -1, self.dimension);
 	        obj.map(function(row, x, y){
 	            if (y >= y1) {
-	                return self.getField(x, y + 1);
+	                return self.get(x, y + 1);
 	            }
-	            return self.getField(x, y);
+	            return self.get(x, y);
 	        });
 	        return obj;
 	    };
@@ -1238,9 +1269,9 @@
 	        var obj = Generate(self.width - 1, self.height, self.dimension);
 	        obj.map(function(row, x, y){
 	            if (x >= x1) {
-	                return self.getField(x + 1, y);
+	                return self.get(x + 1, y);
 	            }
-	            return self.getField(x, y);
+	            return self.get(x, y);
 	        });
 	        return obj;
 	    };
@@ -1263,7 +1294,7 @@
 	            if (x >= x1) {
 	                inx = 1;
 	            }
-	            return self.getField(x + inx, y + iny);
+	            return self.get(x + inx, y + iny);
 	        });
 	        return obj;
 	    };
