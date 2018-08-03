@@ -120,7 +120,7 @@ describe("class Matrix", function() {
                 }
             );
             console.log(matrix);
-        }), assert.AssertionError, "Paso de largo");
+        }), Error, "Paso de largo");
     });
     it("test Constructor 2D: type Invalid", function() {
         var expect = [1, 2, 3, 4, 5, 6];
@@ -148,7 +148,7 @@ describe("class Matrix", function() {
                 }
             );
             console.log(matrix);
-        }), assert.AssertionError, "Paso de largo");
+        }), Error, "Paso de largo");
     });
     it("test Constructor 2D: options height type var invalid", function() {
         var expect = [1, 2, 3, 4, 5, 6];
@@ -162,7 +162,7 @@ describe("class Matrix", function() {
                 }
             );
             console.log(matrix);
-        }), assert.AssertionError, "Paso de largo");
+        }), Error, "Paso de largo");
     });
     it("test Constructor 2D: options dimension type var invalid", function() {
         var expect = [1, 2, 3, 4, 5, 6];
@@ -177,7 +177,7 @@ describe("class Matrix", function() {
                 }
             );
             console.log(matrix);
-        }), assert.AssertionError, "Paso de largo");
+        }), Error, "Paso de largo");
     });
     it("test Constructor 2D: type Int8", function () {
         var expect = [1, 2, 3, 4, 5, 6];

@@ -28,9 +28,13 @@ function Matrix(data, width, height, dimension, options) {
     self.length = 0; // tamaño del arreglo.
     self.dimension = 1;
     self.config = {};
-    console.assert(arguments.length > 0, "Es requerido un argumento");
+    if (!arguments.length) {
+        throw new Error("Es requerido un argumento");
+    }
     if (arguments.length == 1) {
-        console.assert(typeof data == "object", "config debe ser un objeto.");
+        if (typeof data !== "object") {
+            throw new Error("config debe ser un objeto.");
+        }
         setOptions(data);
         if (data.data) {
             loadData(data.data);
@@ -44,7 +48,9 @@ function Matrix(data, width, height, dimension, options) {
         if (!options) {
             options = {};
         }
-        console.assert(typeof options == "object", "config debe ser un objeto.");
+        if (typeof options !== "object") {
+            throw new Error("config debe ser un objeto.");
+        }
         options.width = width;
         options.height = height;
         if (dimension) {
@@ -57,13 +63,18 @@ function Matrix(data, width, height, dimension, options) {
     if (!self.data) {
         self.data = new self.typeInstance(self.length);
     }
-    console.assert(typeof self.width == "number", "El ancho no es un numero");
-    console.assert(typeof self.height == "number", "El alto no es un numero");
-    console.assert(typeof self.dimension == "number", "La dimension no es un numero");
-    console.assert(
-        self.data.length == self.length,
-        "No coinciden el numero de elementos de la matriz..."
-    );
+    if (typeof self.width !== "number") {
+        throw new Error("El ancho no es un numero");
+    }
+    if (typeof self.height !== "number") {
+        throw new Error("El alto no es un numero");
+    }
+    if (typeof self.dimension !== "number") {
+        throw new Error("La dimension no es un numero");
+    }
+    if (self.data.length != self.length) {
+        throw new Error("No coinciden el numero de elementos de la matriz...");
+    }
     /**
      * @function loadData
      * @private
@@ -72,19 +83,19 @@ function Matrix(data, width, height, dimension, options) {
      * @returns {void}
      */
     function loadData(data) {
-        console.assert(
-            (
-                data instanceof Int8Array
-                || data instanceof Int16Array
-                || data instanceof Int32Array
-                || data instanceof Float32Array
-                || data instanceof Float64Array
-                || data instanceof Uint8ClampedArray
-                || data instanceof ArrayBuffer
-                || Array.isArray(data)
-            ),
-            "El parametro data no es un objeto valido..."
-        );
+        var isArray = [
+            Int8Array,
+            Int16Array,
+            Int32Array,
+            Float32Array,
+            Float64Array,
+            Uint8ClampedArray,
+            ArrayBuffer
+        ];
+        if (!Array.isArray(data) && isArray.indexOf(data) === 1) {
+            throw new Error(
+                "El parametro data no es un objeto valido...");
+        }
         if (data instanceof self.typeInstance) {
             self.data = data;
         } else {
@@ -99,8 +110,12 @@ function Matrix(data, width, height, dimension, options) {
      * @returns {void}
      */
     function setOptions(config) {
-        console.assert(config.width, "Es necesario el ancho de la matriz.");
-        console.assert(config.height, "Es necesario el alto de la matriz.");
+        if (!config.width) {
+            throw new Error("Es necesario el ancho de la matriz.");
+        }
+        if (!config.height) {
+            throw new Error("Es necesario el alto de la matriz.");
+        }
         self.width = config.width;
         self.height = config.height;
         if (config.dimension) {
@@ -251,8 +266,9 @@ Matrix.eyes = function (n, dimension) {
     var options = {
         type: "float32"
     };
-    console.assert(arguments.length > 0 && arguments.length <= 2,
-        "El numero de argumentos es invalido...");
+    if (!arguments.length || arguments.length > 2) {
+        throw new Error("El numero de argumentos es invalido...");
+    }
     if (arguments.length == 1) {
         options.width = options.height = n;
         options.dimension = 1;
@@ -286,8 +302,9 @@ function Generate(width, height, dimension) {
     var options = {
         type: "float32"
     };
-    console.assert(arguments.length > 0 && arguments.length <= 3,
-        "El numero de argumentos es invalido...");
+    if (!arguments.length || arguments.length > 3) {
+        throw new Error("El numero de argumentos es invalido...");
+    }
     if (arguments.length == 1) {
         options.width = options.height = width;
         options.dimension = 1;
@@ -388,7 +405,9 @@ Matrix.prototype.setField = function (x, y, val) {
  * @returns {void}
  */
 Matrix.prototype.forEach = function (callback) {
-    console.assert(callback instanceof Function, "callback debe ser una funcion.");
+    if (!(callback instanceof Function)) {
+        throw new Error("callback debe ser una funcion.");
+    }
     Utils.forEach(
         this.data,
         this.width,
@@ -406,7 +425,9 @@ Matrix.prototype.forEach = function (callback) {
  * @returns {void}
  */
 Matrix.prototype.map = function (callback) {
-    console.assert(callback instanceof Function, "callback debe ser una funcion.");
+    if (!(callback instanceof Function)) {
+        throw new Error("callback debe ser una funcion.");
+    }
     var obj = Utils.map(
         this.data,
         this.width,
@@ -467,10 +488,10 @@ Matrix.prototype.isNotNumber = function () {
  * @returns {boolean}
  */
 Matrix.prototype.isEqual = function (vector) {
-    console.assert(
-        vector instanceof Matrix,
-        "El parametro no es un objetos matrix de comparacion..."
-    );
+    if (!(vector instanceof Matrix)) {
+        throw new Error(
+            "El parametro no es un objetos matrix de comparacion...");
+    }
     return this.data.every(function (row, index) {
         return row === vector.data[index];
     });
@@ -803,7 +824,9 @@ Matrix.prototype.floor = function () {
  * @returns {Matrix}
  */
 Matrix.prototype.pow = function (n) {
-    console.assert(typeof n == "number", "n debe ser un numero");
+    if (typeof n !== "number") {
+        throw new Error("n debe ser un numero");
+    }
     var obj = this.clone(), self = this;
     obj.map(function (row) {
         if (obj.dimension == 1) {
@@ -874,13 +897,14 @@ Matrix.prototype.transposed = function () {
 Matrix.prototype.sum = function () {
     var matrixs = arguments;
     var obj = this;
-    console.assert(matrixs.length, "Es necesario un objeto");
+    if (!matrixs.length) {
+        throw new Error("Es necesario un objeto");
+    }
     for (var i = 0, n = matrixs.length; i < n; i++) {
         var matrix = matrixs[i];
-        console.assert(
-            matrix instanceof Matrix || typeof matrix == "number",
-            "Debe pasar un objeto Matrix o un escalar"
-        );
+        if (!(matrix instanceof Matrix) && typeof matrix !== "number") {
+            throw new Error("Debe pasar un objeto Matrix o un escalar");
+        }
         obj = Utils.sum(obj, matrix, true);
     }
     return obj;
@@ -894,13 +918,14 @@ Matrix.prototype.sum = function () {
 Matrix.prototype.subtract = function () {
     var matrixs = arguments;
     var obj = this;
-    console.assert(matrixs.length, "Es necesario un objeto");
+    if (!matrixs.length) {
+        throw new Error("Es necesario un objeto");
+    }
     for (var i = 0, n = matrixs.length; i < n; i++) {
         var matrix = matrixs[i];
-        console.assert(
-            matrix instanceof Matrix || typeof matrix == "number",
-            "Debe pasar un objeto Matrix o un escalar"
-        );
+        if (!(matrix instanceof Matrix) && typeof matrix !== "number") {
+            throw new Error("Debe pasar un objeto Matrix o un escalar");
+        }
         obj = Utils.sum(obj, matrix, false);
     }
     return obj;
@@ -913,10 +938,9 @@ Matrix.prototype.subtract = function () {
  * @return {Matrix}
  */
 Matrix.prototype.getRow = function (y) {
-    console.assert(
-        typeof y == "number" && y >= 0 && y < this.height,
-        "No es valido el numero de fila"
-    );
+    if (typeof y !== "number" || !y || y >= this.height) {
+        throw new Error("No es valido el numero de fila");
+    }
     var min = Utils.getIndex(
         0, y, this.width, this.height, this.dimension
     ),
@@ -940,10 +964,9 @@ Matrix.prototype.getRow = function (y) {
  * @returns {Matrix}
  */
 Matrix.prototype.getCol = function (x) {
-    console.assert(
-        typeof x == "number" && x >= 0 && x < this.width,
-        "No es valido el numero de columna"
-    );
+    if (typeof x !== "number" || !x || x >= this.width) {
+        throw new Error("No es valido el numero de columna");
+    }
     var data = new this.typeInstance(this.height * this.dimension);
     for (var y = 0, i = 0; y < this.height; y++ , i += this.dimension) {
         var index = Utils.getIndex(
@@ -975,23 +998,19 @@ Matrix.prototype.getCol = function (x) {
  * @returns {Matrix}
  */
 Matrix.prototype.slice = function (x1, y1, width, height) {
-    console.assert(
-        typeof x1 == "number" && x1 >= 0 && x1 < this.width,
-        "No es valido el numero de columna"
-    );
-    console.assert(
-        typeof y1 == "number" && y1 >= 0 && y1 < this.height,
-        "No es valido el numero de filas"
-    );
+    if (typeof y1 !== "number" || !y1 || y1 >= this.height) {
+        throw new Error("No es valido el numero de fila");
+    }
+    if (typeof x1 !== "number" || !x1 || x1 >= this.width) {
+        throw new Error("No es valido el numero de columna");
+    }
     var xend = x1 + (width - 1), yend = y1 + (height - 1);
-    console.assert(
-        typeof xend == "number" && xend >= 0 && xend < this.width,
-        "No es valido el ancho"
-    );
-    console.assert(
-        typeof yend == "number" && yend >= 0 && yend < this.height,
-        "No es valido el alto"
-    );
+    if (typeof yend !== "number" || !yend || yend >= this.height) {
+        throw new Error("No es valido el alto");
+    }
+    if (typeof xend !== "number" || !xend || xend >= this.width) {
+        throw new Error("No es valido el ancho");
+    }
     var data = new this.typeInstance(width * height * this.dimension);
     var i = 0;
     for (var y = y1; y <= yend; y++) {
@@ -1026,13 +1045,14 @@ Matrix.prototype.slice = function (x1, y1, width, height) {
 Matrix.prototype.inmultiply = function () {
     var matrixs = arguments;
     var obj = this;
-    console.assert(matrixs.length, "Es necesario un objeto");
+    if (!matrixs.length) {
+        throw new Error("Es necesario un objeto");
+    }
     for (var i = 0, n = matrixs.length; i < n; i++) {
         var matrix = matrixs[i];
-        console.assert(
-            matrix instanceof Matrix || typeof matrix == "number",
-            "Debe pasar un objeto Matrix o un escalar"
-        );
+        if (!(matrix instanceof Matrix) && typeof matrix !== "number") {
+            throw new Error("Debe pasar un objeto Matrix o un escalar");
+        }
         var temp = Generate(
             (typeof matrix == "number") ? obj.width : matrix.width,
             obj.height,
@@ -1063,13 +1083,14 @@ Matrix.prototype.inverse = function () {
 Matrix.prototype.divide = function () {
     var matrixs = arguments;
     var obj = this;
-    console.assert(matrixs.length, "Es necesario un objeto");
+    if (!matrixs.length) {
+        throw new Error("Es necesario un objeto");
+    }
     for (var i = 0, n = matrixs.length; i < n; i++) {
         var matrix = matrixs[i];
-        console.assert(
-            matrix instanceof Matrix || typeof matrix == "number",
-            "Debe pasar un objeto Matrix o un escalar"
-        );
+        if (!(matrix instanceof Matrix) && typeof matrix !== "number") {
+            throw new Error("Debe pasar un objeto Matrix o un escalar");
+        }
         if (typeof matrix == "number") {
             obj = obj.inmultiply(1 / matrix);
             continue;
@@ -1166,7 +1187,9 @@ Matrix.prototype.remove = function (x1, y1) {
  * @returns {Matrix}
  */
 Matrix.prototype.adj = function () {
-    console.assert(this.isSingular(), "Debe ser una matriz cuadrada");
+    if (!this.isSingular()) {
+        throw new Error("Debe ser una matriz cuadrada");
+    }
     var matrix = Generate(this.width, this.height, 1),
         self = this;
     var index = 0;
@@ -1190,7 +1213,9 @@ Matrix.prototype.adj = function () {
  */
 function determinant2(A) {
     var row1 = 1, row2 = 1, determ = 0;
-    console.assert(A.isSingular(), "La matriz no es cuadrada");
+    if (!A.isSingular()) {
+        throw new Error("La matriz no es cuadrada");
+    }
     A.forEach(function (row, x, y) {
         if (x == y) {
             if (A.dimension == 1) {
