@@ -154,87 +154,6 @@ function Matrix(data, width, height, dimension, options) {
                 throw new Error("El tipo de objeto no es valido...");
         }
     }    
-    /**
-     * @function sumRow
-     * @private
-     * @summary Suma todos los elementos del arreglo.
-     * @param {Array} rows - elementos a sumar.
-     * @returns {Number}
-     */
-    function sumRow(rows) {
-        var sum = 0;
-        for (var i = 0, n = rows.length; i < n; i++) {
-            sum += rows[i];
-        }
-        return sum;
-    }
-    /**
-     * @function determinant2
-     * @private
-     * @summary calcula la determinante de una matriz 2 x 2.
-     * @param {Matrix} A - matrix 2 x 2 a calcular.
-     * @return {Number}
-     */
-    function determinant2 (A) {
-        var row1 = 1, row2 = 1, determ = 0;
-        console.assert(A.isSingular(), "La matriz no es cuadrada");
-        A.forEach(function (row, x, y) {
-            if (x == y) {
-                if (A.dimension == 1) {
-                    row1 *= row;
-                } else {
-                    row1 *= sumRow(row);
-                }
-            }
-            if (x == A.width - 1 - y) {
-                if (A.dimension == 1) {
-                    row2 *= row;
-                } else {
-                    row2 *= sumRow(row);
-                }
-            }
-        });
-        return row1 - row2;
-    }
-    /**
-     * @function det
-     * @public
-     * @summary calcula el valor determinante de la matriz.
-     * @returns {Number}
-     */
-    this.det = function() {
-        if (determinant) {
-            return determinant;
-        }
-        if (self.width == 1) {
-            determinant = self.data[0];
-            return determinant;
-        }
-        if (self.width == self.height && self.width == 2) {
-            determinant = determinant2(self);
-            return determinant;
-        }
-        var det = 0;
-        var obj = self.adj();
-        for( var index = 0; index < self.width; index++) {
-            det += self.data[index] * obj.data[index];
-        }
-        determinant = det;
-        return det;
-    };
-    /**
-     * @function promd.
-     * @public
-     * @summary Calcula el promedio de la matriz.
-     * @returns {Number}
-     */
-    this.promd = function () {
-        var promd = 0;
-        for(var i = 0, n = self.data.length; i < n; i++) {
-            promd += self.data[i];
-        }
-        return promd;
-    };    
 }
 /**
  * @function random
@@ -1261,5 +1180,72 @@ Matrix.prototype.adj = function () {
     });
     this.__adj__ = matrix;
     return this.__adj__;
+};
+/**
+ * @function determinant2
+ * @private
+ * @summary calcula la determinante de una matriz 2 x 2.
+ * @param {Matrix} A - matrix 2 x 2 a calcular.
+ * @return {Number}
+ */
+function determinant2(A) {
+    var row1 = 1, row2 = 1, determ = 0;
+    console.assert(A.isSingular(), "La matriz no es cuadrada");
+    A.forEach(function (row, x, y) {
+        if (x == y) {
+            if (A.dimension == 1) {
+                row1 *= row;
+            } else {
+                row1 *= sumRow(row);
+            }
+        }
+        if (x == A.width - 1 - y) {
+            if (A.dimension == 1) {
+                row2 *= row;
+            } else {
+                row2 *= sumRow(row);
+            }
+        }
+    });
+    return row1 - row2;
+}
+/**
+ * @function det
+ * @public
+ * @summary calcula el valor determinante de la matriz.
+ * @returns {Number}
+ */
+Matrix.prototype.det = function () {
+    if (this.__determinant__) {
+        return this.__determinant__;
+    }
+    if (this.width == 1) {
+        this.__determinant__ = this.data[0];
+        return this.__determinant__;
+    }
+    if (this.width == this.height && this.width == 2) {
+        this.__determinant__ = determinant2(this);
+        return this.__determinant__;
+    }
+    var det = 0;
+    var obj = this.adj();
+    for (var index = 0; index < this.width; index++) {
+        det += this.data[index] * obj.data[index];
+    }
+    this.__determinant__ = det;
+    return det;
+};
+/**
+ * @function promd.
+ * @public
+ * @summary Calcula el promedio de la matriz.
+ * @returns {Number}
+ */
+Matrix.prototype.promd = function () {
+    var promd = 0;
+    for (var i = 0, n = this.data.length; i < n; i++) {
+        promd += this.data[i];
+    }
+    return promd;
 };
 module.exports = Matrix;
