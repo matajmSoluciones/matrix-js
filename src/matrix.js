@@ -21,13 +21,7 @@ var Utils = require("./utils");
  * @version 0.0.1
  */
 function Matrix(data, width, height, dimension, options) {
-    var self = this,
-        determinant = null,
-        adj = null;
-    self.typeInstance = Float32Array;
-    self.length = 0; // tamaño del arreglo.
-    self.dimension = 1;
-    self.config = {};
+    var config = {};
     if (!arguments.length) {
         throw new Error("Es requerido un argumento");
     }
@@ -35,140 +29,82 @@ function Matrix(data, width, height, dimension, options) {
         if (typeof data !== "object") {
             throw new Error("config debe ser un objeto.");
         }
-        setOptions(data);
-        if (data.data) {
-            loadData(data.data);
-        }
+        config = data;
     }
     if (arguments.length == 2) {
-        setOptions(width);
-        loadData(data);
+        config = width;
+        config.data = data;
     }
     if (arguments.length > 2) {
-        if (!options) {
-            options = {};
-        }
-        if (typeof options !== "object") {
+        if (options && typeof options !== "object") {
             throw new Error("config debe ser un objeto.");
         }
-        options.width = width;
-        options.height = height;
-        if (dimension) {
-            options.dimension = dimension;
+        if (options) {
+            config = options;
         }
-        setOptions(options);
-        loadData(data);
+        if (width) {
+            config.width = width;
+        }
+        if (height) {
+            config.height = height;
+        }
     }
-    self.length = self.width * self.height * self.dimension;
-    if (!self.data) {
-        self.data = new self.typeInstance(self.length);
+    if (!config.width) {
+        throw new Error("Es necesario el ancho de la matriz.");
     }
-    if (typeof self.width !== "number") {
+    if (!config.height) {
+        throw new Error("Es necesario el alto de la matriz.");
+    }    
+    var opt = {
+        width: {
+            value: config.width,
+            writable: false,
+            enumerable: true
+        },
+        height: {
+            value: config.height,
+            writable: false,
+            enumerable: true
+        },
+        dimension: {
+            value: 1,
+            writable: false,
+            enumerable: true
+        }
+    };
+    if (config.dimension) {
+        opt.dimension.value = config.dimension;
+    }
+    if (config.type) {
+        config.type = config.type.toLowerCase();
+        if (!(config.type in Matrix.typeArray)) {
+            throw new Error("El tipo de objeto no es valido...");
+        }
+        opt.instance = {
+            value: Matrix.typeArray[config.type],
+            writable: true,
+            enumerable: true
+        };
+    }
+    if (typeof opt.width.value !== "number") {
         throw new Error("El ancho no es un numero");
     }
-    if (typeof self.height !== "number") {
+    if (typeof opt.height.value !== "number") {
         throw new Error("El alto no es un numero");
     }
-    if (typeof self.dimension !== "number") {
+    if (typeof opt.dimension.value !== "number") {
         throw new Error("La dimension no es un numero");
     }
-    if (self.data.length != self.length) {
-        throw new Error("No coinciden el numero de elementos de la matriz...");
+    Object.defineProperties(this, opt);
+    var length = this.width * this.height * this.dimension;
+    Object.defineProperty(this, "length", {
+        value: length,
+        writable: false,
+        enumerable: true
+    });
+    if (!this.data) {
+        this.data = new this.typeInstance(this.length);
     }
-    /**
-     * @function loadData
-     * @private
-     * @summary Carga el arreglo de datos matricial.
-     * @param {Array} data - Arreglo de datos.
-     * @returns {void}
-     */
-    function loadData(data) {
-        var isArray = [
-            Int8Array,
-            Int16Array,
-            Int32Array,
-            Float32Array,
-            Float64Array,
-            Uint8ClampedArray,
-            ArrayBuffer
-        ];
-        if (!Array.isArray(data) && isArray.indexOf(data) === 1) {
-            throw new Error(
-                "El parametro data no es un objeto valido...");
-        }
-        if (data instanceof self.typeInstance) {
-            self.data = data;
-        } else {
-            self.data = self.typeInstance.from(data);            
-        }
-    }
-    /**
-     * @function setOptions
-     * @private
-     * @summary Establece las opciones de la clase.     * 
-     * @param {object} config - Objetos.
-     * @returns {void}
-     */
-    function setOptions(config) {
-        if (!config.width) {
-            throw new Error("Es necesario el ancho de la matriz.");
-        }
-        if (!config.height) {
-            throw new Error("Es necesario el alto de la matriz.");
-        }
-        self.width = config.width;
-        self.height = config.height;
-        if (config.dimension) {
-            self.dimension = config.dimension;
-        }
-        if (config.type) {
-            isTypeInstance(config.type);
-        }
-        self.config = config;
-    }
-    /**
-     * @function isTypeInstance
-     * @private
-     * @summary Obtiene la clase Arreglo para generar datos. 
-     * @param {string} type Tipo de arreglo.
-     * @returns {void}
-     */
-    function isTypeInstance(type) {
-        switch (type.toLowerCase()) {
-            case "int8":
-                self.typeInstance = Int8Array;
-                break;
-            case "uint8":
-                self.typeInstance = Uint8Array;
-                break;
-            case "uint16":
-                self.typeInstance = Uint16Array;
-                break;
-            case "uint32":
-                self.typeInstance = Uint32Array;
-                break;
-            case "uint8_clamped":
-                self.typeInstance = Uint8ClampedArray;
-                break;
-            case "int16":
-                self.typeInstance = Int16Array;
-                break;
-            case "int32":
-                self.typeInstance = Int32Array;
-                break;
-            case "float32":
-                self.typeInstance = Float32Array;
-                break;
-            case "float64":
-                self.typeInstance = Float64Array;
-                break;
-            case "buffer":
-                self.typeInstance = ArrayBuffer;
-                break;
-            default:
-                throw new Error("El tipo de objeto no es valido...");
-        }
-    }    
 }
 /**
  * @function random
@@ -436,7 +372,7 @@ Matrix.prototype.map = function (callback) {
         callback,
         this.typeInstance
     );
-    return obj;
+    return this;
 };
 
 /**
@@ -845,7 +781,30 @@ Matrix.prototype.pow = function (n) {
  * @returns {Matrix}
  */
 Matrix.prototype.clone = function () {
-    return Utils.clone(this, Matrix);
+    function clone(source) {
+        var copy = {};
+        for (var key in source) {
+            var src = source[key], property = Object.getOwnPropertyDescriptor(source, key);
+            if (property) {
+                Object.defineProperty(copy, key, property);
+                continue;
+            }
+            if (Matrix.isValidArray(src)) {
+                copy[key] = src.slice();
+                continue;
+            }
+            if (typeof src === "object") {
+                copy[key] = clone(source[key]);
+                continue;
+            }
+            copy[key] = source[key];
+        }
+        return copy;
+    }
+    //var newobj = Object.assign({}, this);
+    var copy = clone(this);
+    copy.data = this.data.slice();
+    return copy;
 };
 /**
  * @function size
@@ -896,7 +855,7 @@ Matrix.prototype.transposed = function () {
  */
 Matrix.prototype.sum = function () {
     var matrixs = arguments;
-    var obj = this;
+    var obj = this.clone();
     if (!matrixs.length) {
         throw new Error("Es necesario un objeto");
     }
@@ -904,6 +863,9 @@ Matrix.prototype.sum = function () {
         var matrix = matrixs[i];
         if (!(matrix instanceof Matrix) && typeof matrix !== "number") {
             throw new Error("Debe pasar un objeto Matrix o un escalar");
+        }
+        if (!(typeof matrix == "number" || (matrix.width == obj.width && matrix.height == obj.height && matrix.dimension == obj.dimension))) {
+            throw new Error("Las matrices no son identicas en tamaño...");
         }
         obj = Utils.sum(obj, matrix, true);
     }
@@ -1272,5 +1234,71 @@ Matrix.prototype.promd = function () {
         promd += this.data[i];
     }
     return promd;
+};
+Object.defineProperty(Matrix.prototype, "typeInstance" , {
+    value: Float32Array,
+    writable: true,
+    enumerable: true
+});
+Object.defineProperty(Matrix.prototype, "__data__" , {
+    value: null,
+    writable: true,
+    enumerable: false
+});
+Object.defineProperty(Matrix.prototype, //objeto target
+'data', //nombre propiedad
+{
+    enumerable: true, 
+    configurable: true,
+    get: function get() { //getter
+        return this.__data__;
+    },
+    set: function set(data) { //getter
+        if (!Matrix.isValidArray(data)) {
+            throw new Error(
+                "El parametro data no es un objeto valido...");
+        }
+        if (data.length != this.length) {
+            throw new Error(
+                "No coinciden el numero de elementos de la matriz...");
+        }
+        if (data instanceof this.typeInstance) {
+            this.__data__ = data;
+        } else {
+            this.__data__ =  this.typeInstance.from(data);
+        }
+    }
+});
+Object.defineProperty(Matrix, "typeArray", {
+    value: {
+        "int8": Int8Array,
+        "uint8": Uint8Array,
+        "uint16": Uint16Array,
+        "uint32": Uint32Array,
+        "uint8_clamped": Uint8ClampedArray,
+        "int16": Int16Array,
+        "int32": Int32Array,
+        "float32": Float32Array,
+        "float64": Float64Array,
+        "buffer": ArrayBuffer
+    },
+    writable: false,
+    enumerable: true
+});
+/**
+ * isValidArray.
+ * Valida que sea un array tipeado valido.
+ * @param {*} data valor de validación.
+ * @returns {Boolean}
+ */
+Matrix.isValidArray = function (data) {
+    var bool = false;
+    if (Array.isArray(data)) {
+        return true;
+    }
+    for (var key in Matrix.typeArray) {
+        bool = bool || data instanceof Matrix.typeArray[key];
+    }
+    return bool;
 };
 module.exports = Matrix;

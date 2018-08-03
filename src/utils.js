@@ -124,20 +124,14 @@ function Utils(stdlib, foreign, heap) {
  * @param {Matrix} B objeto 2 de la matriz.
  * @returns {Matrix}
  */
-    function sum(A, B, sum) {
-        var obj = A.clone(), col2;
-        if (sum == undefined || sum == null) {
-            sum = true;
-        }
-        if (!(typeof B == "number" || (B.width == obj.width && B.height == obj.height && B.dimension == obj.dimension))) {
-            throw new Error("Las matrices no son identicas en tamaño...");
-        }
+    function sum(obj, B, sum) {
+        var col2;
         if (typeof B == "number") {
             col2 = B;
         }
         obj.map(function (row, x, y) {
             if (typeof B === "object") {
-                col2 = B.getField(x, y);
+                col2 = B.get(x, y);
             }
             if (obj.dimension == 1) {
                 if (!sum) {
@@ -202,7 +196,7 @@ function Utils(stdlib, foreign, heap) {
             obj.map(function (row, x1, y1) {
                 x1 = x1 | 0;
                 y1 = y1 | 0;
-                var element = A.getField(x1, y1);
+                var element = A.get(x1, y1);
                 if (obj.dimension == 1) {
                     return stdlib.Math.fround(element * B);
                 }
@@ -225,7 +219,7 @@ function Utils(stdlib, foreign, heap) {
                     B.width - 1, y1, B.width, B.height, B.dimension
                 ) | 0;
             for (x = 0; (x | 0) < A.width; x = (x + 1) | 0) {
-                var row = A.getField(x, y1), col = B.getField(x1, x), k = 0;
+                var row = A.get(x, y1), col = B.get(x1, x), k = 0;
                 if (obj.dimension == 1) {
                     val += stdlib.Math.fround(col * row);
                 } else {
@@ -241,18 +235,6 @@ function Utils(stdlib, foreign, heap) {
         }
         return obj;
     }
-    /**
-     * clone.
-     * 
-     * @param {object} obj Objeto a clonar.
-     * @param {Function} instance Clase del objeto.
-     * @returns {Matrix}
-     */
-    function clone(obj, instance) {
-        obj.config.data = obj.data.slice();
-        var obj1 = new instance(obj.config);
-        return obj1;
-    }
 
     function convolution(A, B, ESCALAR, BIAS) {
         ESCALAR = stdlib.Math.fround(ESCALAR);
@@ -263,7 +245,7 @@ function Utils(stdlib, foreign, heap) {
         if (!BIAS) {
             BIAS = 1;
         }
-        obj = clone(A, A.typeInstance);
+        obj = A.clone();
         obj.map(function (row, x, y, index) {
             
         });
@@ -276,7 +258,6 @@ function Utils(stdlib, foreign, heap) {
         map: map,
         slice: slice,
         sum: sum,
-        clone: clone,
         inmultiply: inmultiply
     };
 }
