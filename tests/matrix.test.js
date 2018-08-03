@@ -278,11 +278,13 @@ describe("class Matrix", function() {
                 height: 2,
             }
         );
+        var data = matrix.data;
         assert.equal(matrix.data.length, matrix.length);
         assert.equal(matrix.width, 3);
         assert.equal(matrix.height, 2);
         assert.equal(matrix.dimension, 1);
-        assert.ok(matrix.data instanceof Int8Array);
+        assert.ok(
+            matrix.data instanceof Int8Array, data);
         assertForEach(matrix, expect);
     });
     it("test Constructor 2D: Equals two matrix", function () {
@@ -950,7 +952,7 @@ describe("class Matrix", function() {
         var matrix = Matrix.ones(3,1);
         var result = matrix.sum(matrix);
         result.data.forEach(function (row, index) {
-            assert.equal(row, expect[index]);            
+            assert.equal(row, expect[index]);
         });
     });
     it("test getRow vector", function () {
@@ -1372,17 +1374,8 @@ describe("class Matrix", function() {
  * @returns {void}
  */
 function assertForEach(matrix, expect) {
-    var index = 0, _x = 0, _y = 0;
-    matrix.forEach(function (row, x, y) {
-        assert.equal(row, expect[index], "El valor de la matriz no coindice.");
-        assert.equal(x, _x, "Fallo coordenada X");
-        assert.equal(y, _y, "Fallo coordenada Y");
-        index++;
-        _x++;
-        if (_x >= matrix.width) {
-            _x = 0;
-            _y++;
-        }
+    matrix.data.forEach(function (row, index) {
+        sameEqual(row, expect[index], index, 0.1);
     });
 }
 

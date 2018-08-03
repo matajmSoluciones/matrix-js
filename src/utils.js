@@ -211,7 +211,7 @@ function Utils(stdlib, foreign, heap) {
         //Multiplicacion de dos matrices MxN
         obj.map(function (row1, x1, y1) {
             var y = 0, z = 0, x = 0,
-                val = (obj.dimension == 1) ? 0 : new obj.typeInstance(obj.dimension),
+                val = (obj.dimension == 1) ? 0 : new obj.instance(obj.dimension),
                 min = getIndex(
                     0, y1, B.width, B.height, B.dimension
                 ) | 0,

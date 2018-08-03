@@ -48,6 +48,7 @@ function Matrix(data, width, height, dimension, options) {
         if (height) {
             config.height = height;
         }
+        config.data = data;
     }
     if (!config.width) {
         throw new Error("Es necesario el ancho de la matriz.");
@@ -102,8 +103,10 @@ function Matrix(data, width, height, dimension, options) {
         writable: false,
         enumerable: true
     });
-    if (!this.data) {
-        this.data = new this.typeInstance(this.length);
+    if (config.data) {
+        this.data = config.data;
+    } else {
+        this.data = new this.instance(this.length);
     }
 }
 /**
@@ -300,7 +303,7 @@ Matrix.prototype.set = function (x, y, val) {
         throw new Error("Es necesario un indice de " + this.dimension + " dimensiones");
     }
     this.data = Utils.replace(
-        this.data, val, index, this.typeInstance
+        this.data, val, index, this.instance
     );
     return;
 };
@@ -350,7 +353,7 @@ Matrix.prototype.forEach = function (callback) {
         this.height,
         this.dimension,
         callback,
-        this.typeInstance
+        this.instance
     );
 };
 /**
@@ -370,7 +373,7 @@ Matrix.prototype.map = function (callback) {
         this.height,
         this.dimension,
         callback,
-        this.typeInstance
+        this.instance
     );
     return this;
 };
@@ -879,7 +882,7 @@ Matrix.prototype.sum = function () {
  */
 Matrix.prototype.subtract = function () {
     var matrixs = arguments;
-    var obj = this;
+    var obj = this.clone();
     if (!matrixs.length) {
         throw new Error("Es necesario un objeto");
     }
@@ -887,6 +890,9 @@ Matrix.prototype.subtract = function () {
         var matrix = matrixs[i];
         if (!(matrix instanceof Matrix) && typeof matrix !== "number") {
             throw new Error("Debe pasar un objeto Matrix o un escalar");
+        }
+        if (!(typeof matrix == "number" || (matrix.width == obj.width && matrix.height == obj.height && matrix.dimension == obj.dimension))) {
+            throw new Error("Las matrices no son identicas en tamaño...");
         }
         obj = Utils.sum(obj, matrix, false);
     }
@@ -929,7 +935,7 @@ Matrix.prototype.getCol = function (x) {
     if (typeof x !== "number" || !x || x >= this.width) {
         throw new Error("No es valido el numero de columna");
     }
-    var data = new this.typeInstance(this.height * this.dimension);
+    var data = new this.instance(this.height * this.dimension);
     for (var y = 0, i = 0; y < this.height; y++ , i += this.dimension) {
         var index = Utils.getIndex(
             x, y, this.width, this.height, this.dimension
@@ -973,7 +979,7 @@ Matrix.prototype.slice = function (x1, y1, width, height) {
     if (typeof xend !== "number" || !xend || xend >= this.width) {
         throw new Error("No es valido el ancho");
     }
-    var data = new this.typeInstance(width * height * this.dimension);
+    var data = new this.instance(width * height * this.dimension);
     var i = 0;
     for (var y = y1; y <= yend; y++) {
         for (var x = x1; x <= xend; x++) {
@@ -1235,7 +1241,7 @@ Matrix.prototype.promd = function () {
     }
     return promd;
 };
-Object.defineProperty(Matrix.prototype, "typeInstance" , {
+Object.defineProperty(Matrix.prototype, "instance" , {
     value: Float32Array,
     writable: true,
     enumerable: true
@@ -1262,10 +1268,10 @@ Object.defineProperty(Matrix.prototype, //objeto target
             throw new Error(
                 "No coinciden el numero de elementos de la matriz...");
         }
-        if (data instanceof this.typeInstance) {
+        if (data instanceof this.instance) {
             this.__data__ = data;
         } else {
-            this.__data__ =  this.typeInstance.from(data);
+            this.__data__ =  this.instance.from(data);
         }
     }
 });
