@@ -197,84 +197,6 @@ function Matrix(data, width, height, dimension, options) {
         return row1 - row2;
     }
     /**
-     * @function removeRow
-     * @public
-     * @summary Elimina una fila del objeto.
-     * @param {Number} y1 num. de fila
-     * @returns {Matrix}
-     */
-    this.removeRow = function (y1) {
-        var obj = Generate(self.width, self.height -1, self.dimension);
-        obj.map(function(row, x, y){
-            if (y >= y1) {
-                return self.get(x, y + 1);
-            }
-            return self.get(x, y);
-        });
-        return obj;
-    };
-    /**
-     * @function removeCol
-     * @public
-     * @summary Elimina una columna del objeto.
-     * @param {Number} x1 num. de columna
-     * @returns {Matrix}
-     */
-    this.removeCol = function (x1) {
-        var obj = Generate(self.width - 1, self.height, self.dimension);
-        obj.map(function(row, x, y){
-            if (x >= x1) {
-                return self.get(x + 1, y);
-            }
-            return self.get(x, y);
-        });
-        return obj;
-    };
-    /**
-     * @function remove
-     * @public
-     * @summary Elimina la fila y columna que intersecta el par (x, y).
-     * @param {Number} x1 num. de columna
-     * @param {Number} y1 num. de fila
-     * @returns {Matrix}
-     */
-    this.remove = function (x1, y1) {
-        var obj = Generate(
-            self.width - 1, self.height -1, self.dimension);
-        obj.map(function(row, x, y){
-            var inx = 0, iny = 0;
-            if (y >= y1) {
-                iny = 1;
-            }
-            if (x >= x1) {
-                inx = 1;
-            }
-            return self.get(x + inx, y + iny);
-        });
-        return obj;
-    };
-    /**
-     * @function adj
-     * @public
-     * @summary Genera la matriz cofactor.
-     * @returns {Matrix}
-     */
-    this.adj = function () {
-        console.assert(self.isSingular(), "Debe ser una matriz cuadrada");
-        var matrix = Generate(self.width, self.height, 1);
-        var index = 0;
-        if (adj) {
-            return adj;
-        }
-        self.forEach(function (row, x, y) {
-            var obj = self.remove(x, y);
-            var cof = Math.pow(-1, x + y + 2) * obj.det();
-            matrix.data[index++] = cof;
-        });
-        adj = matrix;
-        return adj;
-    };
-    /**
      * @function det
      * @public
      * @summary calcula el valor determinante de la matriz.
@@ -1260,4 +1182,84 @@ Matrix.prototype.isSingular = function () {
     return this.width == this.height;
 };
 
+/**
+ * @function removeRow
+ * @public
+ * @summary Elimina una fila del objeto.
+ * @param {Number} y1 num. de fila
+ * @returns {Matrix}
+ */
+Matrix.prototype.removeRow = function (y1) {
+    var obj = Generate(this.width, this.height - 1, this.dimension);
+    obj.map(function (row, x, y) {
+        if (y >= y1) {
+            return this.get(x, y + 1);
+        }
+        return this.get(x, y);
+    });
+    return obj;
+};
+/**
+ * @function removeCol
+ * @public
+ * @summary Elimina una columna del objeto.
+ * @param {Number} x1 num. de columna
+ * @returns {Matrix}
+ */
+Matrix.prototype.removeCol = function (x1) {
+    var obj = Generate(this.width - 1, this.height, this.dimension);
+    obj.map(function (row, x, y) {
+        if (x >= x1) {
+            return this.get(x + 1, y);
+        }
+        return this.get(x, y);
+    });
+    return obj;
+};
+/**
+ * @function remove
+ * @public
+ * @summary Elimina la fila y columna que intersecta el par (x, y).
+ * @param {Number} x1 num. de columna
+ * @param {Number} y1 num. de fila
+ * @returns {Matrix}
+ */
+Matrix.prototype.remove = function (x1, y1) {
+    var obj = Generate(
+        this.width - 1, this.height - 1, this.dimension),
+        self = this;
+    obj.map(function (row, x, y) {
+        var inx = 0, iny = 0;
+        if (y >= y1) {
+            iny = 1;
+        }
+        if (x >= x1) {
+            inx = 1;
+        }
+        return self.get(x + inx, y + iny);
+    });
+    return obj;
+};
+/**
+ * @function adj
+ * @public
+ * @summary Genera la matriz cofactor.
+ * @returns {Matrix}
+ */
+Matrix.prototype.adj = function () {
+    console.assert(this.isSingular(), "Debe ser una matriz cuadrada");
+    var matrix = Generate(this.width, this.height, 1),
+        self = this;
+    var index = 0;
+    if (this.__adj__) {
+        return this.__adj__;
+    }
+    self.forEach(function (row, x, y) {
+        var obj = self.remove(x, y);
+        var cof = Math.pow(-1, x + y + 2) * obj.det();
+        matrix.data[index++] = cof;
+    });
+    this.__adj__ = matrix;
+    return this.__adj__;
+};
 module.exports = Matrix;
