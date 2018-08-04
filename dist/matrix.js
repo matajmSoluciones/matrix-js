@@ -6,11 +6,9 @@
 
 	var commonjsGlobal = typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
 
-	/**
-	 * Modulo de utilidades asm.js
-	 */
-	function Utils(stdlib, foreign, heap) {
+	var getIndex = function (stdlib, foreign, heap) {
 	    "use asm";
+	    var floor = stdlib.Math.floor;
 	    /**
 	     * getIndex.
 	     * Obtiene el indice del un arreglo unidimencional de la matriz.
@@ -18,168 +16,32 @@
 	     * @param {Array} arguments lista de argumentos del indice.
 	     * @param {Number} x primer elemento del par.
 	     * @param {Number} y segundo elemento del par.
-	     * @param {Number} width ancho.
-	     * @param {Number} height alto.
-	     * @param {Number} dimension dimension.
 	     * @return {Number}
 	     */
-	    function getIndex(x, y, width, height, dimension) {
-	        x = x | 0;
-	        y = y | 0;
-	        width = width | 0;
-	        height = height | 0;
-	        dimension = dimension | 0;
-	        return ~~stdlib.Math.floor(+(x + y * width)) * dimension;
+	    function getIndex(x, y, width, dimension) {
+	        x = +x;
+	        y = +y;
+	        width = +width;
+	        dimension = +dimension;
+	        var result = 0.0;
+	        result = (x + y * width) * dimension;
+	        return ~~floor(result);
 	    }
-	    /**
-	     * forEach.
-	     * Recorre un vector como una matriz.
-	     * @param {Array} data Arreglo.
-	     * @param {Number} width ancho.
-	     * @param {Number} height alto.
-	     * @param {Number} dimension dimension.
-	     * @param {Function} callback funcion de llamada.
-	     * @param {Function} type Tipo de arreglo.
-	     * @returns {Void}
-	     */
-	    function forEach (data, width, height, dimension, callback, type) {
-	        data = type.from(data);
-	        x = x | 0;
-	        y = y | 0;
-	        width = width | 0;
-	        height = height | 0;
-	        dimension = dimension | 0;
-	        var index = 0, x = 0, y = 0, n = data.length | 0;
-	        for (index = 0; (index | 0) < n; index = (index + dimension) | 0) {
-	            var elements;
-	            if (dimension == 1) {
-	                elements = +data[index];
-	            } else {
-	                elements = type.from(data.slice(index, index + dimension));
-	            }
-	            if (x >= width) {
-	                x = 0;
-	                y++;
-	            }
-	            callback(elements, x | 0, y | 0, index | 0);
-	            x++;
-	        }
-	    }
-	    /**
-	     * replace.
-	     * Reemplaza un fragmento de dos areglos.
-	     * 
-	     * @param {Array} A primer arreglo donde se reemplaza.
-	     * @param {Array} B segundo arreglo que reemplaza.
-	     * @returns {Array}
-	     */
-	    function replace(A, B, index, type) {
-	        index = index | 0;
-	        var i = 0, n = B.length | 0,
-	            end = (index + B) | 0,
-	            n2 = A.length | 0;
-	        if (n >= n2 ||  end >= n2) {
-	            throw new Error("El reemplazo es incorrecto!. Repare los indices");
-	        }
-	        for (i = 0; (i | 0) < n; i = (i + 1) | 0) {
-	                A[index + i | 0] = B[i];
-	        }
-	        return A;
-	    }
-	    /**
-	     * map.
-	     * Recorre un vector como una matriz.
-	     * @param {Array} data Arreglo.
-	     * @param {Number} width ancho.
-	     * @param {Number} height alto.
-	     * @param {Number} dimension dimension.
-	     * @param {Function} callback funcion de llamada.
-	     * @param {Function} type Tipo de arreglo.
-	     * @returns {Void}
-	     */
-	    function map(data, width, height, dimension, callback, type) {
-	        forEach(
-	            data,
-	            width,
-	            height,
-	            dimension,
-	            function (row, x, y, index) {
-	                var value = callback(row, x | 0, y | 0, index | 0);
-	                if (dimension == 1) {
-	                    data[index | 0] = value;
-	                } else {
-	                    if (value == undefined || value == null || value.length == undefined) {
-	                        throw new Error("Debe ser un array el retorno.");
-	                    }
-	                    if (value.length != dimension) {
-	                        throw new Error("Es necesario un indice de " + dimension + " dimensiones");
-	                    }
-	                    data = replace(
-	                        data, value, index, type
-	                    );
-	                }
-	            },
-	            type
-	        );
-	        return data;
-	    }
-	    /**
-	 * sum.
-	 * funcion de suma de dos vectores.
-	 * 
-	 * @param {Matrix} A objeto 1 de la matriz.
-	 * @param {Matrix} B objeto 2 de la matriz.
-	 * @returns {Matrix}
+	    return getIndex;
+	};
+
+	var asm = {
+		getIndex: getIndex
+	};
+
+	/**
+	 * Load de utilidades asm
 	 */
-	    function sum(A, B, sum) {
-	        var obj = A.clone(), col2;
-	        if (sum == undefined || sum == null) {
-	            sum = true;
-	        }
-	        if (!(typeof B == "number" || (B.width == obj.width && B.height == obj.height && B.dimension == obj.dimension))) {
-	            throw new Error("Las matrices no son identicas en tamaño...");
-	        }
-	        if (typeof B == "number") {
-	            col2 = B;
-	        }
-	        obj.map(function (row, x, y) {
-	            if (typeof B === "object") {
-	                col2 = B.getField(x, y);
-	            }
-	            if (obj.dimension == 1) {
-	                if (!sum) {
-	                    return stdlib.Math.fround(row - col2);
-	                }
-	                return stdlib.Math.fround(row + col2);
-	            }
-	            return row.map(function (row2, index) {
-	                if (typeof col2 == "number") {
-	                    if (!sum) {
-	                        return stdlib.Math.fround(row2 - col2);
-	                    }
-	                    return stdlib.Math.fround(row2 + col2);
-	                }
-	                if (!sum) {
-	                    return stdlib.Math.fround(row2 - col2[index]);
-	                }
-	                return stdlib.Math.fround(row2 + col2[index]);
-	            });
-	        });
-	        return obj;
-	    }
-	    /**
-	     * slice.
-	     * Retorna un array de los elementos seleccionados
-	     * 
-	     * @param {Array} data Origen.
-	     * @param {Number} index inicio de la seleccion
-	     * @param {Number} length numero de elementos
-	     * @returns {Array}
-	     */
-	    function slice(data, index, length) {
-	        index = index | 0;
-	        return data.slice(index, index + length);
-	    }
+	var Utils = {
+	    getIndex: function (obj, x, y) {
+	        var module = asm.getIndex(commonjsGlobal, null, null);
+	        return module(x, y, obj.width, obj.dimension);
+	    },
 	    /**
 	     * isMultiply.
 	     * Es multiplicable dos matrices.
@@ -188,90 +50,94 @@
 	     * @param {Matrix} B Objeto matriz 2.
 	     * @returns {Boolean}
 	     */
-	    function isMultiply(A, B) {
+	    isMultiply: function (A, B) {
 	        return typeof B == "number" || (A.width == B.height && B.dimension == A.dimension);
-	    }
-	    /**
-	     * inmultiply.
-	     * 
-	     * @param {Matrix} obj Matrix donde se almacena la operacion.
-	     * @param {Matrix} A Matrix primera.
-	     * @param {Matrix | Number} B Matrix o numero multiplo.
-	     * @returns {Matrix}
-	     */
-	    function inmultiply(obj, A, B) {
-	        if (!isMultiply(A, B)) {
-	            throw new Error("Las matrices no son multiplicables...");
-	        }
-	        //Multiplicacion de una matrix por un escalar.
+	    },
+	    inmultiply: function (C, A, B) {
 	        if (typeof B === "number") {
-	            obj.map(function (row, x1, y1) {
-	                x1 = x1 | 0;
-	                y1 = y1 | 0;
-	                var element = A.getField(x1, y1);
-	                if (obj.dimension == 1) {
-	                    return stdlib.Math.fround(element * B);
-	                }
-	                var i = 0, n = element.length;
-	                for (i = 0; (i | 0) < n; i = (i + 1) | 0) {
-	                    element[i] = stdlib.Math.fround(element[i] * B);
-	                }
-	                return element;
-	            });
-	            return obj;
+	            return Utils.__inmultiplyConstant(C, A, B);
 	        }
-	        //Multiplicacion de dos matrices MxN
-	        obj.map(function (row1, x1, y1) {
+	        return Utils.__inmultiplyMatrix(C, A, B);
+	    },
+	    __inmultiplyConstant: function (C, A, K) {
+	        C.map(function (rows, x, y, index) {
+	            var src = A.get(x, y);
+	            if (typeof src === "number") {
+	                return src * K;
+	            }
+	            for (var i = 0, n = src.length; i<n; i++) {
+	                src[i] *= K;
+	            }
+	            return src;
+	        });
+	        return C;
+	    },
+	    __inmultiplyMatrix : function (C, A, B) {
+	        C.map(function (row1, x1, y1) {
 	            var x = 0,
-	                val = (obj.dimension == 1) ? 0 : new obj.typeInstance(obj.dimension),
-	                min = getIndex(
-	                    0, y1, B.width, B.height, B.dimension
-	                ) | 0,
-	                max = getIndex(
-	                    B.width - 1, y1, B.width, B.height, B.dimension
-	                ) | 0;
-	            for (x = 0; (x | 0) < A.width; x = (x + 1) | 0) {
-	                var row = A.getField(x, y1), col = B.getField(x1, x), k = 0;
-	                if (obj.dimension == 1) {
-	                    val += stdlib.Math.fround(col * row);
-	                } else {
-	                    for (k = 0; (k | 0) < obj.dimension; k = (k + 1) | 0) {
-	                        val[k] += stdlib.Math.fround(row[k] * col[k]);
-	                    }
+	                val = 0,
+	                min = B.getIndex(0, y1),
+	                max = B.getIndex(B.width - 1, y1);
+	            if (C.dimension > 1) {
+	                val = new C.instance(C.dimension);
+	            }
+	            for(var x = 0; x < A.width; x++) {
+	                var row = A.get(x, y1), col = B.get(x1, x);
+	                if (C.dimension == 1) {
+	                    val += col * row;
+	                    continue;
+	                }
+	                for(var k = 0; k < C.dimension; k++) {
+	                    val [k] += row[k] * col[k];
 	                }
 	            }
 	            return val;
 	        });
-	        if (obj.width == obj.height && obj.width == 1) {
-	            return obj.data[0];
+	        return C;
+	    },
+	    sum: function (A, B, negative) {
+	        if (typeof B === "number") {
+	            return Utils.__sumConstant(A, B, negative);
 	        }
-	        return obj;
-	    }
-	    /**
-	     * clone.
-	     * 
-	     * @param {object} obj Objeto a clonar.
-	     * @param {Function} instance Clase del objeto.
-	     * @returns {Matrix}
-	     */
-	    function clone(obj, instance) {
-	        obj.config.data = obj.data.slice();
-	        var obj1 = new instance(obj.config);
-	        return obj1;
-	    }
+	        return Utils.__sumMatrix(A, B, negative);
+	    },
+	    __sumConstant: function (A, K, negative) {
+	        if (negative) {
+	            K = -K;
+	        }
+	        A.map(function (src, x, y, index) {
+	            if (typeof src === "number") {
+	                return src + K;
+	            }
+	            for (var i = 0, n = src.length; i < n; i++) {
+	                src[i] += K;
+	            }
+	            return src;
+	        });
+	        return A;
+	    },
+	    __sumMatrix: function (A, B, negative) {
+	        A.map(function (src, x, y, index) {
+	            var col2 = B.get(x, y);
+	            if (typeof src === "number" && typeof col2 == "number") {
+	                if (negative) {
+	                    col2 = -col2;
+	                }
+	                return src + col2;
+	            }
+	            for (var i = 0, n = col2.length; i < n; i++) {
+	                if (negative) {
+	                    col2[i] = -col2[i];
+	                }
+	                src[i] += col2[i];
+	            }
+	            return src;
+	        });
+	        return A;
+	    },
+	};
 
-	    return {
-	        getIndex: getIndex,
-	        forEach: forEach,
-	        replace: replace,
-	        map: map,
-	        slice: slice,
-	        sum: sum,
-	        clone: clone,
-	        inmultiply: inmultiply
-	    };
-	}
-	var utils = Utils(commonjsGlobal);
+	var utils = Utils;
 
 	/**
 	 * Matrix.
@@ -294,1090 +160,93 @@
 	 * @version 0.0.1
 	 */
 	function Matrix(data, width, height, dimension, options) {
-	    var self = this,
-	        determinant = null,
-	        adj = null;
-	    self.typeInstance = Float32Array;
-	    self.length = 0; // tamaño del arreglo.
-	    self.dimension = 1;
-	    self.config = {};
-	    console.assert(arguments.length > 0, "Es requerido un argumento");
+	    var config = {};
+	    if (!arguments.length) {
+	        throw new Error("Es requerido un argumento");
+	    }
 	    if (arguments.length == 1) {
-	        console.assert(typeof data == "object", "config debe ser un objeto.");
-	        setOptions(data);
-	        if (data.data) {
-	            loadData(data.data);
+	        if (typeof data !== "object") {
+	            throw new Error("config debe ser un objeto.");
 	        }
+	        config = data;
 	    }
 	    if (arguments.length == 2) {
-	        setOptions(width);
-	        loadData(data);
+	        config = width;
+	        config.data = data;
 	    }
 	    if (arguments.length > 2) {
-	        if (!options) {
-	            options = {};
+	        if (options && typeof options !== "object") {
+	            throw new Error("config debe ser un objeto.");
 	        }
-	        console.assert(typeof options == "object", "config debe ser un objeto.");
-	        options.width = width;
-	        options.height = height;
-	        if (dimension) {
-	            options.dimension = dimension;
+	        if (options) {
+	            config = options;
 	        }
-	        setOptions(options);
-	        loadData(data);
+	        if (width) {
+	            config.width = width;
+	        }
+	        if (height) {
+	            config.height = height;
+	        }
+	        config.data = data;
 	    }
-	    self.length = self.width * self.height * self.dimension;
-	    if (!self.data) {
-	        self.data = new self.typeInstance(self.length);
+	    if (!config.width) {
+	        throw new Error("Es necesario el ancho de la matriz.");
 	    }
-	    console.assert(typeof self.width == "number", "El ancho no es un numero");
-	    console.assert(typeof self.height == "number", "El alto no es un numero");
-	    console.assert(typeof self.dimension == "number", "La dimension no es un numero");
-	    console.assert(
-	        self.data.length == self.length,
-	        "No coinciden el numero de elementos de la matriz..."
-	    );
-	    /**
-	     * @function loadData
-	     * @private
-	     * @summary Carga el arreglo de datos matricial.
-	     * @param {Array} data - Arreglo de datos.
-	     * @returns {void}
-	     */
-	    function loadData(data) {
-	        console.assert(
-	            (
-	                data instanceof Int8Array
-	                || data instanceof Int16Array
-	                || data instanceof Int32Array
-	                || data instanceof Float32Array
-	                || data instanceof Float64Array
-	                || data instanceof Uint8ClampedArray
-	                || data instanceof ArrayBuffer
-	                || Array.isArray(data)
-	            ),
-	            "El parametro data no es un objeto valido..."
-	        );
-	        if (data instanceof self.typeInstance) {
-	            self.data = data;
-	        } else {
-	            self.data = self.typeInstance.from(data);            
+	    if (!config.height) {
+	        throw new Error("Es necesario el alto de la matriz.");
+	    }    
+	    var opt = {
+	        width: {
+	            value: config.width,
+	            writable: false,
+	            enumerable: true
+	        },
+	        height: {
+	            value: config.height,
+	            writable: false,
+	            enumerable: true
+	        },
+	        dimension: {
+	            value: 1,
+	            writable: false,
+	            enumerable: true
 	        }
+	    };
+	    if (config.dimension) {
+	        opt.dimension.value = config.dimension;
 	    }
-	    /**
-	     * @function setOptions
-	     * @private
-	     * @summary Establece las opciones de la clase.     * 
-	     * @param {object} config - Objetos.
-	     * @returns {void}
-	     */
-	    function setOptions(config) {
-	        console.assert(config.width, "Es necesario el ancho de la matriz.");
-	        console.assert(config.height, "Es necesario el alto de la matriz.");
-	        self.width = config.width;
-	        self.height = config.height;
-	        if (config.dimension) {
-	            self.dimension = config.dimension;
+	    if (config.type) {
+	        config.type = config.type.toLowerCase();
+	        if (!(config.type in Matrix.typeArray)) {
+	            throw new Error("El tipo de objeto no es valido...");
 	        }
-	        if (config.type) {
-	            isTypeInstance(config.type);
-	        }
-	        self.config = config;
+	        opt.instance = {
+	            value: Matrix.typeArray[config.type],
+	            writable: true,
+	            enumerable: true
+	        };
 	    }
-	    /**
-	     * @function isTypeInstance
-	     * @private
-	     * @summary Obtiene la clase Arreglo para generar datos. 
-	     * @param {string} type Tipo de arreglo.
-	     * @returns {void}
-	     */
-	    function isTypeInstance(type) {
-	        switch (type.toLowerCase()) {
-	            case "int8":
-	                self.typeInstance = Int8Array;
-	                break;
-	            case "uint8":
-	                self.typeInstance = Uint8Array;
-	                break;
-	            case "uint16":
-	                self.typeInstance = Uint16Array;
-	                break;
-	            case "uint32":
-	                self.typeInstance = Uint32Array;
-	                break;
-	            case "uint8_clamped":
-	                self.typeInstance = Uint8ClampedArray;
-	                break;
-	            case "int16":
-	                self.typeInstance = Int16Array;
-	                break;
-	            case "int32":
-	                self.typeInstance = Int32Array;
-	                break;
-	            case "float32":
-	                self.typeInstance = Float32Array;
-	                break;
-	            case "float64":
-	                self.typeInstance = Float64Array;
-	                break;
-	            case "buffer":
-	                self.typeInstance = ArrayBuffer;
-	                break;
-	            default:
-	                throw new Error("El tipo de objeto no es valido...");
-	        }
+	    if (typeof opt.width.value !== "number") {
+	        throw new Error("El ancho no es un numero");
 	    }
-	    /**
-	     * @function get
-	     * @public
-	     * @summary Obtiene el valor del punto cardinal.
-	     * @param {Number} x Punto del plano cartesiano eje-x.
-	     * @param {Number} y Punto del plano cartesiano eje-y.
-	     * @returns {*}
-	     */
-	    this.get = function(x, y) {
-	        var index = utils.getIndex(
-	            x, y, self.width, self.height, self.dimension
-	        );
-	        if (self.dimension == 1) {
-	            return self.data[index];
-	        }
-	        return utils.slice(self.data, index, self.dimension);
-	    };
-	    /**
-	     * @function getField
-	     * @public
-	     * @summary Obtiene el valor del punto cardinal.
-	     * @param {Number} x Punto del plano cartesiano eje-x.
-	     * @param {Number} y Punto del plano cartesiano eje-y.
-	     * @returns {*}
-	     */
-	    this.getField = function(x, y) {
-	        console.warn(
-	            "El metodo getField será descontinuado para la proxima version."
-	        );
-	        return this.get(x, y);
-	    };
-	    /**
-	     * @function set
-	     * @public
-	     * @summary Reemplaza el valor del punto cardinal.
-	     * @param {Number} x Punto del plano cartesiano eje-x.
-	     * @param {Number} y Punto del plano cartesiano eje-y.
-	     * @param {Number} val Punto del plano cartesiano eje-y.
-	     * @returns {*}
-	     */
-	    this.set = function(x, y, val) {
-	        var index = utils.getIndex(
-	            x, y, self.width, self.height, self.dimension
-	        );
-	        if (self.dimension == 1) {
-	            self.data[index] = val;
-	            return;
-	        }
-	        if (val == undefined || val == null || val.length == undefined) {
-	            throw new Error("Debe ser un array el retorno.");
-	        }
-	        if (val.length != self.dimension) {
-	            throw new Error("Es necesario un indice de " + self.dimension + " dimensiones");
-	        }
-	        self.data = utils.replace(
-	            self.data, val, index, self.typeInstance
-	        );
-	        return;
-	    };
-	    /**
-	     * @function setField
-	     * @public
-	     * @summary Reemplaza el valor del punto cardinal.
-	     * @param {Number} x Punto del plano cartesiano eje-x.
-	     * @param {Number} y Punto del plano cartesiano eje-y.
-	     * @param {Number} val Punto del plano cartesiano eje-y.
-	     * @returns {*}
-	     */
-	    this.setField = function(x, y, val) {
-	        console.warn(
-	            "El metodo setField será descontinuado para la proxima version."
-	        );
-	        return this.set(x, y, val);
-	    };
-	    /**
-	     * @function forEach
-	     * @public
-	     * @summary Blucle para recorrer la matriz muldimensional.     * 
-	     * @param {Function} callback Función de reemplazo.
-	     * @returns {void}
-	     */
-	    this.forEach = function(callback) {
-	        console.assert(callback instanceof Function, "callback debe ser una funcion.");
-	        utils.forEach(
-	            self.data,
-	            self.width,
-	            self.height,
-	            self.dimension,
-	            callback,
-	            self.typeInstance
-	        );
-	    };
-	    /**
-	     * @function map
-	     * @public
-	     * @summary Reemplaza el valor actual de la matriz.     * 
-	     * @param {Function} callback Función de reemplazo.
-	     * @returns {void}
-	     */
-	    this.map = function (callback) {
-	        console.assert(callback instanceof Function, "callback debe ser una funcion.");
-	        var obj = utils.map(
-	            self.data,
-	            self.width,
-	            self.height,
-	            self.dimension,
-	            callback,
-	            self.typeInstance
-	        );
-	        return obj;
-	    };
-	    /**
-	     * @function isNumber
-	     * @public
-	     * @summary Valida que la matriz es numerica.
-	     * @returns {boolean}
-	     */
-	    this.isNumber = function() {
-	        return self.data.every(function (row) {
-	            return !isNaN(row);            
-	        });
-	    };
-	    /**
-	     * @function isNotNumber
-	     * @public
-	     * @summary Valida que la matriz no es numerica.
-	     * @returns {boolean}
-	     */
-	    this.isNotNumber = function() {
-	        return !self.isNumber();
-	    };
-	    /**
-	     * @function isEqual
-	     * @public
-	     * @summary Compara el nuevo objeto matriz con el actual.
-	     * @param {Matrix} vector Objeto de comparación.
-	     * @returns {boolean}
-	     */
-	    this.isEqual = function(vector) {
-	        console.assert(
-	            vector instanceof Matrix,
-	            "El parametro no es un objetos matrix de comparacion..."
-	        );
-	        return self.data.every(function(row, index) {
-	            return row === vector.data[index];
-	        });
-	    };
-	    /**
-	     * @function isNotEqual
-	     * @public
-	     * @summary Compara si el nuevo objeto matriz es diferente.
-	     * @param {Matrix} vector Objeto de comparación.
-	     * @returns {boolean}
-	     */
-	    this.isNotEqual = function(vector) {
-	        return !self.isEqual(vector);
-	    };
-	    /**
-	     * @function isNull
-	     * @public
-	     * @summary Compara si la matriz es nula.     * 
-	     * @returns {boolean}
-	     */
-	    this.isNull = function () {
-	        return self.data.every(function (row, index) {
-	            return !row;
-	        });
-	    };
-	    /**
-	     * @function isNotNull
-	     * @public
-	     * @summary Compara si la matriz es no nula.
-	     * @returns {boolean}
-	     */
-	    this.isNotNull = function() {
-	        return !self.isNull();
-	    };
-	    /**
-	     * @function isOverTriangle
-	     * @public
-	     * @summary Es una matrix triangular superior.
-	     * @returns {Boolean}
-	     */
-	    this.isOverTriangle = function() {
-	        var isTriangle = true;
-	        self.forEach(function (row, x, y) {
-	            if (self.dimension == 1) {
-	                isTriangle = isTriangle && ((x > y && row === 0) || (x <= y && row !== 0));
-	            } else {
-	                for(var i = 0, n = row.length; i<n; i++) {
-	                    isTriangle = isTriangle && ((x > y && row[i] === 0 ) || (x <= y && row[i] !== 0));
-	                }
-	            }
-	        });
-	        return isTriangle;
-	    };
-	    /**
-	     * @function isUnderTriangle
-	     * @public
-	     * @summary Es una matrix triangular inferior.
-	     * @returns {Boolean}
-	     */
-	    this.isUnderTriangle = function() {
-	        var isTriangle = true;
-	        self.forEach(function (row, x, y) {
-	            if (self.dimension == 1) {
-	                isTriangle = isTriangle && ((x < y && row === 0) || (x >= y && row !== 0));
-	            } else {
-	                for(var i = 0, n = row.length; i<n; i++) {
-	                    isTriangle = isTriangle && ((x < y && row[i] === 0 ) || (x >= y && row[i] !== 0));
-	                }
-	            }
-	        });
-	        return isTriangle;
-	    };
-	    /**
-	     * @function isSimetry
-	     * @public
-	     * @summary Es una matrix simetrica.
-	     * @returns {Boolean}
-	     */
-	    this.isSimetry = function() {
-	        var isSimetry = true;
-	        if (self.width != self.height) {
-	            return false;
-	        }
-	        self.forEach(function (row, x, y) {
-	            var row2 = self.get(y, x);
-	            if (self.dimension == 1) {
-	                isSimetry = isSimetry && (row === row2);
-	            } else {
-	                for(var i = 0, n = row.length; i<n; i++) {
-	                    isSimetry = isSimetry && (row[i] === row2[i]);
-	                }
-	            }
-	        });
-	        return isSimetry;
-	    };
-	    /**
-	     * @function isAsimetry
-	     * @public
-	     * @summary Es una matrix asimetrica.
-	     * @returns {Boolean}
-	     */
-	    this.isAsimetry = function() {
-	        var isSimetry = true;
-	        if (self.width != self.height) {
-	            return false;
-	        }
-	        self.forEach(function (row, x, y) {
-	            var row2 = self.get(y, x);
-	            if (self.dimension == 1) {
-	                isSimetry = isSimetry && (row === -row2);
-	            } else {
-	                for(var i = 0, n = row.length; i<n; i++) {
-	                    isSimetry = isSimetry && (row[i] === -row2[i]);
-	                }
-	            }
-	        });
-	        return isSimetry;
-	    };
-	    /**
-	     * @function isNotSimetry
-	     * @public
-	     * @summary Valida si su inversa no es identica.
-	     * @returns {boolean}
-	     */
-	    this.isNotSimetry = function() {
-	        return !self.isSimetry();
-	    };
-	    /**
-	     * @function sqrt
-	     * @public
-	     * @summary Aplica raiz cuadrada de la matriz actual.
-	     * @returns {Matrix}
-	     */
-	    this.sqrt = function() {
-	        var obj = self.clone();
-	        obj.map(function(row) {
-	            if (obj.dimension == 1) {
-	                return Math.sqrt(row);
-	            }
-	            return row.map(function(row2) {
-	                return Math.sqrt(row2);
-	            });
-	        });
-	        return obj;
-	    };
-	    /**
-	     * @function cbrt
-	     * @public
-	     * @summary Aplica raiz cubica de la matriz actual.
-	     * @returns {Matrix}
-	     */
-	    this.cbrt = function() {
-	        var obj = self.clone();
-	        obj.map(function(row) {
-	            if (obj.dimension == 1) {
-	                return Math.cbrt(row);
-	            }
-	            return row.map(function(row2) {
-	                return Math.cbrt(row2);
-	            });
-	        });
-	        return obj;
-	    };
-	    /**
-	     * @function log
-	     * @public
-	     * @summary Aplica Logaritmo natural de la matriz actual.
-	     * @returns {Matrix}
-	     */
-	    this.log = function() {
-	        var obj = self.clone();
-	        obj.map(function(row) {
-	            if (obj.dimension == 1) {
-	                return Math.log(row);
-	            }
-	            return row.map(function(row2) {
-	                return Math.log(row2);
-	            });
-	        });
-	        return obj;
-	    };
-	    /**
-	     * @function exp
-	     * @public
-	     * @summary Aplica exponencial de la matriz actual.
-	     * @returns {Matrix}
-	     */
-	    this.exp = function() {
-	        var obj = self.clone();
-	        obj.map(function(row) {
-	            if (obj.dimension == 1) {
-	                return Math.exp(row);
-	            }
-	            return row.map(function(row2) {
-	                return Math.exp(row2);
-	            });
-	        });
-	        return obj;
-	    };
-	    /**
-	     * @function abs
-	     * @public
-	     * @summary Aplica valor absoluto de la matriz actual.
-	     * @returns {Matrix}
-	     */
-	    this.abs = function() {
-	        var obj = self.clone();
-	        obj.map(function(row) {
-	            if (obj.dimension == 1) {
-	                return Math.abs(row);
-	            }
-	            return row.map(function(row2) {
-	                return Math.abs(row2);
-	            });
-	        });
-	        return obj;
-	    };
-	    /**
-	     * @function atan
-	     * @public
-	     * @summary Aplica tangente de la matriz actual.
-	     * @returns {Matrix}
-	     */
-	    this.atan = function() {
-	        var obj = self.clone();
-	        obj.map(function(row) {
-	            if (obj.dimension == 1) {
-	                return Math.atan(row);
-	            }
-	            return row.map(function(row2) {
-	                return Math.atan(row2);
-	            });
-	        });
-	        return obj;
-	    };
-	    /**
-	     * @function cos
-	     * @public
-	     * @summary Aplica coseno de la matriz actual.
-	     * @returns {Matrix}
-	     */
-	    this.cos = function() {
-	        var obj = self.clone();
-	        obj.map(function(row) {
-	            if (obj.dimension == 1) {
-	                return Math.cos(row);
-	            }
-	            return row.map(function(row2) {
-	                return Math.cos(row2);
-	            });
-	        });
-	        return obj;
-	    };
-	    /**
-	     * @function sin
-	     * @public
-	     * @summary Aplica seno de la matriz actual.
-	     * @returns {Matrix}
-	     */
-	    this.sin = function() {
-	        var obj = self.clone();
-	        obj.map(function(row) {
-	            if (obj.dimension == 1) {
-	                return Math.sin(row);
-	            }
-	            return row.map(function(row2) {
-	                return Math.sin(row2);
-	            });
-	        });
-	        return obj;
-	    };
-	    /**
-	     * @function round
-	     * @summary Aplica redondeo de la matriz actual.
-	     * @returns {Matrix}
-	     */
-	    this.round = function() {
-	        var obj = self.clone();
-	        obj.map(function(row) {
-	            if (obj.dimension == 1) {
-	                return Math.round(row);
-	            }
-	            return row.map(function(row2) {
-	                return Math.round(row2);
-	            });
-	        });
-	        return obj;
-	    };
-	    /**
-	     * @function ceil
-	     * @public
-	     * @summary Aplica redondea al valor maximo despues del decimal la matriz actual.
-	     * @returns {Matrix}
-	     */
-	    this.ceil = function() {
-	        var obj = self.clone();
-	        obj.map(function(row) {
-	            if (obj.dimension == 1) {
-	                return Math.ceil(row);
-	            }
-	            return row.map(function(row2) {
-	                return Math.ceil(row2);
-	            });
-	        });
-	        return obj;
-	    };
-	    /**
-	     * @function floor
-	     * @public
-	     * @summary Aplica redondea al valor minimo del decimal en la matriz actual.
-	     * @returns {Matrix}
-	     */
-	    this.floor = function() {
-	        var obj = self.clone();
-	        obj.map(function(row) {
-	            if (obj.dimension == 1) {
-	                return Math.floor(row);
-	            }
-	            return row.map(function(row2) {
-	                return Math.floor(row2);
-	            });
-	        });
-	        return obj;
-	    };
-	    /**
-	     * @function pow
-	     * @public
-	     * @summary Aplica potencia enesima de la matriz actual.
-	     * @param {Number} n Numero de veces que se eleva la potencia.
-	     * @returns {Matrix}
-	     */
-	    this.pow = function(n) {
-	        console.assert(typeof n == "number", "n debe ser un numero");
-	        var obj = self.clone();
-	        obj.map(function(row) {
-	            if (obj.dimension == 1) {
-	                return Math.pow(row, n);
-	            }
-	            return row.map(function(row2) {
-	                return Math.pow(row2, n);
-	            });
-	        });
-	        return obj;
-	    };
-	    /**
-	     * @function clone
-	     * @public
-	     * @summary Genera una copia de la instancia actual.
-	     * @returns {Matrix}
-	     */
-	    this.clone = function() {
-	        return utils.clone(self, Matrix);
-	    };
-	    /**
-	     * @function size
-	     * @public
-	     * @summary Tamaño matricial del objeto.
-	     * @returns {Array}
-	     */
-	    this.size = function () {
-	        return [self.width, self.height, self.dimension];
-	    };
-	    /**
-	     * @function max
-	     * @public
-	     * @summary Devuelve el valor máximo de la matriz.
-	     * @return {Number}
-	     */
-	    this.max = function () {
-	        return Math.max.apply(null, self.data);
-	    };
-	    /**
-	     * @function min
-	     * @public
-	     * @summary Devuelve el valor mínimo de la matriz.
-	     * @return {Number}
-	     */
-	    this.min = function () {
-	        return Math.min.apply(null, self.data);
-	    };
-	    /**
-	     * @function transposed
-	     * @public
-	     * @summary Inversa de la matriz.
-	     * @returns {Matrix}
-	     */
-	    this.transposed = function () {
-	        var obj = Generate(self.height, self.width, self.dimension);
-	        obj.map(function (row, x, y) {
-	            return self.get(y, x);
-	        });
-	        return obj;
-	    };
-	    /**
-	     * @function sum
-	     * @public
-	     * @summary Suma la matriz actual al conjunto de matrices.
-	     * @returns {Matrix}
-	     */
-	    this.sum = function () {
-	        var matrixs = arguments;
-	        var obj = self;
-	        console.assert(matrixs.length, "Es necesario un objeto");
-	        for (var i = 0, n = matrixs.length; i < n; i++) {
-	            var matrix = matrixs[i];
-	            console.assert(
-	                matrix instanceof Matrix || typeof matrix == "number" ,
-	                "Debe pasar un objeto Matrix o un escalar"
-	            );
-	            obj = utils.sum(obj, matrix, true);
-	        }
-	        return obj;
-	    };
-	    /**
-	     * @function subtract
-	     * @public
-	     * @summary Suma la matriz actual al conjunto de matrices.
-	     * @returns {Matrix}
-	     */
-	    this.subtract = function () {
-	        var matrixs = arguments;
-	        var obj = self;
-	        console.assert(matrixs.length, "Es necesario un objeto");
-	        for (var i = 0, n = matrixs.length; i < n; i++) {
-	            var matrix = matrixs[i];
-	            console.assert(
-	                matrix instanceof Matrix || typeof matrix == "number" ,
-	                "Debe pasar un objeto Matrix o un escalar"
-	            );
-	            obj = utils.sum(obj, matrix, false);
-	        }
-	        return obj;
-	    };
-	    /**
-	     * @function getRow
-	     * @public
-	     * @summary Obtiene la fila seleccionada.
-	     * @param {Number} y numero de fila.
-	     * @return {Matrix}
-	     */
-	    this.getRow = function(y) {
-	        console.assert(
-	            typeof y == "number" && y >= 0 && y < self.height,
-	            "No es valido el numero de fila"
-	        );
-	        var min = utils.getIndex(
-	                0, y, self.width, self.height, self.dimension
-	            ),
-	            max = utils.getIndex(
-	                self.width - 1, y, self.width, self.height, self.dimension
-	            );
-	        var data = self.data.slice(
-	            min, min + (self.width * self.dimension));
-	        return new Matrix({
-	            width: self.width,
-	            height: 1,
-	            dimension: self.dimension,
-	            data: data
-	        });
-	    };
-	    /**
-	     * @function getCol.
-	     * @public
-	     * @summary Obtiene la columna seleccionada.
-	     * @param {Number} x numero de la columna.
-	     * @returns {Matrix}
-	     */
-	    this.getCol = function (x) {
-	        console.assert(
-	            typeof x == "number" && x >= 0 && x < self.width,
-	            "No es valido el numero de columna"
-	        );
-	        var data = new self.typeInstance(self.height * self.dimension);
-	        for (var y = 0, i = 0; y < self.height; y++, i += self.dimension) {
-	            var index = utils.getIndex(
-	                x, y, self.width, self.height, self.dimension
-	            );
-	            if (self.dimension == 1) {
-	                data[i] = self.data[index];
-	            } else {
-	                for(var j = 0; j < self.dimension; j++) {
-	                    data[i + j] = self.data[index + j];
-	                }
-	            }
-	        }
-	        return new Matrix({
-	            width: 1,
-	            height: self.height,
-	            dimension: self.dimension,
-	            data: data
-	        });
-	    };
-	    /**
-	     * @function slice
-	     * @public
-	     * @summary Retorna un nuevo objeto matrix con el tamaño seleccionado.
-	     * @param {Number} x coordenada de inicio.
-	     * @param {Number} Y coordenada de inicio.
-	     * @param {Number} width Ancho.
-	     * @param {Number} height Alto.
-	     * @returns {Matrix}
-	     */
-	    this.slice = function (x1, y1, width, height) {
-	        console.assert(
-	            typeof x1 == "number" && x1 >= 0 && x1 < self.width,
-	            "No es valido el numero de columna"
-	        );
-	        console.assert(
-	            typeof y1 == "number" && y1 >= 0 && y1 < self.height,
-	            "No es valido el numero de filas"
-	        );
-	        var xend = x1 + (width - 1), yend = y1 + (height - 1);
-	        console.assert(
-	            typeof xend == "number" && xend >= 0 && xend < self.width,
-	            "No es valido el ancho"
-	        );
-	        console.assert(
-	            typeof yend == "number" && yend >= 0 && yend < self.height,
-	            "No es valido el alto"
-	        );
-	        var data = new self.typeInstance(width * height * self.dimension);
-	        var i = 0;
-	        for (var y = y1; y <= yend; y++) {
-	            for( var x = x1; x <= xend; x++) {
-	                var index = utils.getIndex(
-	                    x, y, self.width, self.height, self.dimension
-	                );
-	                if (self.dimension == 1) {
-	                    data[i] = self.data[index];
-	                } else {
-	                    for (var j = 0; j < self.dimension; j++) {
-	                        data[i + j] = self.data[index + j];
-	                    }
-	                }
-	                i += self.dimension;
-	            }
-	        }
-	        return new Matrix({
-	            width: width,
-	            height: height,
-	            dimension: self.dimension,
-	            data: data
-	        });
-	    };
-	    /**
-	     * @function inmultiply.
-	     * @public
-	     * @summary Publica funcion multiplicar.
-	     * @param {Array} arguments - argumentos de la funcion.
-	     * @returns {Matrix}
-	     */
-	    this.inmultiply = function () {
-	        var matrixs = arguments;
-	        var obj = self;
-	        console.assert(matrixs.length, "Es necesario un objeto");
-	        for (var i = 0, n = matrixs.length; i < n; i++) {
-	            var matrix = matrixs[i];
-	            console.assert(
-	                matrix instanceof Matrix || typeof matrix == "number",
-	                "Debe pasar un objeto Matrix o un escalar"
-	            );
-	            var temp = Generate(
-	                (typeof matrix == "number") ? obj.width : matrix.width,
-	                obj.height,
-	                obj.dimension
-	            );
-	            obj = utils.inmultiply(temp, obj, matrix);
-	        }
-	        return obj;
-	    };
-	    /**
-	     * @function inverse
-	     * @public
-	     * @summary Genera la matriz inversa.
-	     * @returns {Matrix}
-	     */
-	    this.inverse = function() {
-	        var D = self.det();
-	        var obj = self.adj()
-	                    .transposed();
-	        return obj.inmultiply(1 / D);
-	    };
-	    /**
-	     * @function divide
-	     * @public
-	     * @summary Publica funcion dividir.
-	     * @param {Array} arguments - argumentos de la funcion.
-	     * @returns {Matrix}
-	     */
-	    this.divide = function () {
-	        var matrixs = arguments;
-	        var obj = self;
-	        console.assert(matrixs.length, "Es necesario un objeto");
-	        for (var i = 0, n = matrixs.length; i < n; i++) {
-	            var matrix = matrixs[i];
-	            console.assert(
-	                matrix instanceof Matrix || typeof matrix == "number",
-	                "Debe pasar un objeto Matrix o un escalar"
-	            );
-	            if (typeof matrix == "number") {
-	                obj = obj.inmultiply(1 / matrix);
-	                continue;
-	            }
-	            try {
-	                obj = obj.inmultiply(matrix.inverse());
-	            }catch(error) {
-	                obj = matrix.inmultiply(obj.inverse());
-	            }
-	        }
-	        return obj;
-	    };
-	    /**
-	     * @function not
-	     * @public
-	     * @summary Genera una matriz negativa de la actual.
-	     * @return {Matrix}
-	     */
-	    this.not = function () {
-	        return self.inmultiply(-1);
-	    };
-	    /**
-	     * @function isSingular
-	     * @public
-	     * @summary Es una matriz cuadrada.
-	     * @returns {Boolean}
-	     */
-	    this.isSingular = function () {
-	        return self.width == self.height;
-	    };
-	    /**
-	     * @function sumRow
-	     * @private
-	     * @summary Suma todos los elementos del arreglo.
-	     * @param {Array} rows - elementos a sumar.
-	     * @returns {Number}
-	     */
-	    function sumRow(rows) {
-	        var sum = 0;
-	        for (var i = 0, n = rows.length; i < n; i++) {
-	            sum += rows[i];
-	        }
-	        return sum;
+	    if (typeof opt.height.value !== "number") {
+	        throw new Error("El alto no es un numero");
 	    }
-	    /**
-	     * @function determinant2
-	     * @private
-	     * @summary calcula la determinante de una matriz 2 x 2.
-	     * @param {Matrix} A - matrix 2 x 2 a calcular.
-	     * @return {Number}
-	     */
-	    function determinant2 (A) {
-	        var row1 = 1, row2 = 1;
-	        console.assert(A.isSingular(), "La matriz no es cuadrada");
-	        A.forEach(function (row, x, y) {
-	            if (x == y) {
-	                if (A.dimension == 1) {
-	                    row1 *= row;
-	                } else {
-	                    row1 *= sumRow(row);
-	                }
-	            }
-	            if (x == A.width - 1 - y) {
-	                if (A.dimension == 1) {
-	                    row2 *= row;
-	                } else {
-	                    row2 *= sumRow(row);
-	                }
-	            }
-	        });
-	        return row1 - row2;
+	    if (typeof opt.dimension.value !== "number") {
+	        throw new Error("La dimension no es un numero");
 	    }
-	    /**
-	     * @function removeRow
-	     * @public
-	     * @summary Elimina una fila del objeto.
-	     * @param {Number} y1 num. de fila
-	     * @returns {Matrix}
-	     */
-	    this.removeRow = function (y1) {
-	        var obj = Generate(self.width, self.height -1, self.dimension);
-	        obj.map(function(row, x, y){
-	            if (y >= y1) {
-	                return self.get(x, y + 1);
-	            }
-	            return self.get(x, y);
-	        });
-	        return obj;
-	    };
-	    /**
-	     * @function removeCol
-	     * @public
-	     * @summary Elimina una columna del objeto.
-	     * @param {Number} x1 num. de columna
-	     * @returns {Matrix}
-	     */
-	    this.removeCol = function (x1) {
-	        var obj = Generate(self.width - 1, self.height, self.dimension);
-	        obj.map(function(row, x, y){
-	            if (x >= x1) {
-	                return self.get(x + 1, y);
-	            }
-	            return self.get(x, y);
-	        });
-	        return obj;
-	    };
-	    /**
-	     * @function remove
-	     * @public
-	     * @summary Elimina la fila y columna que intersecta el par (x, y).
-	     * @param {Number} x1 num. de columna
-	     * @param {Number} y1 num. de fila
-	     * @returns {Matrix}
-	     */
-	    this.remove = function (x1, y1) {
-	        var obj = Generate(
-	            self.width - 1, self.height -1, self.dimension);
-	        obj.map(function(row, x, y){
-	            var inx = 0, iny = 0;
-	            if (y >= y1) {
-	                iny = 1;
-	            }
-	            if (x >= x1) {
-	                inx = 1;
-	            }
-	            return self.get(x + inx, y + iny);
-	        });
-	        return obj;
-	    };
-	    /**
-	     * @function adj
-	     * @public
-	     * @summary Genera la matriz cofactor.
-	     * @returns {Matrix}
-	     */
-	    this.adj = function () {
-	        console.assert(self.isSingular(), "Debe ser una matriz cuadrada");
-	        var matrix = Generate(self.width, self.height, 1);
-	        var index = 0;
-	        if (adj) {
-	            return adj;
-	        }
-	        self.forEach(function (row, x, y) {
-	            var obj = self.remove(x, y);
-	            var cof = Math.pow(-1, x + y + 2) * obj.det();
-	            matrix.data[index++] = cof;
-	        });
-	        adj = matrix;
-	        return adj;
-	    };
-	    /**
-	     * @function det
-	     * @public
-	     * @summary calcula el valor determinante de la matriz.
-	     * @returns {Number}
-	     */
-	    this.det = function() {
-	        if (determinant) {
-	            return determinant;
-	        }
-	        if (self.width == 1) {
-	            determinant = self.data[0];
-	            return determinant;
-	        }
-	        if (self.width == self.height && self.width == 2) {
-	            determinant = determinant2(self);
-	            return determinant;
-	        }
-	        var det = 0;
-	        var obj = self.adj();
-	        for( var index = 0; index < self.width; index++) {
-	            det += self.data[index] * obj.data[index];
-	        }
-	        determinant = det;
-	        return det;
-	    };
-	    /**
-	     * @function promd.
-	     * @public
-	     * @summary Calcula el promedio de la matriz.
-	     * @returns {Number}
-	     */
-	    this.promd = function () {
-	        var promd = 0;
-	        for(var i = 0, n = self.data.length; i < n; i++) {
-	            promd += self.data[i];
-	        }
-	        return promd;
-	    };
-	    /**
-	     * @function toString
-	     * @public
-	     * @summary Parsear objeto como String.
-	     * @returns {String}
-	     */
-	    this.toString = function() {
-	        var str = "";
-	        self.forEach(function (row, x, y) {
-	            if (self.dimension == 1) {
-	                str += row + " ";
-	            } else {
-	                str += row.toString() + " ";
-	            }
-	            if (x == self.width - 1) {
-	                str += "\n";
-	            }
-	        });
-	        return str;
-	    };
+	    Object.defineProperties(this, opt);
+	    var length = this.width * this.height * this.dimension;
+	    Object.defineProperty(this, "length", {
+	        value: length,
+	        writable: false,
+	        enumerable: true
+	    });
+	    if (config.data) {
+	        this.data = config.data;
+	    } else {
+	        this.data = new this.instance(this.length);
+	    }
 	}
 	/**
 	 * @function random
@@ -1475,8 +344,9 @@
 	    var options = {
 	        type: "float32"
 	    };
-	    console.assert(arguments.length > 0 && arguments.length <= 2,
-	        "El numero de argumentos es invalido...");
+	    if (!arguments.length || arguments.length > 2) {
+	        throw new Error("El numero de argumentos es invalido...");
+	    }
 	    if (arguments.length == 1) {
 	        options.width = options.height = n;
 	        options.dimension = 1;
@@ -1510,8 +380,9 @@
 	    var options = {
 	        type: "float32"
 	    };
-	    console.assert(arguments.length > 0 && arguments.length <= 3,
-	        "El numero de argumentos es invalido...");
+	    if (!arguments.length || arguments.length > 3) {
+	        throw new Error("El numero de argumentos es invalido...");
+	    }
 	    if (arguments.length == 1) {
 	        options.width = options.height = width;
 	        options.dimension = 1;
@@ -1530,6 +401,1057 @@
 	    return obj;
 	}
 
+	/**
+	 * @function get
+	 * @public
+	 * @summary Obtiene el valor del punto cardinal.
+	 * @param {Number} x Punto del plano cartesiano eje-x.
+	 * @param {Number} y Punto del plano cartesiano eje-y.
+	 * @returns {*}
+	 */
+	Matrix.prototype.get = function (x, y) {
+	    var index = this.getIndex(x, y);
+	    if (this.dimension == 1) {
+	        return this.data[index];
+	    }
+	    return this.data.slice(index, index + this.dimension);
+	};
+	/**
+	 * @function set
+	 * @public
+	 * @summary Reemplaza el valor del punto cardinal.
+	 * @param {Number} x Punto del plano cartesiano eje-x.
+	 * @param {Number} y Punto del plano cartesiano eje-y.
+	 * @param {Number} val Punto del plano cartesiano eje-y.
+	 * @returns {*}
+	 */
+	Matrix.prototype.set = function (x, y, val) {
+	    var index = this.getIndex(x, y),
+	        end = 0,
+	        n = 0,
+	        n2 = 0;
+	    if (this.dimension == 1) {
+	        this.data[index] = val;
+	        return;
+	    }
+	    if (val == undefined || val == null || val.length == undefined) {
+	        throw new Error("Debe ser un array el retorno.");
+	    }
+	    if (val.length != this.dimension) {
+	        throw new Error("Es necesario un indice de " + this.dimension + " dimensiones");
+	    }
+	    n = val.length;
+	    n2 = this.length;
+	    end = index + n;
+	    if (n > n2 || end > n2) {
+	        throw new Error("El reemplazo es incorrecto!. Repare los indices");
+	    }
+	    for (var i = 0; i < n; i++) {
+	        this.data[index + i] = val[i];
+	    }
+	};
+	/**
+	 * 
+	 */
+	Matrix.prototype.getIndex = function (x, y) {
+	    return utils.getIndex(this, x, y);
+	};
+	/**
+	 * @function getField
+	 * @public
+	 * @summary Obtiene el valor del punto cardinal.
+	 * @param {Number} x Punto del plano cartesiano eje-x.
+	 * @param {Number} y Punto del plano cartesiano eje-y.
+	 * @returns {*}
+	 */
+	Matrix.prototype.getField = function (x, y) {
+	    console.warn(
+	        "El metodo getField será descontinuado para la proxima version."
+	    );
+	    return this.get(x, y);
+	};
+	/**
+	 * @function setField
+	 * @public
+	 * @summary Reemplaza el valor del punto cardinal.
+	 * @param {Number} x Punto del plano cartesiano eje-x.
+	 * @param {Number} y Punto del plano cartesiano eje-y.
+	 * @param {Number} val Punto del plano cartesiano eje-y.
+	 * @returns {*}
+	 */
+	Matrix.prototype.setField = function (x, y, val) {
+	    console.warn(
+	        "El metodo setField será descontinuado para la proxima version."
+	    );
+	    return this.set(x, y, val);
+	};
+	/**
+	 * @function forEach
+	 * @public
+	 * @summary Blucle para recorrer la matriz muldimensional.     * 
+	 * @param {Function} callback Función de reemplazo.
+	 * @returns {void}
+	 */
+	Matrix.prototype.forEach = function (callback) {
+	    if (!(callback instanceof Function)) {
+	        throw new Error("callback debe ser una funcion.");
+	    }
+	    for (var index = 0, x = 0, y = 0, n = this.data.length; index < n; index += this.dimension) {
+	        if (x >= this.width) {
+	            x = 0;
+	            y++;
+	        }
+	        var data = this.get(x, y);
+	        callback(data, x, y, index);
+	        x++;
+	    }
+	};
+	/**
+	 * @function map
+	 * @public
+	 * @summary Reemplaza el valor actual de la matriz.
+	 * @param {Function} callback Función de reemplazo.
+	 * @returns {void}
+	 */
+	Matrix.prototype.map = function (callback) {
+	    if (!(callback instanceof Function)) {
+	        throw new Error("callback debe ser una funcion.");
+	    }
+	    var self = this;
+	    this.forEach(function (rows, x, y, index) {
+	        var value = callback(rows, x, y, index);
+	        self.set(x, y, value);
+	    });
+	    return this;
+	};
+
+	/**
+	 * @function toString
+	 * @public
+	 * @summary Parsear objeto como String.
+	 * @returns {String}
+	 */
+	Matrix.prototype.toString = function () {
+	    var str = "";
+	    this.forEach(function (row, x, y) {
+	        if (this.dimension == 1) {
+	            str += row + " ";
+	        } else {
+	            str += row.toString() + " ";
+	        }
+	        if (x == this.width - 1) {
+	            str += "\n";
+	        }
+	    });
+	    return str;
+	};
+
+	/**
+	 * @function isNumber
+	 * @public
+	 * @summary Valida que la matriz es numerica.
+	 * @returns {boolean}
+	 */
+	Matrix.prototype.isNumber = function () {
+	    return this.data.every(function (row) {
+	        return !isNaN(row);
+	    });
+	};
+	/**
+	 * @function isNotNumber
+	 * @public
+	 * @summary Valida que la matriz no es numerica.
+	 * @returns {boolean}
+	 */
+	Matrix.prototype.isNotNumber = function () {
+	    return !this.isNumber();
+	};
+	/**
+	 * @function isEqual
+	 * @public
+	 * @summary Compara el nuevo objeto matriz con el actual.
+	 * @param {Matrix} vector Objeto de comparación.
+	 * @returns {boolean}
+	 */
+	Matrix.prototype.isEqual = function (vector) {
+	    if (!(vector instanceof Matrix)) {
+	        throw new Error(
+	            "El parametro no es un objetos matrix de comparacion...");
+	    }
+	    return this.data.every(function (row, index) {
+	        return row === vector.data[index];
+	    });
+	};
+	/**
+	 * @function isNotEqual
+	 * @public
+	 * @summary Compara si el nuevo objeto matriz es diferente.
+	 * @param {Matrix} vector Objeto de comparación.
+	 * @returns {boolean}
+	 */
+	Matrix.prototype.isNotEqual = function (vector) {
+	    return !this.isEqual(vector);
+	};
+	/**
+	 * @function isNull
+	 * @public
+	 * @summary Compara si la matriz es nula.     * 
+	 * @returns {boolean}
+	 */
+	Matrix.prototype.isNull = function () {
+	    return this.data.every(function (row, index) {
+	        return !row;
+	    });
+	};
+	/**
+	 * @function isNotNull
+	 * @public
+	 * @summary Compara si la matriz es no nula.
+	 * @returns {boolean}
+	 */
+	Matrix.prototype.isNotNull = function () {
+	    return !this.isNull();
+	};
+	/**
+	 * @function isOverTriangle
+	 * @public
+	 * @summary Es una matrix triangular superior.
+	 * @returns {Boolean}
+	 */
+	Matrix.prototype.isOverTriangle = function () {
+	    var isTriangle = true, self = this;
+	    this.forEach(function (row, x, y) {
+	        if (self.dimension == 1) {
+	            isTriangle = isTriangle && ((x > y && row === 0) || (x <= y && row !== 0));
+	        } else {
+	            for (var i = 0, n = row.length; i < n; i++) {
+	                isTriangle = isTriangle && ((x > y && row[i] === 0) || (x <= y && row[i] !== 0));
+	            }
+	        }
+	    });
+	    return isTriangle;
+	};
+	/**
+	 * @function isUnderTriangle
+	 * @public
+	 * @summary Es una matrix triangular inferior.
+	 * @returns {Boolean}
+	 */
+	Matrix.prototype.isUnderTriangle = function () {
+	    var isTriangle = true, self = this;
+	    self.forEach(function (row, x, y) {
+	        if (self.dimension == 1) {
+	            isTriangle = isTriangle && ((x < y && row === 0) || (x >= y && row !== 0));
+	        } else {
+	            for (var i = 0, n = row.length; i < n; i++) {
+	                isTriangle = isTriangle && ((x < y && row[i] === 0) || (x >= y && row[i] !== 0));
+	            }
+	        }
+	    });
+	    return isTriangle;
+	};
+	/**
+	 * @function isSimetry
+	 * @public
+	 * @summary Es una matrix simetrica.
+	 * @returns {Boolean}
+	 */
+	Matrix.prototype.isSimetry = function () {
+	    var isSimetry = true, self = this;
+	    if (this.width != this.height) {
+	        return false;
+	    }
+	    this.forEach(function (row, x, y) {
+	        var row2 = self.get(y, x);
+	        if (self.dimension == 1) {
+	            isSimetry = isSimetry && (row === row2);
+	        } else {
+	            for (var i = 0, n = row.length; i < n; i++) {
+	                isSimetry = isSimetry && (row[i] === row2[i]);
+	            }
+	        }
+	    });
+	    return isSimetry;
+	};
+	/**
+	 * @function isAsimetry
+	 * @public
+	 * @summary Es una matrix asimetrica.
+	 * @returns {Boolean}
+	 */
+	Matrix.prototype.isAsimetry = function () {
+	    var isSimetry = true, self = this;
+	    if (self.width != self.height) {
+	        return false;
+	    }
+	    self.forEach(function (row, x, y) {
+	        var row2 = self.get(y, x);
+	        if (self.dimension == 1) {
+	            isSimetry = isSimetry && (row === -row2);
+	        } else {
+	            for (var i = 0, n = row.length; i < n; i++) {
+	                isSimetry = isSimetry && (row[i] === -row2[i]);
+	            }
+	        }
+	    });
+	    return isSimetry;
+	};
+	/**
+	 * @function isNotSimetry
+	 * @public
+	 * @summary Valida si su inversa no es identica.
+	 * @returns {boolean}
+	 */
+	Matrix.prototype.isNotSimetry = function () {
+	    return !this.isSimetry();
+	};
+	/**
+	 * @function sqrt
+	 * @public
+	 * @summary Aplica raiz cuadrada de la matriz actual.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.sqrt = function () {
+	    var obj = this.clone();
+	    obj.map(function (row) {
+	        if (obj.dimension == 1) {
+	            return Math.sqrt(row);
+	        }
+	        return row.map(function (row2) {
+	            return Math.sqrt(row2);
+	        });
+	    });
+	    return obj;
+	};
+	/**
+	 * @function cbrt
+	 * @public
+	 * @summary Aplica raiz cubica de la matriz actual.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.cbrt = function () {
+	    var obj = self.clone();
+	    obj.map(function (row) {
+	        if (obj.dimension == 1) {
+	            return Math.cbrt(row);
+	        }
+	        return row.map(function (row2) {
+	            return Math.cbrt(row2);
+	        });
+	    });
+	    return obj;
+	};
+	/**
+	 * @function log
+	 * @public
+	 * @summary Aplica Logaritmo natural de la matriz actual.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.log = function () {
+	    var obj = this.clone();
+	    obj.map(function (row) {
+	        if (obj.dimension == 1) {
+	            return Math.log(row);
+	        }
+	        return row.map(function (row2) {
+	            return Math.log(row2);
+	        });
+	    });
+	    return obj;
+	};
+	/**
+	 * @function exp
+	 * @public
+	 * @summary Aplica exponencial de la matriz actual.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.exp = function () {
+	    var obj = this.clone();
+	    obj.map(function (row) {
+	        if (obj.dimension == 1) {
+	            return Math.exp(row);
+	        }
+	        return row.map(function (row2) {
+	            return Math.exp(row2);
+	        });
+	    });
+	    return obj;
+	};
+	/**
+	 * @function abs
+	 * @public
+	 * @summary Aplica valor absoluto de la matriz actual.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.abs = function () {
+	    var obj = this.clone();
+	    obj.map(function (row) {
+	        if (obj.dimension == 1) {
+	            return Math.abs(row);
+	        }
+	        return row.map(function (row2) {
+	            return Math.abs(row2);
+	        });
+	    });
+	    return obj;
+	};
+	/**
+	 * @function atan
+	 * @public
+	 * @summary Aplica tangente de la matriz actual.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.atan = function () {
+	    var obj = this.clone();
+	    obj.map(function (row) {
+	        if (obj.dimension == 1) {
+	            return Math.atan(row);
+	        }
+	        return row.map(function (row2) {
+	            return Math.atan(row2);
+	        });
+	    });
+	    return obj;
+	};
+	/**
+	 * @function cos
+	 * @public
+	 * @summary Aplica coseno de la matriz actual.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.cos = function () {
+	    var obj = this.clone();
+	    obj.map(function (row) {
+	        if (obj.dimension == 1) {
+	            return Math.cos(row);
+	        }
+	        return row.map(function (row2) {
+	            return Math.cos(row2);
+	        });
+	    });
+	    return obj;
+	};
+	/**
+	 * @function sin
+	 * @public
+	 * @summary Aplica seno de la matriz actual.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.sin = function () {
+	    var obj = this.clone();
+	    obj.map(function (row) {
+	        if (obj.dimension == 1) {
+	            return Math.sin(row);
+	        }
+	        return row.map(function (row2) {
+	            return Math.sin(row2);
+	        });
+	    });
+	    return obj;
+	};
+	/**
+	 * @function round
+	 * @summary Aplica redondeo de la matriz actual.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.round = function () {
+	    var obj = this.clone();
+	    obj.map(function (row) {
+	        if (obj.dimension == 1) {
+	            return Math.round(row);
+	        }
+	        return row.map(function (row2) {
+	            return Math.round(row2);
+	        });
+	    });
+	    return obj;
+	};
+	/**
+	 * @function ceil
+	 * @public
+	 * @summary Aplica redondea al valor maximo despues del decimal la matriz actual.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.ceil = function () {
+	    var obj = this.clone();
+	    obj.map(function (row) {
+	        if (obj.dimension == 1) {
+	            return Math.ceil(row);
+	        }
+	        return row.map(function (row2) {
+	            return Math.ceil(row2);
+	        });
+	    });
+	    return obj;
+	};
+	/**
+	 * @function floor
+	 * @public
+	 * @summary Aplica redondea al valor minimo del decimal en la matriz actual.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.floor = function () {
+	    var obj = this.clone();
+	    obj.map(function (row) {
+	        if (obj.dimension == 1) {
+	            return Math.floor(row);
+	        }
+	        return row.map(function (row2) {
+	            return Math.floor(row2);
+	        });
+	    });
+	    return obj;
+	};
+	/**
+	 * @function pow
+	 * @public
+	 * @summary Aplica potencia enesima de la matriz actual.
+	 * @param {Number} n Numero de veces que se eleva la potencia.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.pow = function (n) {
+	    if (typeof n !== "number") {
+	        throw new Error("n debe ser un numero");
+	    }
+	    var obj = this.clone();
+	    obj.map(function (row) {
+	        if (obj.dimension == 1) {
+	            return Math.pow(row, n);
+	        }
+	        return row.map(function (row2) {
+	            return Math.pow(row2, n);
+	        });
+	    });
+	    return obj;
+	};
+	/**
+	 * @function clone
+	 * @public
+	 * @summary Genera una copia de la instancia actual.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.clone = function () {
+	    function clone(source) {
+	        var copy = {};
+	        for (var key in source) {
+	            var src = source[key], property = Object.getOwnPropertyDescriptor(source, key);
+	            if (property) {
+	                Object.defineProperty(copy, key, property);
+	                continue;
+	            }
+	            if (Matrix.isValidArray(src)) {
+	                copy[key] = src.slice();
+	                continue;
+	            }
+	            if (typeof src === "object") {
+	                copy[key] = clone(source[key]);
+	                continue;
+	            }
+	            copy[key] = source[key];
+	        }
+	        return copy;
+	    }
+	    //var newobj = Object.assign({}, this);
+	    var copy = clone(this);
+	    copy.data = this.data.slice();
+	    return copy;
+	};
+	/**
+	 * @function size
+	 * @public
+	 * @summary Tamaño matricial del objeto.
+	 * @returns {Array}
+	 */
+	Matrix.prototype.size = function () {
+	    return [this.width, this.height, this.dimension];
+	};
+	/**
+	 * @function max
+	 * @public
+	 * @summary Devuelve el valor máximo de la matriz.
+	 * @return {Number}
+	 */
+	Matrix.prototype.max = function () {
+	    return Math.max.apply(null, this.data);
+	};
+	/**
+	 * @function min
+	 * @public
+	 * @summary Devuelve el valor mínimo de la matriz.
+	 * @return {Number}
+	 */
+	Matrix.prototype.min = function () {
+	    return Math.min.apply(null, this.data);
+	};
+	/**
+	 * @function transposed
+	 * @public
+	 * @summary Inversa de la matriz.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.transposed = function () {
+	    var obj = Generate(this.height, this.width, this.dimension),
+	        self = this;
+	    obj.map(function (row, x, y) {
+	        return self.get(y, x);
+	    });
+	    return obj;
+	};
+	/**
+	 * @function sum
+	 * @public
+	 * @summary Suma la matriz actual al conjunto de matrices.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.sum = function () {
+	    var matrixs = arguments;
+	    var obj = this.clone();
+	    if (!matrixs.length) {
+	        throw new Error("Es necesario un objeto");
+	    }
+	    for (var i = 0, n = matrixs.length; i < n; i++) {
+	        var matrix = matrixs[i];
+	        if (!(matrix instanceof Matrix) && typeof matrix !== "number") {
+	            throw new Error("Debe pasar un objeto Matrix o un escalar");
+	        }
+	        if (!(typeof matrix == "number" || (matrix.width == obj.width && matrix.height == obj.height && matrix.dimension == obj.dimension))) {
+	            throw new Error("Las matrices no son identicas en tamaño...");
+	        }
+	        obj = utils.sum(obj, matrix, false);
+	    }
+	    return obj;
+	};
+	/**
+	 * @function subtract
+	 * @public
+	 * @summary Suma la matriz actual al conjunto de matrices.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.subtract = function () {
+	    var matrixs = arguments;
+	    var obj = this.clone();
+	    if (!matrixs.length) {
+	        throw new Error("Es necesario un objeto");
+	    }
+	    for (var i = 0, n = matrixs.length; i < n; i++) {
+	        var matrix = matrixs[i];
+	        if (!(matrix instanceof Matrix) && typeof matrix !== "number") {
+	            throw new Error("Debe pasar un objeto Matrix o un escalar");
+	        }
+	        if (!(typeof matrix == "number" || (matrix.width == obj.width && matrix.height == obj.height && matrix.dimension == obj.dimension))) {
+	            throw new Error("Las matrices no son identicas en tamaño...");
+	        }
+	        obj = utils.sum(obj, matrix, true);
+	    }
+	    return obj;
+	};
+	/**
+	 * @function getRow
+	 * @public
+	 * @summary Obtiene la fila seleccionada.
+	 * @param {Number} y numero de fila.
+	 * @return {Matrix}
+	 */
+	Matrix.prototype.getRow = function (y) {
+	    if (typeof y !== "number" || !y || y >= this.height) {
+	        throw new Error("No es valido el numero de fila");
+	    }
+	    var min = this.getIndex(0, y),
+	        max = this.getIndex(this.width - 1, y);
+	    var data = this.data.slice(
+	        min, min + (this.width * this.dimension));
+	    return new Matrix({
+	        width: this.width,
+	        height: 1,
+	        dimension: this.dimension,
+	        data: data
+	    });
+	};
+	/**
+	 * @function getCol.
+	 * @public
+	 * @summary Obtiene la columna seleccionada.
+	 * @param {Number} x numero de la columna.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.getCol = function (x) {
+	    if (typeof x !== "number" || !x || x >= this.width) {
+	        throw new Error("No es valido el numero de columna");
+	    }
+	    var data = new this.instance(this.height * this.dimension);
+	    for (var y = 0, i = 0; y < this.height; y++ , i += this.dimension) {
+	        var index = this.getIndex(x, y);
+	        if (this.dimension == 1) {
+	            data[i] = this.data[index];
+	        } else {
+	            for (var j = 0; j < this.dimension; j++) {
+	                data[i + j] = this.data[index + j];
+	            }
+	        }
+	    }
+	    return new Matrix({
+	        width: 1,
+	        height: this.height,
+	        dimension: this.dimension,
+	        data: data
+	    });
+	};
+	/**
+	 * @function slice
+	 * @public
+	 * @summary Retorna un nuevo objeto matrix con el tamaño seleccionado.
+	 * @param {Number} x coordenada de inicio.
+	 * @param {Number} Y coordenada de inicio.
+	 * @param {Number} width Ancho.
+	 * @param {Number} height Alto.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.slice = function (x1, y1, width, height) {
+	    if (typeof y1 !== "number" || !y1 || y1 >= this.height) {
+	        throw new Error("No es valido el numero de fila");
+	    }
+	    if (typeof x1 !== "number" || !x1 || x1 >= this.width) {
+	        throw new Error("No es valido el numero de columna");
+	    }
+	    var xend = x1 + (width - 1), yend = y1 + (height - 1);
+	    if (typeof yend !== "number" || !yend || yend >= this.height) {
+	        throw new Error("No es valido el alto");
+	    }
+	    if (typeof xend !== "number" || !xend || xend >= this.width) {
+	        throw new Error("No es valido el ancho");
+	    }
+	    var data = new this.instance(width * height * this.dimension);
+	    var i = 0;
+	    for (var y = y1; y <= yend; y++) {
+	        for (var x = x1; x <= xend; x++) {
+	            var index = this.getIndex(x, y);
+	            if (this.dimension == 1) {
+	                data[i] = this.data[index];
+	            } else {
+	                for (var j = 0; j < this.dimension; j++) {
+	                    data[i + j] = this.data[index + j];
+	                }
+	            }
+	            i += this.dimension;
+	        }
+	    }
+	    return new Matrix({
+	        width: width,
+	        height: height,
+	        dimension: this.dimension,
+	        data: data
+	    });
+	};
+	/**
+	 * @function inmultiply.
+	 * @public
+	 * @summary Publica funcion multiplicar.
+	 * @param {Array} arguments - argumentos de la funcion.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.inmultiply = function () {
+	    var matrixs = arguments;
+	    var obj = this;
+	    if (!matrixs.length) {
+	        throw new Error("Es necesario un objeto");
+	    }
+	    for (var i = 0, n = matrixs.length; i < n; i++) {
+	        var matrix = matrixs[i];
+	        if (!(matrix instanceof Matrix) && typeof matrix !== "number") {
+	            throw new Error("Debe pasar un objeto Matrix o un escalar");
+	        }
+	        if (!utils.isMultiply(obj, matrix)) {
+	            throw new Error("Las matrices no son multiplicables...");
+	        }
+	        var temp = Generate(
+	            (typeof matrix == "number") ? obj.width : matrix.width,
+	            obj.height,
+	            obj.dimension
+	        );
+	        obj = utils.inmultiply(temp, obj, matrix);
+	    }
+	    if (obj.width == obj.height && obj.width == 1) {
+	        return obj.data[0];
+	    }
+	    return obj;
+	};
+	/**
+	 * @function inverse
+	 * @public
+	 * @summary Genera la matriz inversa.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.inverse = function () {
+	    var D = this.det();
+	    var obj = this.adj().transposed();
+	    return obj.inmultiply(1 / D);
+	};
+	/**
+	 * @function divide
+	 * @public
+	 * @summary Publica funcion dividir.
+	 * @param {Array} arguments - argumentos de la funcion.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.divide = function () {
+	    var matrixs = arguments;
+	    var obj = this;
+	    if (!matrixs.length) {
+	        throw new Error("Es necesario un objeto");
+	    }
+	    for (var i = 0, n = matrixs.length; i < n; i++) {
+	        var matrix = matrixs[i];
+	        if (!(matrix instanceof Matrix) && typeof matrix !== "number") {
+	            throw new Error("Debe pasar un objeto Matrix o un escalar");
+	        }
+	        if (typeof matrix == "number") {
+	            obj = obj.inmultiply(1 / matrix);
+	            continue;
+	        }
+	        try {
+	            obj = obj.inmultiply(matrix.inverse());
+	        } catch (error) {
+	            obj = matrix.inmultiply(obj.inverse());
+	        }
+	    }
+	    return obj;
+	};
+	/**
+	 * @function not
+	 * @public
+	 * @summary Genera una matriz negativa de la actual.
+	 * @return {Matrix}
+	 */
+	Matrix.prototype.not = function () {
+	    return this.inmultiply(-1);
+	};
+	/**
+	 * @function isSingular
+	 * @public
+	 * @summary Es una matriz cuadrada.
+	 * @returns {Boolean}
+	 */
+	Matrix.prototype.isSingular = function () {
+	    return this.width == this.height;
+	};
+
+	/**
+	 * @function removeRow
+	 * @public
+	 * @summary Elimina una fila del objeto.
+	 * @param {Number} y1 num. de fila
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.removeRow = function (y1) {
+	    var obj = Generate(this.width, this.height - 1, this.dimension);
+	    obj.map(function (row, x, y) {
+	        if (y >= y1) {
+	            return this.get(x, y + 1);
+	        }
+	        return this.get(x, y);
+	    });
+	    return obj;
+	};
+	/**
+	 * @function removeCol
+	 * @public
+	 * @summary Elimina una columna del objeto.
+	 * @param {Number} x1 num. de columna
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.removeCol = function (x1) {
+	    var obj = Generate(this.width - 1, this.height, this.dimension);
+	    obj.map(function (row, x, y) {
+	        if (x >= x1) {
+	            return this.get(x + 1, y);
+	        }
+	        return this.get(x, y);
+	    });
+	    return obj;
+	};
+	/**
+	 * @function remove
+	 * @public
+	 * @summary Elimina la fila y columna que intersecta el par (x, y).
+	 * @param {Number} x1 num. de columna
+	 * @param {Number} y1 num. de fila
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.remove = function (x1, y1) {
+	    var obj = Generate(
+	        this.width - 1, this.height - 1, this.dimension),
+	        self = this;
+	    obj.map(function (row, x, y) {
+	        var inx = 0, iny = 0;
+	        if (y >= y1) {
+	            iny = 1;
+	        }
+	        if (x >= x1) {
+	            inx = 1;
+	        }
+	        return self.get(x + inx, y + iny);
+	    });
+	    return obj;
+	};
+	/**
+	 * @function adj
+	 * @public
+	 * @summary Genera la matriz cofactor.
+	 * @returns {Matrix}
+	 */
+	Matrix.prototype.adj = function () {
+	    if (!this.isSingular()) {
+	        throw new Error("Debe ser una matriz cuadrada");
+	    }
+	    var matrix = Generate(this.width, this.height, 1),
+	        self = this;
+	    var index = 0;
+	    if (this.__adj__) {
+	        return this.__adj__;
+	    }
+	    self.forEach(function (row, x, y) {
+	        var obj = self.remove(x, y);
+	        var cof = Math.pow(-1, x + y + 2) * obj.det();
+	        matrix.data[index++] = cof;
+	    });
+	    this.__adj__ = matrix;
+	    return this.__adj__;
+	};
+	/**
+	 * @function determinant2
+	 * @private
+	 * @summary calcula la determinante de una matriz 2 x 2.
+	 * @param {Matrix} A - matrix 2 x 2 a calcular.
+	 * @return {Number}
+	 */
+	function determinant2(A) {
+	    var row1 = 1, row2 = 1;
+	    if (!A.isSingular()) {
+	        throw new Error("La matriz no es cuadrada");
+	    }
+	    A.forEach(function (row, x, y) {
+	        if (x == y) {
+	            if (A.dimension == 1) {
+	                row1 *= row;
+	            } else {
+	                row1 *= sumRow(row);
+	            }
+	        }
+	        if (x == A.width - 1 - y) {
+	            if (A.dimension == 1) {
+	                row2 *= row;
+	            } else {
+	                row2 *= sumRow(row);
+	            }
+	        }
+	    });
+	    return row1 - row2;
+	}
+	/**
+	 * @function det
+	 * @public
+	 * @summary calcula el valor determinante de la matriz.
+	 * @returns {Number}
+	 */
+	Matrix.prototype.det = function () {
+	    if (this.__determinant__) {
+	        return this.__determinant__;
+	    }
+	    if (this.width == 1) {
+	        this.__determinant__ = this.data[0];
+	        return this.__determinant__;
+	    }
+	    if (this.width == this.height && this.width == 2) {
+	        this.__determinant__ = determinant2(this);
+	        return this.__determinant__;
+	    }
+	    var det = 0;
+	    var obj = this.adj();
+	    for (var index = 0; index < this.width; index++) {
+	        det += this.data[index] * obj.data[index];
+	    }
+	    this.__determinant__ = det;
+	    return det;
+	};
+	/**
+	 * @function promd.
+	 * @public
+	 * @summary Calcula el promedio de la matriz.
+	 * @returns {Number}
+	 */
+	Matrix.prototype.promd = function () {
+	    var promd = 0;
+	    for (var i = 0, n = this.data.length; i < n; i++) {
+	        promd += this.data[i];
+	    }
+	    return promd;
+	};
+	Object.defineProperty(Matrix.prototype, "instance" , {
+	    value: Float32Array,
+	    writable: true,
+	    enumerable: true
+	});
+	Object.defineProperty(Matrix.prototype, "__data__" , {
+	    value: null,
+	    writable: true,
+	    enumerable: false
+	});
+	Object.defineProperty(Matrix.prototype, //objeto target
+	'data', //nombre propiedad
+	{
+	    enumerable: true, 
+	    configurable: true,
+	    get: function get() { //getter
+	        return this.__data__;
+	    },
+	    set: function set(data) { //getter
+	        if (!Matrix.isValidArray(data)) {
+	            throw new Error(
+	                "El parametro data no es un objeto valido...");
+	        }
+	        if (data.length != this.length) {
+	            throw new Error(
+	                "No coinciden el numero de elementos de la matriz...");
+	        }
+	        if (data instanceof this.instance) {
+	            this.__data__ = data;
+	        } else {
+	            this.__data__ =  this.instance.from(data);
+	        }
+	    }
+	});
+	Object.defineProperty(Matrix, "typeArray", {
+	    value: {
+	        "int8": Int8Array,
+	        "uint8": Uint8Array,
+	        "uint16": Uint16Array,
+	        "uint32": Uint32Array,
+	        "uint8_clamped": Uint8ClampedArray,
+	        "int16": Int16Array,
+	        "int32": Int32Array,
+	        "float32": Float32Array,
+	        "float64": Float64Array,
+	        "buffer": ArrayBuffer
+	    },
+	    writable: false,
+	    enumerable: true
+	});
+	/**
+	 * isValidArray.
+	 * Valida que sea un array tipeado valido.
+	 * @param {*} data valor de validación.
+	 * @returns {Boolean}
+	 */
+	Matrix.isValidArray = function (data) {
+	    var bool = false;
+	    if (Array.isArray(data)) {
+	        return true;
+	    }
+	    for (var key in Matrix.typeArray) {
+	        bool = bool || data instanceof Matrix.typeArray[key];
+	    }
+	    return bool;
+	};
 	var matrix = Matrix;
 
 	var src = matrix;
