@@ -271,13 +271,11 @@ function Generate(width, height, dimension) {
  * @returns {*}
  */
 Matrix.prototype.get = function (x, y) {
-    var index = Utils.getIndex(
-        x, y, this.width, this.height, this.dimension
-    );
+    var index = this.getIndex(x, y);
     if (this.dimension == 1) {
         return this.data[index];
     }
-    return Utils.slice(this.data, index, this.dimension);
+    return this.data.slice(index, index + this.dimension);
 };
 /**
  * @function set
@@ -289,9 +287,10 @@ Matrix.prototype.get = function (x, y) {
  * @returns {*}
  */
 Matrix.prototype.set = function (x, y, val) {
-    var index = Utils.getIndex(
-        x, y, this.width, this.height, this.dimension
-    );
+    var index = this.getIndex(x, y),
+        end = 0,
+        n = 0,
+        n2 = 0;
     if (this.dimension == 1) {
         this.data[index] = val;
         return;
@@ -302,10 +301,21 @@ Matrix.prototype.set = function (x, y, val) {
     if (val.length != this.dimension) {
         throw new Error("Es necesario un indice de " + this.dimension + " dimensiones");
     }
-    this.data = Utils.replace(
-        this.data, val, index, this.instance
-    );
-    return;
+    n = val.length;
+    n2 = this.length;
+    end = index + n;
+    if (n > n2 || end > n2) {
+        throw new Error("El reemplazo es incorrecto!. Repare los indices");
+    }
+    for (var i = 0; i < n; i++) {
+        this.data[index + i] = val[i];
+    }
+};
+/**
+ * 
+ */
+Matrix.prototype.getIndex = function (x, y) {
+    return Utils.getIndex(this, x, y);
 };
 /**
  * @function getField
@@ -347,14 +357,15 @@ Matrix.prototype.forEach = function (callback) {
     if (!(callback instanceof Function)) {
         throw new Error("callback debe ser una funcion.");
     }
-    Utils.forEach(
-        this.data,
-        this.width,
-        this.height,
-        this.dimension,
-        callback,
-        this.instance
-    );
+    for (var index = 0, x = 0, y = 0, n = this.data.length; index < n; index += this.dimension) {
+        if (x >= this.width) {
+            x = 0;
+            y++;
+        }
+        var data = this.get(x, y);
+        callback(data, x, y, index);
+        x++;
+    }
 };
 /**
  * @function map
@@ -367,14 +378,11 @@ Matrix.prototype.map = function (callback) {
     if (!(callback instanceof Function)) {
         throw new Error("callback debe ser una funcion.");
     }
-    var obj = Utils.map(
-        this.data,
-        this.width,
-        this.height,
-        this.dimension,
-        callback,
-        this.instance
-    );
+    var self = this;
+    this.forEach(function (rows, x, y, index) {
+        var value = callback(rows, x, y, index);
+        self.set(x, y, value);
+    });
     return this;
 };
 
@@ -870,7 +878,7 @@ Matrix.prototype.sum = function () {
         if (!(typeof matrix == "number" || (matrix.width == obj.width && matrix.height == obj.height && matrix.dimension == obj.dimension))) {
             throw new Error("Las matrices no son identicas en tamaño...");
         }
-        obj = Utils.sum(obj, matrix, true);
+        obj = Utils.sum(obj, matrix, false);
     }
     return obj;
 };
@@ -894,7 +902,7 @@ Matrix.prototype.subtract = function () {
         if (!(typeof matrix == "number" || (matrix.width == obj.width && matrix.height == obj.height && matrix.dimension == obj.dimension))) {
             throw new Error("Las matrices no son identicas en tamaño...");
         }
-        obj = Utils.sum(obj, matrix, false);
+        obj = Utils.sum(obj, matrix, true);
     }
     return obj;
 };
@@ -909,12 +917,8 @@ Matrix.prototype.getRow = function (y) {
     if (typeof y !== "number" || !y || y >= this.height) {
         throw new Error("No es valido el numero de fila");
     }
-    var min = Utils.getIndex(
-        0, y, this.width, this.height, this.dimension
-    ),
-        max = Utils.getIndex(
-            this.width - 1, y, this.width, this.height, this.dimension
-        );
+    var min = this.getIndex(0, y),
+        max = this.getIndex(this.width - 1, y);
     var data = this.data.slice(
         min, min + (this.width * this.dimension));
     return new Matrix({
@@ -937,9 +941,7 @@ Matrix.prototype.getCol = function (x) {
     }
     var data = new this.instance(this.height * this.dimension);
     for (var y = 0, i = 0; y < this.height; y++ , i += this.dimension) {
-        var index = Utils.getIndex(
-            x, y, this.width, this.height, this.dimension
-        );
+        var index = this.getIndex(x, y);
         if (this.dimension == 1) {
             data[i] = this.data[index];
         } else {
@@ -983,9 +985,7 @@ Matrix.prototype.slice = function (x1, y1, width, height) {
     var i = 0;
     for (var y = y1; y <= yend; y++) {
         for (var x = x1; x <= xend; x++) {
-            var index = Utils.getIndex(
-                x, y, this.width, this.height, this.dimension
-            );
+            var index = this.getIndex(x, y);
             if (this.dimension == 1) {
                 data[i] = this.data[index];
             } else {
@@ -1021,12 +1021,18 @@ Matrix.prototype.inmultiply = function () {
         if (!(matrix instanceof Matrix) && typeof matrix !== "number") {
             throw new Error("Debe pasar un objeto Matrix o un escalar");
         }
+        if (!Utils.isMultiply(obj, matrix)) {
+            throw new Error("Las matrices no son multiplicables...");
+        }
         var temp = Generate(
             (typeof matrix == "number") ? obj.width : matrix.width,
             obj.height,
             obj.dimension
         );
         obj = Utils.inmultiply(temp, obj, matrix);
+    }
+    if (obj.width == obj.height && obj.width == 1) {
+        return obj.data[0];
     }
     return obj;
 };
