@@ -7,6 +7,7 @@
 - Getter/setter para la propiedad "data".
 - Metodo "isValidArray" en Matrix.
 - Propiedad "typeArray" lista soporte de arreglos tipeados.
+- Metodo "getIndex"para obtener indices en un arreglo de matrices.
 
 ### Changed
 
@@ -22,6 +23,8 @@
 - propiedad "typeInstance" obsoleta.
 
 ### Fixed
+
+- Error de compilación ASM.js
 
 ## [0.0.1-alpha-1] - 2018-05-26
 
