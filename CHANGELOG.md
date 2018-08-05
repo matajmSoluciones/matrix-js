@@ -12,6 +12,7 @@
 ### Changed
 
 - Propiedad "instance" reemplaza a "typeInstance".
+- Metodo size reemplazado por propiedad size. Use propiedades "width", "height" y "dimension".
 
 ### Deprecated
 
@@ -25,6 +26,7 @@
 ### Fixed
 
 - Error de compilación ASM.js
+- Parametro "index" en forEach y map retorna un indice matricial con las dimensiones agregadas. Eliminada dimensiones en el indice.
 
 ## [0.0.1-alpha-1] - 2018-05-26
 
