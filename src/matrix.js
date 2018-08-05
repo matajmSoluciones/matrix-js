@@ -97,12 +97,9 @@ function Matrix(data, width, height, dimension, options) {
         throw new Error("La dimension no es un numero");
     }
     Object.defineProperties(this, opt);
-    var length = this.width * this.height * this.dimension;
-    Object.defineProperty(this, "length", {
-        value: length,
-        writable: false,
-        enumerable: true
-    });
+    this.__MAX_LIMIT_WIDTH = this.width * this.dimension;
+    this.__MAX_LIMIT_HEIGHT = this.height * this.dimension;
+    this.length = this.__MAX_LIMIT_WIDTH * this.height;
     if (config.data) {
         this.data = config.data;
     } else {
@@ -315,7 +312,8 @@ Matrix.prototype.set = function (x, y, val) {
  * 
  */
 Matrix.prototype.getIndex = function (x, y) {
-    return Utils.getIndex(this, x, y);
+    var result = (x + y * this.width) * this.dimension;
+    return Math.round(result);
 };
 /**
  * @function getField
@@ -414,9 +412,16 @@ Matrix.prototype.toString = function () {
  * @returns {boolean}
  */
 Matrix.prototype.isNumber = function () {
-    return this.data.every(function (row) {
-        return !isNaN(row);
-    });
+    var data = this.data;
+    for(var i = 0, n = data.length; i < n; i++) {
+        if (isNaN(data[i])) {
+            return false;
+        }
+    }
+    return true;
+    // return this.data.every(function (row) {
+    //     return !isNaN(row);
+    // });
 };
 /**
  * @function isNotNumber
@@ -439,9 +444,16 @@ Matrix.prototype.isEqual = function (vector) {
         throw new Error(
             "El parametro no es un objetos matrix de comparacion...");
     }
-    return this.data.every(function (row, index) {
-        return row === vector.data[index];
-    });
+    var data = this.data;
+    for (var i = 0, n = data.length; i < n; i++) {
+        if (data[i] !== vector.data[i]) {
+            return false;
+        }
+    }
+    return true;
+    // return this.data.every(function (row, index) {
+    //     return row === vector.data[index];
+    // });
 };
 /**
  * @function isNotEqual
@@ -786,36 +798,40 @@ Matrix.prototype.pow = function (n) {
     return obj;
 };
 /**
+ * @function new
+ * @summary Genera una nueva instancia Matrix.
+ * @param {Object} options 
+ * @returns {Matrix}
+ */
+Matrix.new = function (options) {
+    var obj = new Matrix(options);
+    return obj;
+};
+/**
+ * @function toObject
+ * @private
+ * @summary Genera un objeto con las configuraciones relevantes del objeto.
+ * @returns {Object}
+ */
+Matrix.prototype.toObject = function () {
+    return {
+        width: this.width,
+        height: this.height,
+        dimension: this.dimension,
+        instance: this.instance,
+        data: this.data.slice()
+    };
+};
+/**
  * @function clone
  * @public
  * @summary Genera una copia de la instancia actual.
  * @returns {Matrix}
  */
 Matrix.prototype.clone = function () {
-    function clone(source) {
-        var copy = {};
-        for (var key in source) {
-            var src = source[key], property = Object.getOwnPropertyDescriptor(source, key);
-            if (property) {
-                Object.defineProperty(copy, key, property);
-                continue;
-            }
-            if (Matrix.isValidArray(src)) {
-                copy[key] = src.slice();
-                continue;
-            }
-            if (typeof src === "object") {
-                copy[key] = clone(source[key]);
-                continue;
-            }
-            copy[key] = source[key];
-        }
-        return copy;
-    }
-    //var newobj = Object.assign({}, this);
-    var copy = clone(this);
-    copy.data = this.data.slice();
-    return copy;
+    var options = this.toObject();
+    var newobj = Matrix.new(options);
+    return newobj;
 };
 /**
  * @function size
@@ -920,7 +936,7 @@ Matrix.prototype.getRow = function (y) {
     var min = this.getIndex(0, y),
         max = this.getIndex(this.width - 1, y);
     var data = this.data.slice(
-        min, min + (this.width * this.dimension));
+        min, min + this.__MAX_LIMIT_WIDTH);
     return new Matrix({
         width: this.width,
         height: 1,
@@ -939,7 +955,7 @@ Matrix.prototype.getCol = function (x) {
     if (typeof x !== "number" || !x || x >= this.width) {
         throw new Error("No es valido el numero de columna");
     }
-    var data = new this.instance(this.height * this.dimension);
+    var data = new this.instance(this.__MAX_LIMIT_HEIGHT);
     for (var y = 0, i = 0; y < this.height; y++ , i += this.dimension) {
         var index = this.getIndex(x, y);
         if (this.dimension == 1) {
