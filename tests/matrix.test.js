@@ -310,11 +310,11 @@ describe("class Matrix", function() {
                 data: expect
             }
         );
-        matrix.map(function (row, x, y) {
+        var result = matrix.map(function (row, x, y) {
             return row * 2;
         });
         var index = 0, _x = 0, _y = 0;
-        matrix.forEach(function (row, x, y) {
+        result.forEach(function (row, x, y) {
             assert.equal(expect[index] * 2, row, "El valor de la matriz no coindice.");
             assert.equal(x, _x, "Fallo coordenada X");
             assert.equal(y, _y, "Fallo coordenada Y");
@@ -367,13 +367,13 @@ describe("class Matrix", function() {
             dimension: 3,
             data: data
         });
-        matrix.map(function (rows, x, y) {
+        var result = matrix.map(function (rows, x, y) {
             return rows.map(function(row) {
                 return row * 2;
             });
         });
         var index = 0, _x = 0, _y = 0;
-        matrix.forEach(function (row, x, y) {
+        result.forEach(function (row, x, y) {
             assert.ok(row.every(function (row, index2) {
                 return expect[index][index2] * 2 === row;
             }), "El valor de la matriz no coindice.");
@@ -810,10 +810,9 @@ describe("class Matrix", function() {
     });
     it("test constructor 3D: size", function () {
         var matrix = Matrix.random(2, 2, 3);
-        var size = matrix.size();
-        assert.equal(size[0], 2); // width
-        assert.equal(size[1], 2); //height
-        assert.equal(size[2], 3); //dimension
+        assert.equal(matrix.width, 2); // width
+        assert.equal(matrix.height, 2); //height
+        assert.equal(matrix.dimension, 3); //dimension
     });
     it("test Constructor 2D: isNotSimetry", function () {
         var matrix = Matrix.random(2, 2);
@@ -887,73 +886,55 @@ describe("class Matrix", function() {
         var expect = [2,0,0,2];
         var matrix = Matrix.eyes(2);
         var result = matrix.sum(matrix);
-        result.forEach(function (row, x, y, index) {
-            assert.equal(row, expect[index]);
-        });
+        assertForEach(result, expect);
     });
     it("test get sum matrix 3D", function () {
         var expect = [2, 2, 2, 0,0,0,0,0,0,2,2,2];
         var matrix = Matrix.eyes(2, 3);
         var result = matrix.sum(matrix);
-        result.data.forEach(function (row, index) {
-            assert.equal(row, expect[index]);            
-        });
+        assertForEach(result, expect);
     });
     it("test get subtract matrix 2D", function () {
         var expect = [0,0,0,0];
         var matrix = Matrix.eyes(2);
         var result = matrix.subtract(matrix);
-        result.forEach(function (row, x, y, index) {
-            assert.equal(row, expect[index]);
-        });
+        assertForEach(result, expect);
     });
     it("test get subtract matrix 3D", function () {
         var expect = [0, 0, 0, 0,0,0,0,0,0,0,0,0];
         var matrix = Matrix.eyes(2, 3);
         var result = matrix.subtract(matrix);
-        result.data.forEach(function (row, index) {
-            assert.equal(row, expect[index]);            
-        });
+        assertForEach(result, expect);
     });
     it("test get sum alpha matrix 3D", function () {
         var expect = [3, 3, 3, 2,2,2,2,2,2,3,3,3];
         var matrix = Matrix.eyes(2, 3);
         var result = matrix.sum(2);
-        result.data.forEach(function (row, index) {
-            assert.equal(row, expect[index]);            
-        });
+        assertForEach(result, expect);
     });
     it("test get sum alpha vector", function () {
         var expect = [3, 3, 3];
         var matrix = Matrix.ones(3,1);
         var result = matrix.sum(2);
-        result.data.forEach(function (row, index) {
-            assert.equal(row, expect[index]);            
-        });
+        assertForEach(result, expect);
     });
     it("test get subtract alpha matrix 3D", function () {
         var expect = [-1, -1, -1, -1,-1,-1,-1,-1,-1,-1,-1,-1];
         var matrix = Matrix.ones(2, 3);
         var result = matrix.subtract(2);
-        result.data.forEach(function (row, index) {
-            assert.equal(row, expect[index]);
-        });
+        assertForEach(result, expect);
     });
     it("test get subtract alpha vector", function () {
         var expect = [-1, -1, -1];
         var matrix = Matrix.ones(3,1);
         var result = matrix.subtract(2);
-        result.data.forEach(function (row, index) {
-            assert.equal(row, expect[index]);            
-        });
+        assertForEach(result, expect);
     });
     it("test get sum vector", function () {
         var expect = [2, 2, 2];
         var matrix = Matrix.ones(3,1);
         var result = matrix.sum(matrix);
-        result.data.forEach(function (row, index) {
-            assert.equal(row, expect[index]);
-        });
+        assertForEach(result, expect);
     });
     it("test getRow vector", function () {
         var expect = [4, 5, 6];
@@ -963,9 +944,8 @@ describe("class Matrix", function() {
             data: [1, 2, 3, 4, 5, 6, 7, 8, 9]
         });
         var result = matrix1.getRow(1);
-        var size = result.size();
-        assert.equal(size[0], 3);
-        assert.equal(size[1], 1);
+        assert.equal(result.width, 3);
+        assert.equal(result.height, 1);
         result.data.forEach(function (row, index) {
             assert.equal(row, expect[index], result.toString());            
         });
@@ -979,10 +959,9 @@ describe("class Matrix", function() {
             data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
         });
         var result = matrix1.getRow(1);
-        var size = result.size();
-        assert.equal(size[0], 2);
-        assert.equal(size[1], 1);
-        assert.equal(size[2], 3);
+        assert.equal(result.width, 2);
+        assert.equal(result.height, 1);
+        assert.equal(result.dimension, 3);
         result.data.forEach(function (row, index) {
             assert.equal(row, expect[index], result.toString());            
         });
@@ -995,9 +974,8 @@ describe("class Matrix", function() {
             data: [1, 2, 3, 4, 5, 6, 7, 8, 9]
         });
         var result = matrix1.getCol(1);
-        var size = result.size();
-        assert.equal(size[0], 1);
-        assert.equal(size[1], 3);
+        assert.equal(result.width, 1);
+        assert.equal(result.height, 3);
         result.data.forEach(function (row, index) {
             assert.equal(row, expect[index], result.toString());            
         });
@@ -1011,10 +989,9 @@ describe("class Matrix", function() {
             data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
         });
         var result = matrix1.getCol(1);
-        var size = result.size();
-        assert.equal(size[0], 1);
-        assert.equal(size[1], 2);
-        assert.equal(size[2], 3);
+        assert.equal(result.width, 1);
+        assert.equal(result.height, 2);
+        assert.equal(result.dimension, 3);
         result.data.forEach(function (row, index) {
             assert.equal(row, expect[index], result.toString());            
         });
@@ -1031,9 +1008,8 @@ describe("class Matrix", function() {
             data: [1, 2, 3, 4]
         });
         var result = matrix1.inmultiply(matrix2);
-        var size = result.size();
-        assert.equal(size[0], 1);
-        assert.equal(size[1], 4);
+        assert.equal(result.width, 1);
+        assert.equal(result.height, 4);
         result.data.forEach(function (row, index) {
             assert.equal(row, expect[index], result.toString());            
         });
@@ -1046,9 +1022,8 @@ describe("class Matrix", function() {
             data: [10, 5, 3, 1, 2, 3, 1, 2, 5]
         });
         var result = matrix.inmultiply(matrix);
-        var size = result.size();
-        assert.equal(size[0], 3);
-        assert.equal(size[1], 3);
+        assert.equal(result.width, 3);
+        assert.equal(result.height, 3);
         result.data.forEach(function (row, index) {
             assert.equal(row, expect[index], result.toString());            
         });
@@ -1238,9 +1213,8 @@ describe("class Matrix", function() {
             ]
         });
         var result = matrix.inmultiply(matrix);
-        var size = result.size();
-        assert.equal(size[0], 3);
-        assert.equal(size[1], 3);
+        assert.equal(result.width, 3);
+        assert.equal(result.height, 3);
         result.data.forEach(function (row, index) {
             sameEqual(row, expect[index], result.toString());
         });
@@ -1261,9 +1235,8 @@ describe("class Matrix", function() {
             ]
         });
         var result = matrix.divide(matrix);
-        var size = result.size();
-        assert.equal(size[0], 3);
-        assert.equal(size[1], 3);
+        assert.equal(result.width, 3);
+        assert.equal(result.height, 3);
         result.data.forEach(function (row, index) {
             sameEqual(row, expect1[index], index);
         });

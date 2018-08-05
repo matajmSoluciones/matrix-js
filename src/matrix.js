@@ -71,11 +71,35 @@ function Matrix(data, width, height, dimension, options) {
             value: 1,
             writable: false,
             enumerable: true
+        },
+        __MAX_LIMIT_WIDTH: {
+            value: 0,
+            writable: false,
+            enumerable: true
+        },
+        __MAX_LIMIT_HEIGHT: {
+            value: 0,
+            writable: false,
+            enumerable: true
+        },
+        length: {
+            value: 0,
+            writable: false,
+            enumerable: true
+        },
+        size: {
+            value: 0,
+            writable: false,
+            enumerable: true
         }
     };
     if (config.dimension) {
         opt.dimension.value = config.dimension;
     }
+    opt.__MAX_LIMIT_WIDTH.value = config.width * opt.dimension.value;
+    opt.__MAX_LIMIT_HEIGHT.value = config.height * opt.dimension.value;
+    opt.length.value = opt.__MAX_LIMIT_WIDTH.value * config.height;
+    opt.size.value = config.width * config.height;
     if (config.type) {
         config.type = config.type.toLowerCase();
         if (!(config.type in Matrix.typeArray)) {
@@ -97,9 +121,7 @@ function Matrix(data, width, height, dimension, options) {
         throw new Error("La dimension no es un numero");
     }
     Object.defineProperties(this, opt);
-    this.__MAX_LIMIT_WIDTH = this.width * this.dimension;
-    this.__MAX_LIMIT_HEIGHT = this.height * this.dimension;
-    this.length = this.__MAX_LIMIT_WIDTH * this.height;
+    
     if (config.data) {
         this.data = config.data;
     } else {
@@ -117,16 +139,19 @@ function Matrix(data, width, height, dimension, options) {
  * @returns {Matrix}
  */
 Matrix.random = function (width, height, dimension) {
-    var obj = Generate.apply(this, arguments);
-    obj.map(function (row) {
-        if (obj.dimension == 1) {
-            return Math.random();
-        }
-        return row.map(function (row2) {
-            return Math.random();
-        });
+    dimension = dimension || 1;
+    height = height || width;
+    var data = new Float32Array(width * height * dimension);
+    for (var i = 0, n = data.length; i < n; i++) {
+        data[i] = Math.random();
+    }
+    return Matrix.new({
+        width: width,
+        height: height,
+        dimension: dimension,
+        instance: "float32",
+        data: data
     });
-    return obj;
 };
 /**
  * @function PI
@@ -139,16 +164,19 @@ Matrix.random = function (width, height, dimension) {
  * @returns {Matrix}
  */
 Matrix.PI = function (width, height, dimension) {
-    var obj = Generate.apply(this, arguments);
-    obj.map(function (row) {
-        if (obj.dimension == 1) {
-            return Math.PI;
-        }
-        return row.map(function (row2) {
-            return Math.PI;
-        });
+    dimension = dimension || 1;
+    height = height || width;
+    var data = new Float32Array(width * height * dimension);
+    for (var i = 0, n = data.length; i < n; i++) {
+        data[i] = Math.PI;
+    }
+    return Matrix.new({
+        width: width,
+        height: height,
+        dimension: dimension,
+        instance: "float32",
+        data: data
     });
-    return obj;
 };
 /**
  * @function zeros
@@ -161,8 +189,13 @@ Matrix.PI = function (width, height, dimension) {
  * @returns {Matrix}
  */
 Matrix.zeros = function (width, height, dimension) {
-    var obj = Generate.apply(this, arguments);
-    return obj;
+    height = height || width;
+    return Matrix.new({
+        width: width,
+        height: height,
+        dimension: dimension,
+        instance: "int8",
+    });
 };
 
 /**
@@ -176,16 +209,19 @@ Matrix.zeros = function (width, height, dimension) {
  * @returns {Matrix}
  */
 Matrix.ones = function (width, height, dimension) {
-    var obj = Generate.apply(this, arguments);
-    obj.map(function (row) {
-        if (obj.dimension == 1) {
-            return 1;
-        }
-        return row.map(function (row2) {
-            return 1;
-        });
+    dimension = dimension || 1;
+    height = height || width;
+    var data = new Int8Array(width * height * dimension);
+    for(var i = 0, n = data.length; i < n; i++) {
+        data[i] = 1;
+    }
+    return Matrix.new({
+        width: width,
+        height: height,
+        dimension: dimension,
+        instance: "int8",
+        data: data
     });
-    return obj;
 };
 
 /**
@@ -199,28 +235,33 @@ Matrix.ones = function (width, height, dimension) {
  * @returns {Matrix}
  */
 Matrix.eyes = function (n, dimension) {
-    var options = {
-        type: "float32"
-    };
+    var opt = {
+        instance: "int8",
+        data: data
+    }, data, obj;
     if (!arguments.length || arguments.length > 2) {
         throw new Error("El numero de argumentos es invalido...");
     }
     if (arguments.length == 1) {
-        options.width = options.height = n;
-        options.dimension = 1;
+        opt.width = opt.height = n;
+        opt.dimension = 1;
     }
     if (arguments.length == 2) {
-        options.width = options.height = n;
-        options.dimension = dimension;
-    }    
-    var obj = new Matrix(options);
-    obj.map(function (row, x, y) {
+        opt.width = opt.height = n;
+        opt.dimension = dimension || 1;
+    }
+    data = new Int8Array(opt.width * opt.height * opt.dimension);
+    obj = Matrix.new(opt);
+    obj.forEach(function (row, x, y) {
+        var replace;
         if (obj.dimension == 1) {
-            return (x == y) ? 1 : 0;
+            replace = (x == y) ? 1 : 0;
+        } else {
+            replace = row.map(function (row2) {
+                return (x == y) ? 1 : 0;
+            });
         }
-        return row.map(function (row2) {
-            return (x == y) ? 1 : 0;
-        });
+        obj.set(x, y, replace);
     });
     return obj;
 };
@@ -355,14 +396,13 @@ Matrix.prototype.forEach = function (callback) {
     if (!(callback instanceof Function)) {
         throw new Error("callback debe ser una funcion.");
     }
-    for (var index = 0, x = 0, y = 0, n = this.data.length; index < n; index += this.dimension) {
+    for (var index = 0, x = 0, y = 0; index < this.size; index++, x++) {
         if (x >= this.width) {
             x = 0;
             y++;
         }
         var data = this.get(x, y);
         callback(data, x, y, index);
-        x++;
     }
 };
 /**
@@ -376,12 +416,12 @@ Matrix.prototype.map = function (callback) {
     if (!(callback instanceof Function)) {
         throw new Error("callback debe ser una funcion.");
     }
-    var self = this;
+    var newobj = this.clone();
     this.forEach(function (rows, x, y, index) {
         var value = callback(rows, x, y, index);
-        self.set(x, y, value);
+        newobj.set(x, y, value);
     });
-    return this;
+    return newobj;
 };
 
 /**
@@ -451,9 +491,6 @@ Matrix.prototype.isEqual = function (vector) {
         }
     }
     return true;
-    // return this.data.every(function (row, index) {
-    //     return row === vector.data[index];
-    // });
 };
 /**
  * @function isNotEqual
@@ -585,9 +622,9 @@ Matrix.prototype.isNotSimetry = function () {
  * @returns {Matrix}
  */
 Matrix.prototype.sqrt = function () {
-    var obj = this.clone(), self = this;
-    obj.map(function (row) {
-        if (obj.dimension == 1) {
+    var obj, self = this;
+    obj = this.map(function (row) {
+        if (self.dimension == 1) {
             return Math.sqrt(row);
         }
         return row.map(function (row2) {
@@ -605,7 +642,7 @@ Matrix.prototype.sqrt = function () {
 Matrix.prototype.cbrt = function () {
     var obj = self.clone();
     obj.map(function (row) {
-        if (obj.dimension == 1) {
+        if (self.dimension == 1) {
             return Math.cbrt(row);
         }
         return row.map(function (row2) {
@@ -621,9 +658,9 @@ Matrix.prototype.cbrt = function () {
  * @returns {Matrix}
  */
 Matrix.prototype.log = function () {
-    var obj = this.clone(), self = this;
-    obj.map(function (row) {
-        if (obj.dimension == 1) {
+    var obj, self = this;
+    obj = this.map(function (row) {
+        if (self.dimension == 1) {
             return Math.log(row);
         }
         return row.map(function (row2) {
@@ -639,9 +676,9 @@ Matrix.prototype.log = function () {
  * @returns {Matrix}
  */
 Matrix.prototype.exp = function () {
-    var obj = this.clone(), self = this;
-    obj.map(function (row) {
-        if (obj.dimension == 1) {
+    var obj, self = this;
+    obj = this.map(function (row) {
+        if (self.dimension == 1) {
             return Math.exp(row);
         }
         return row.map(function (row2) {
@@ -657,9 +694,9 @@ Matrix.prototype.exp = function () {
  * @returns {Matrix}
  */
 Matrix.prototype.abs = function () {
-    var obj = this.clone(), self = this;
-    obj.map(function (row) {
-        if (obj.dimension == 1) {
+    var obj, self = this;
+    obj = this.map(function (row) {
+        if (self.dimension == 1) {
             return Math.abs(row);
         }
         return row.map(function (row2) {
@@ -675,9 +712,9 @@ Matrix.prototype.abs = function () {
  * @returns {Matrix}
  */
 Matrix.prototype.atan = function () {
-    var obj = this.clone(), self = this;
-    obj.map(function (row) {
-        if (obj.dimension == 1) {
+    var obj, self = this;
+    obj = this.map(function (row) {
+        if (self.dimension == 1) {
             return Math.atan(row);
         }
         return row.map(function (row2) {
@@ -693,9 +730,9 @@ Matrix.prototype.atan = function () {
  * @returns {Matrix}
  */
 Matrix.prototype.cos = function () {
-    var obj = this.clone(), self = this;
-    obj.map(function (row) {
-        if (obj.dimension == 1) {
+    var obj, self = this;
+    obj = this.map(function (row) {
+        if (self.dimension == 1) {
             return Math.cos(row);
         }
         return row.map(function (row2) {
@@ -711,9 +748,9 @@ Matrix.prototype.cos = function () {
  * @returns {Matrix}
  */
 Matrix.prototype.sin = function () {
-    var obj = this.clone(), self = this;
-    obj.map(function (row) {
-        if (obj.dimension == 1) {
+    var obj, self = this;
+    obj = this.map(function (row) {
+        if (self.dimension == 1) {
             return Math.sin(row);
         }
         return row.map(function (row2) {
@@ -728,9 +765,9 @@ Matrix.prototype.sin = function () {
  * @returns {Matrix}
  */
 Matrix.prototype.round = function () {
-    var obj = this.clone(), self = this;
-    obj.map(function (row) {
-        if (obj.dimension == 1) {
+    var obj, self = this;
+    obj = this.map(function (row) {
+        if (self.dimension == 1) {
             return Math.round(row);
         }
         return row.map(function (row2) {
@@ -746,9 +783,9 @@ Matrix.prototype.round = function () {
  * @returns {Matrix}
  */
 Matrix.prototype.ceil = function () {
-    var obj = this.clone(), self = this;
-    obj.map(function (row) {
-        if (obj.dimension == 1) {
+    var obj, self = this;
+    obj = this.map(function (row) {
+        if (self.dimension == 1) {
             return Math.ceil(row);
         }
         return row.map(function (row2) {
@@ -764,9 +801,9 @@ Matrix.prototype.ceil = function () {
  * @returns {Matrix}
  */
 Matrix.prototype.floor = function () {
-    var obj = this.clone(), self = this;
-    obj.map(function (row) {
-        if (obj.dimension == 1) {
+    var obj, self = this;
+    obj = this.map(function (row) {
+        if (self.dimension == 1) {
             return Math.floor(row);
         }
         return row.map(function (row2) {
@@ -786,9 +823,9 @@ Matrix.prototype.pow = function (n) {
     if (typeof n !== "number") {
         throw new Error("n debe ser un numero");
     }
-    var obj = this.clone(), self = this;
-    obj.map(function (row) {
-        if (obj.dimension == 1) {
+    var obj, self = this;
+    obj = this.map(function (row) {
+        if (self.dimension == 1) {
             return Math.pow(row, n);
         }
         return row.map(function (row2) {
@@ -834,15 +871,6 @@ Matrix.prototype.clone = function () {
     return newobj;
 };
 /**
- * @function size
- * @public
- * @summary Tamaño matricial del objeto.
- * @returns {Array}
- */
-Matrix.prototype.size = function () {
-    return [this.width, this.height, this.dimension];
-};
-/**
  * @function max
  * @public
  * @summary Devuelve el valor máximo de la matriz.
@@ -867,11 +895,10 @@ Matrix.prototype.min = function () {
  * @returns {Matrix}
  */
 Matrix.prototype.transposed = function () {
-    var obj = Generate(this.height, this.width, this.dimension),
-        self = this;
-    obj.map(function (row, x, y) {
-        return self.get(y, x);
-    });
+    var self = this,
+        obj = this.map(function (row, x, y) {
+            return self.get(y, x);
+        });
     return obj;
 };
 /**
@@ -882,7 +909,7 @@ Matrix.prototype.transposed = function () {
  */
 Matrix.prototype.sum = function () {
     var matrixs = arguments;
-    var obj = this.clone();
+    var obj = this;
     if (!matrixs.length) {
         throw new Error("Es necesario un objeto");
     }
@@ -1040,12 +1067,9 @@ Matrix.prototype.inmultiply = function () {
         if (!Utils.isMultiply(obj, matrix)) {
             throw new Error("Las matrices no son multiplicables...");
         }
-        var temp = Generate(
-            (typeof matrix == "number") ? obj.width : matrix.width,
-            obj.height,
-            obj.dimension
+        obj = Matrix.new(
+            Utils.inmultiply(obj, matrix)
         );
-        obj = Utils.inmultiply(temp, obj, matrix);
     }
     if (obj.width == obj.height && obj.width == 1) {
         return obj.data[0];
@@ -1155,19 +1179,34 @@ Matrix.prototype.removeCol = function (x1) {
  * @returns {Matrix}
  */
 Matrix.prototype.remove = function (x1, y1) {
-    var obj = Generate(
-        this.width - 1, this.height - 1, this.dimension),
-        self = this;
-    obj.map(function (row, x, y) {
-        var inx = 0, iny = 0;
-        if (y >= y1) {
-            iny = 1;
+    var obj = Matrix.new({
+        width: this.width - 1,
+        height: this.height - 1,
+        dimension: this.dimension
+    }), self = this;
+    for(var x = 0; x < obj.width; x++) {
+        for(var y = 0; y < obj.height; y++) {
+            var inx = 0, iny = 0;
+            if (y >= y1) {
+                iny = 1;
+            }
+            if (x >= x1) {
+                inx = 1;
+            }
+            var row = self.get(x + inx, y + iny);
+            obj.set(x, y, row);
         }
-        if (x >= x1) {
-            inx = 1;
-        }
-        return self.get(x + inx, y + iny);
-    });
+    }
+    // obj.map(function (row, x, y) {
+    //     var inx = 0, iny = 0;
+    //     if (y >= y1) {
+    //         iny = 1;
+    //     }
+    //     if (x >= x1) {
+    //         inx = 1;
+    //     }
+    //     return self.get(x + inx, y + iny);
+    // });
     return obj;
 };
 /**
@@ -1180,8 +1219,12 @@ Matrix.prototype.adj = function () {
     if (!this.isSingular()) {
         throw new Error("Debe ser una matriz cuadrada");
     }
-    var matrix = Generate(this.width, this.height, 1),
-        self = this;
+    var matrix = Matrix.new({
+        width: this.width,
+        height: this.height,
+        dimension: 1
+    }),
+    self = this;
     var index = 0;
     if (this.__adj__) {
         return this.__adj__;

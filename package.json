@@ -4,7 +4,7 @@
   "description": "libreria para el procesamiento de matrices",
   "main": "dist/matrix.js",
   "scripts": {
-    "test": "node_modules/mocha/bin/mocha tests/",
+    "test": "node_modules/mocha/bin/mocha tests/*.test.js",
     "coverage": "node_modules/nyc/bin/nyc.js --reporter=html node_modules/mocha/bin/mocha tests/",
     "build": "node_modules/rollup/bin/rollup -c",
     "performance": "node tests/performance.js"
