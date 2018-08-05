@@ -3,6 +3,9 @@ var benchmarkjs = require('benchmarkjs'),
 var matrix2d = Matrix.random(100, 100);
 var matrix3d = Matrix.random(100, 100, 3);
 var matrixnd = Matrix.random(100, 100, 100);
+benchmarkjs.options({
+    testTime: 1000
+});
 benchmarkjs('constructor', function () {
     new Matrix(
         [1, 2, 3, 4, 5, 6],
@@ -91,7 +94,7 @@ benchmarkjs('clone 2D', function () {
 benchmarkjs('clone 3D', function () {
     matrix3d.clone();
 });
-benchmarkjs('forEach 2D', function () {
+benchmarkjs('2D', function () {
     matrix2d.forEach(function (rows, x, y, index) {});
 });
 benchmarkjs('forEach 3D', function () {

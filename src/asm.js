@@ -1,15 +1,7 @@
-module.exports.getIndex = function (stdlib, foreign, heap) {
+/*module.exports.getIndex = function (stdlib, foreign, heap) {
     "use asm";
     var floor = stdlib.Math.floor;
-    /**
-     * getIndex.
-     * Obtiene el indice del un arreglo unidimencional de la matriz.
-     * 
-     * @param {Array} arguments lista de argumentos del indice.
-     * @param {Number} x primer elemento del par.
-     * @param {Number} y segundo elemento del par.
-     * @return {Number}
-     */
+    
     function getIndex(x, y, width, dimension) {
         x = +x;
         y = +y;
@@ -20,4 +12,23 @@ module.exports.getIndex = function (stdlib, foreign, heap) {
         return ~~floor(result);
     }
     return getIndex;
+};*/
+
+module.exports = function (stdlib, foreign, heap) {
+    "use asm";
+    var floor = stdlib.Math.floor,
+        data = new stdlib.Float64Array(heap);
+
+    function inmultiply_const(K, length) {
+        K = +K;
+        length = length|0;
+        var p = 0, q = 0;
+        for (p = 0 << 3, q = length << 3; (p | 0) < (q | 0); p = (p + 8) | 0) {
+            data[p >> 3] = data[p >> 3] * K;
+        }
+        return 0;
+    }
+    return {
+        inmultiply_const: inmultiply_const
+    };
 };
