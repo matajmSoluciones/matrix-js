@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] - 2018-08-03
+## [Unreleased] - 2018-08-06
 
 ### Added
 
@@ -8,6 +8,7 @@
 - Metodo "isValidArray" en Matrix.
 - Propiedad "typeArray" lista soporte de arreglos tipeados.
 - Metodo "getIndex"para obtener indices en un arreglo de matrices.
+- Metodo "convolution" para aplicar filtros de convolución.
 
 ### Changed
 
@@ -22,11 +23,23 @@
 ### Removed
 
 - propiedad "typeInstance" obsoleta.
+- Compilación ASM.js
 
 ### Fixed
 
-- Error de compilación ASM.js
 - Parametro "index" en forEach y map retorna un indice matricial con las dimensiones agregadas. Eliminada dimensiones en el indice.
+
+### Security
+
+- Optimización de rendimiento en metodos "inmultiply"
+- Optimización de rendimiento en metodos "forEach"
+- Optimización de rendimiento en metodos "map"
+
+## [0.0.2-alpha-0] - 2018-07-08
+
+### Security
+
+- Optimización en carga de modulos en navegadores
 
 ## [0.0.1-alpha-1] - 2018-05-26
 

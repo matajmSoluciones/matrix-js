@@ -1,4 +1,3 @@
-"use stric";
 /**
  * Funciones de utilidad
  */
