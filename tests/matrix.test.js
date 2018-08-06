@@ -1336,6 +1336,22 @@ describe("class Matrix", function() {
             assert.ok(row == expect[index], row + " != " + expect[index]);
         });
     });
+    it("test convolution 2D", function () {
+        var matrix = new Matrix({
+            width: 5,
+            height: 5,
+            dimension: 1,
+            data: require("./matrix1.json")
+        }), filter = new Matrix({
+            width: 3,
+            height: 3,
+            dimension: 1,
+            data: require("./filter.json")
+        }), expect = require("./expect.json"),
+            result = matrix.convolution(filter);
+        console.log(result.data, expect);
+        assertForEach(result, expect);
+    });
 });
 /**
  * assertForEach.
