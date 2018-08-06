@@ -1,8 +1,6 @@
 "use stric";
-var asm = require("./asm");
-
 /**
- * Load de utilidades asm
+ * Funciones de utilidad
  */
 var Utils = {
     /**
