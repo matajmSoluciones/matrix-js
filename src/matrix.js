@@ -15,13 +15,12 @@ var Utils = require("./utils");
  * @param {Number} width  - Ancho de la matriz.
  * @param {Number} height - Alto de la matriz.
  * @param {Number} dimension - Dimensión de la matriz.
- * @param {object} options - Opciones de la matriz.
+ * @param {object} config - Opciones de la matriz.
  * @author Jhonny Mata <solucionesmatajm@gmai.com>
  * @exports Matrix
  * @version 0.0.1
  */
-function Matrix(data, width, height, dimension, options) {
-    var config = {};
+function Matrix(data, width, height, dimension, config) {
     if (!arguments.length) {
         throw new Error("Es requerido un argumento");
     }
@@ -36,11 +35,9 @@ function Matrix(data, width, height, dimension, options) {
         config.data = data;
     }
     if (arguments.length > 2) {
-        if (options && typeof options !== "object") {
+        config = (config || {});
+        if (config && typeof config !== "object") {
             throw new Error("config debe ser un objeto.");
-        }
-        if (options) {
-            config = options;
         }
         if (width) {
             config.width = width;
@@ -55,7 +52,7 @@ function Matrix(data, width, height, dimension, options) {
     }
     if (!config.height) {
         throw new Error("Es necesario el alto de la matriz.");
-    }    
+    }
     var opt = {
         width: {
             value: config.width,
@@ -149,7 +146,7 @@ Matrix.random = function (width, height, dimension) {
         width: width,
         height: height,
         dimension: dimension,
-        instance: "float32",
+        type: "float32",
         data: data
     });
 };
@@ -174,7 +171,7 @@ Matrix.PI = function (width, height, dimension) {
         width: width,
         height: height,
         dimension: dimension,
-        instance: "float32",
+        type: "float32",
         data: data
     });
 };
@@ -194,7 +191,7 @@ Matrix.zeros = function (width, height, dimension) {
         width: width,
         height: height,
         dimension: dimension,
-        instance: "int8",
+        type: "int8",
     });
 };
 
@@ -219,7 +216,7 @@ Matrix.ones = function (width, height, dimension) {
         width: width,
         height: height,
         dimension: dimension,
-        instance: "int8",
+        type: "int8",
         data: data
     });
 };
@@ -236,7 +233,7 @@ Matrix.ones = function (width, height, dimension) {
  */
 Matrix.eyes = function (n, dimension) {
     var opt = {
-        instance: "int8",
+        type: "int8",
         data: data
     }, data, obj;
     if (!arguments.length || arguments.length > 2) {
@@ -310,6 +307,9 @@ function Generate(width, height, dimension) {
  */
 Matrix.prototype.get = function (x, y) {
     var index = this.getIndex(x, y);
+    if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
+        return;
+    }
     if (this.dimension == 1) {
         return this.data[index];
     }
@@ -851,11 +851,18 @@ Matrix.new = function (options) {
  * @returns {Object}
  */
 Matrix.prototype.toObject = function () {
+    var type = "float32";
+    for (var key in Matrix.typeArray) {
+        if (Matrix.typeArray[key] instanceof this.instance) {
+            type = key;
+            break;
+        }
+    }
     return {
         width: this.width,
         height: this.height,
         dimension: this.dimension,
-        instance: this.instance,
+        type: type,
         data: this.data.slice()
     };
 };
@@ -1010,8 +1017,12 @@ Matrix.prototype.getCol = function (x) {
  * @param {Number} height Alto.
  * @returns {Matrix}
  */
-Matrix.prototype.slice = function (x1, y1, width, height) {
-    if (typeof y1 !== "number" || !y1 || y1 >= this.height) {
+Matrix.prototype.slice = function (x1, y1, width, height, silen) {
+    silen = silen || false;
+    if (typeof x1 !== "number" || typeof y1 !== "number" || typeof width !== "number" || typeof height !== "number") {
+        throw new Error("Argumentos invalidos");
+    }
+    /*if (typeof y1 !== "number" || !y1 || y1 >= this.height) {
         throw new Error("No es valido el numero de fila");
     }
     if (typeof x1 !== "number" || !x1 || x1 >= this.width) {
@@ -1023,28 +1034,25 @@ Matrix.prototype.slice = function (x1, y1, width, height) {
     }
     if (typeof xend !== "number" || !xend || xend >= this.width) {
         throw new Error("No es valido el ancho");
-    }
+    }*/
+    var xend = x1 + (width - 1), yend = y1 + (height - 1);
     var data = new this.instance(width * height * this.dimension);
-    var i = 0;
-    for (var y = y1; y <= yend; y++) {
-        for (var x = x1; x <= xend; x++) {
-            var index = this.getIndex(x, y);
-            if (this.dimension == 1) {
-                data[i] = this.data[index];
-            } else {
-                for (var j = 0; j < this.dimension; j++) {
-                    data[i + j] = this.data[index + j];
-                }
-            }
-            i += this.dimension;
-        }
-    }
-    return new Matrix({
+    var obj = new Matrix({
         width: width,
         height: height,
         dimension: this.dimension,
         data: data
     });
+    for (var y2 = 0, y = y1; y <= yend; y++, y2++) {
+        for (var x = x1, x2 = 0; x <= xend; x++, x2++) {
+            var row = this.get(x, y);
+            if (!row) {
+                continue;
+            }
+            obj.set(x2, y2, row);
+        }
+    }
+    return obj;
 };
 /**
  * @function inmultiply.
@@ -1305,6 +1313,40 @@ Matrix.prototype.promd = function () {
         promd += this.data[i];
     }
     return promd;
+};
+/**
+ * @function convolution
+ */
+Matrix.prototype.convolution = function (filter) {
+    var obj, self = this,
+        x_prim = -Math.floor(filter.width / 2),
+        y_prim = -Math.floor(filter.height / 2);
+    obj = this.map(function (row, x, y) {
+        var new_x = x + x_prim, new_y = y + y_prim,
+            xend = new_x + (filter.width - 1),
+            yend = new_y + (filter.height - 1),
+            promd = 0;
+        if (self.dimension > 1) {
+            promd = new self.instance(screen.dimension);
+        }
+        for (var y2 = 0, y1 = new_y; y1 <= yend; y1++, y2++) {
+            for (var x2 = 0, x1 = new_x; x1 <= xend; x1++, x2++) {
+                var f = self.get(x1, y1), g = filter.get(x2, y2);
+                if (!f) {
+                    continue;
+                }
+                if (self.dimension == 1) {
+                    promd += f * g;
+                } else {
+                    for (var j = 0, m = promd.length; j < m; j++) {
+                        promd += f[j] * g[j];
+                    }
+                }
+            }
+        }
+        return promd;
+    });
+    return obj;
 };
 Object.defineProperty(Matrix.prototype, "instance" , {
     value: Float32Array,
