@@ -6,9 +6,10 @@
 
 - Getter/setter para la propiedad "data".
 - Metodo "isValidArray" en Matrix.
-- Propiedad "typeArray" lista soporte de arreglos tipeados.
+- Propiedad estatica "typeArray" lista soporte de arreglos tipeados.
 - Metodo "getIndex"para obtener indices en un arreglo de matrices.
 - Metodo "convolution" para aplicar filtros de convolución.
+- Metodo "moveCol" y "moveRow" para mover filas y columnas internas.
 
 ### Changed
 
@@ -34,6 +35,7 @@
 - Optimización de rendimiento en metodos "inmultiply"
 - Optimización de rendimiento en metodos "forEach"
 - Optimización de rendimiento en metodos "map"
+- actualizado dependencias obsoletas para el desarrollo
 
 ## [0.0.2-alpha-0] - 2018-07-08
 
