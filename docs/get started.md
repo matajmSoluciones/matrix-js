@@ -30,17 +30,33 @@ Matrix-js es facil de usar y su sintaxis es muy similar Octave en el manejo de m
 La clase Matrix cuenta con sus propios getter y setter para el acceso rapido a la matriz.
 
 ```javascript
-    var row = A.getField(x, y); // getter
+    var row = A.get(x, y); // getter
     A.setField(x, y, val); //setter
 ```
+### Matrix.width
 
+Retorna el ancho de la matriz
+
+### Matrix.height
+
+Retorna el alto de la matriz
+
+### Matrix.dimension
+
+Retorna la dimensión de la matriz
 
 ### Matrix.size
 
-Retorna el tamaño de la matriz en un arreglo de 3 elementos.
+Para la versión 1.x size será la propiedad que contiene la cantidad de elementos en total de
+la matriz, en el caso del metodo size a sido removido.
 
-    Matrix.size()
-    [ancho, alto, dimension]
+### Matrix.data
+
+Retonar la matriz actual en forma de un vector rectangular.
+
+### Matrix.instance
+
+Retorna la clase Array usada para la matriz.
 
 ### Matrix.forEach
 
@@ -258,6 +274,23 @@ Retorna un nuevo objeto Matrix con la fila removida.
 
 El parametro *x* representa el numero de la columna que desea extraer.
 
+
+## Matrix.moveRow
+
+Alterna la fila actual por la nueva posición. donde *row* es la fila a cambiar y *newRow* es la fila por la cual será alternada.
+
+```javascript
+    matrix.moveRow(row, newRow);
+```
+
+## Matrix.moveCol
+
+Alterna la columnar actual por la nueva posición. donde *col* es la columna a cambiar y *newCol* es la columna por la cual será alternada.
+
+```javascript
+    matrix.moveCol(col, newCol);
+```
+
 ### Matrix.remove
 
 Retorna un nuevo objeto Matrix con la fila y columna removida.
@@ -307,4 +340,21 @@ Retorna en formato String los valores de la matriz posicionados segun su orden.
         1 2
         3 4
     */
+```
+
+
+### Matrix.getIndex
+
+Retorna el indice que representa la matriz en forma de un arreglo rectangular.
+
+
+Parametros:
+
+| nombre | tipo | descripción |
+| ------ | ---- | ----------- |
+|  x    | Number| coordenada x.|
+|  y    | Number| coordenada y. |
+
+```javascript
+    var index = Matrix.getIndex(x, y);    
 ```
