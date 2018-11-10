@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="../dist/matrix.js"></script>
+</head>
+<body>
+    <script>
+        var expect = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+        var matrix = new Matrix(
+            {
+                type: "float32",
+                width: 2,
+                height: 2,
+                dimension: 3,
+                data: expect
+            }
+        );
+        console.log(matrix.get(1, 1));
+        matrix.set(1, 1, [1,2,1]);
+        console.log(matrix.get(1, 1));
+    </script>
+</body>
+</html>

@@ -1351,6 +1351,82 @@ describe("class Matrix", function() {
             result = matrix.convolution(filter);
         assertForEach(result, expect);
     });
+    it("test move row 2D", function () {
+        var matrix = new Matrix({
+            width: 3,
+            height: 3,
+            dimension: 1,
+            data: [
+                1, 2, 3,
+                4, 5, 6,
+                7, 8, 9
+            ]
+        }), expect = [
+            7,8,9,
+            4,5,6,
+            1,2,3
+        ];
+        matrix.moveRow(0,2); // mueve la fila 0 a la 2.
+        for(var i = 0, n =matrix.data.length; i < n; i++){
+            assert.equal(matrix.data[i], expect[i]);
+        }
+    });
+    it("test move row 3D", function () {
+        var matrix = new Matrix({
+            width: 2,
+            height: 2,
+            dimension: 2,
+            data: [
+                1, 2,  3,4,
+                5, 6,  7, 8
+            ]
+        }), expect = [
+           5, 6,  7, 8,
+           1, 2,  3, 4
+        ];
+        matrix.moveRow(0,1); // mueve la fila 0 a la 1.
+        for(var i = 0, n =matrix.data.length; i < n; i++){
+            assert.equal(matrix.data[i], expect[i]);
+        }
+    });
+    it("test move col 2D", function () {
+        var matrix = new Matrix({
+            width: 3,
+            height: 3,
+            dimension: 1,
+            data: [
+                1, 2, 3,
+                4, 5, 6,
+                7, 8, 9
+            ]
+        }), expect = [
+            3, 2, 1,
+            6, 5, 4,
+            9, 8, 7
+        ];
+        matrix.moveCol(0,2); // mueve la fila 0 a la 2.
+        for(var i = 0, n =matrix.data.length; i < n; i++){
+            assert.equal(matrix.data[i], expect[i]);
+        }
+    });
+    it("test move col 3D", function () {
+        var matrix = new Matrix({
+            width: 2,
+            height: 2,
+            dimension: 2,
+            data: [
+                1, 2,  3,4,
+                5, 6,  7, 8
+            ]
+        }), expect = [
+            3, 4,  1, 2,
+            7, 8,  5, 6
+        ];
+        matrix.moveCol(0,1); // mueve la fila 0 a la 1.
+        for(var i = 0, n =matrix.data.length; i < n; i++){
+            assert.equal(matrix.data[i], expect[i]);
+        }
+    });
 });
 /**
  * assertForEach.
