@@ -1348,6 +1348,20 @@ Matrix.prototype.convolution = function (filter) {
     });
     return obj;
 };
+/**
+* @function moveRow
+* @param {Number} row fila actual
+* @param {Number} newRow fila a reemplazar
+*/
+Matrix.prototype.moveRow = function (row, newRow) {
+    var content1 = this.getRow(row), content2 = this.getRow(newRow);
+    for(var x = 0; x < this.width; x++) {
+        this.set(x, row, content1[x]);
+        this.set(x, newRow, content2[x]);
+    }
+    return this;
+};
+
 Object.defineProperty(Matrix.prototype, "instance" , {
     value: Float32Array,
     writable: true,
