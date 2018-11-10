@@ -1067,7 +1067,7 @@
      * @return {Matrix}
      */
     Matrix.prototype.getRow = function (y) {
-        if (typeof y !== "number" || !y || y >= this.height) {
+        if (typeof y !== "number" || typeof y === "undefined" || y >= this.height) {
             throw new Error("No es valido el numero de fila");
         }
         var min = this.getIndex(0, y),
@@ -1089,7 +1089,7 @@
      * @returns {Matrix}
      */
     Matrix.prototype.getCol = function (x) {
-        if (typeof x !== "number" || !x || x >= this.width) {
+        if (typeof x !== "number" || typeof x === "undefined" || x >= this.width) {
             throw new Error("No es valido el numero de columna");
         }
         var data = new this.instance(this.__MAX_LIMIT_HEIGHT);
@@ -1451,6 +1451,33 @@
         });
         return obj;
     };
+    /**
+    * @function moveRow
+    * @param {Number} row fila actual
+    * @param {Number} newRow fila a reemplazar
+    */
+    Matrix.prototype.moveRow = function (row, newRow) {
+        var content1 = this.getRow(row), content2 = this.getRow(newRow);
+        for(var x = 0; x < this.width; x++) {
+            this.set(x, row, content2.get(x, 0));
+            this.set(x, newRow, content1.get(x, 0));
+        }
+        return this;
+    };
+    /**
+    * @function moveRow
+    * @param {Number} row fila actual
+    * @param {Number} newRow fila a reemplazar
+    */
+    Matrix.prototype.moveCol = function (col, newCol) {
+        var content1 = this.getCol(col), content2 = this.getCol(newCol);
+        for(var y = 0; y < this.height; y++) {
+            this.set(col, y, content2.get(0, y));
+            this.set(newCol, y, content1.get(0, y));
+        }
+        return this;
+    };
+
     Object.defineProperty(Matrix.prototype, "instance" , {
         value: Float32Array,
         writable: true,
@@ -1517,6 +1544,128 @@
         }
         return bool;
     };
+    Object.defineProperty(Matrix.prototype, "Filters", {
+        value: {
+            //Desenfoque Blur
+            BLUR: Matrix.new({
+                width: 5,
+                height: 5,
+                dimension: 1,
+                data: [
+                    0.0030, 0.0133, 0.0219, 0.0133, 0.0030,
+                    0.0133, 0.0596, 0.0983, 0.0596, 0.0133,
+                    0.0219, 0.0983, 0.1621, 0.0983, 0.0219,
+                    0.0133, 0.0596, 0.0983, 0.0596, 0.0133,
+                    0.0030, 0.0133, 0.0219, 0.0133, 0.0030
+                ]
+            }),
+            //Gausiano
+            GAUSSIAN: Matrix.new({
+                width: 5,
+                height: 5,
+                dimension: 1,
+                data: [
+                    0.003663003663003663, 0.014652014652014652, 0.02564102564102564, 0.014652014652014652, 0.003663003663003663,
+                    0.014652014652014652, 0.05860805860805861, 0.09523809523809523, 0.05860805860805861, 0.014652014652014652,
+                    0.02564102564102564, 0.09523809523809523, 0.15018315018315018, 0.09523809523809523, 0.02564102564102564,
+                    0.014652014652014652, 0.05860805860805861, 0.09523809523809523, 0.05860805860805861, 0.014652014652014652,
+                    0.003663003663003663, 0.014652014652014652, 0.02564102564102564, 0.014652014652014652, 0.003663003663003663
+                ]
+            }),
+            //Media
+            MEDIA: Matrix.new({
+                width: 3,
+                height: 3,
+                data: [
+                    0.1111111111111111, 0.1111111111111111, 0.1111111111111111,
+                    0.1111111111111111, 0.1111111111111111, 0.1111111111111111,
+                    0.1111111111111111, 0.1111111111111111, 0.1111111111111111
+                ]
+            }),
+            //Prewitt línea Vertical
+            PREWITTV: Matrix.new({
+                width: 3,
+                height: 3,
+                data: [
+                    -1, -1, -1,
+                    0, 0, 0,
+                    1, 1, 1
+                ]
+            }),
+            // Prewitt Línea horizontal
+            PREWITTH: Matrix.new({
+                width: 3,
+                height: 3,
+                data: [
+                    -1, 0, -1,
+                    -1, 0, 1,
+                    -1, 0, 1
+                ]
+            }),
+            //Sobel Vertical
+            SOBELV: Matrix.new({
+                width: 3,
+                height: 3,
+                data: [
+                    -1, -2, -1,
+                    0, 0, 0,
+                    1, 2, 1
+                ]
+            }),
+            //Sobel Horizontal
+            SOBELH: Matrix.new({
+                width: 3,
+                height: 3,
+                data: [
+                    -1, 0, 1,
+                    -2, 0, 2,
+                    -1, 0, 1
+                ]
+            }),
+            LAPLACIANO: Matrix.new({
+                width: 3,
+                height: 3,
+                data: [
+                    0, -1, 0,
+                    -1, 4, -1,
+                    0, -1, 0
+                ]
+            }),
+            LAGAUSSIANO: Matrix.new({
+                width: 5,
+                height: 5,
+                data: [
+                    0, 0, -1, 0, 0,
+                    0, -1, -2, -1, 0,
+                    -1, -2, 16, -2, -1,
+                    0, -1, -2, -1, 0,
+                    0, 0, -1, 0, 0
+                ]
+            }),
+            SHARPEN: Matrix.new({
+                width: 5,
+                height: 5,
+                data: [
+                    0, 0, 0, 0, 0,
+                    0, 0, -1, 0, 0,
+                    0, -1, 5, -1, 0,
+                    0, 0, -1, 0, 0,
+                    0, 0, 0, 0, 0
+                ]
+            }),
+            EMBOSS: Matrix.new({
+                width: 3,
+                height: 3,
+                data: [
+                    -2, -1, 0,
+                    -1, 1, 1,
+                    0, 1, 2
+                ]
+            })
+        },
+        writable: false,
+        enumerable: true
+    });
     var matrix = Matrix;
 
     var src = matrix;
