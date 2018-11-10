@@ -49,8 +49,8 @@ Genera dos archivos el codigo fuente para navegadores y el comprimido.
 La clase Matrix cuenta con sus propios getter y setter para el acceso rapido a la matriz.
 
 ```javascript
-    var row = A.getField(x, y); // getter
-    A.setField(x, y, val); //setter
+    var row = A.get(x, y); // getter
+    A.set(x, y, val); //setter
 ```
 
 ## Soporte de datos
@@ -70,12 +70,22 @@ Data type | String
 `Uint8ArrayClamped` | "uint8_clamped"
 `Buffer` | "buffer"
 
+### Matrix.width
+
+Retorna el ancho de la matriz
+
+### Matrix.height
+
+Retorna el alto de la matriz
+
+### Matrix.dimension
+
+Retorna la dimensión de la matriz
+
 ### Matrix.size
 
-Retorna el tamaño de la matriz en un arreglo de 3 elementos.
-
-    Matrix.size()
-    [ancho, alto, dimension]
+Para la versión 1.x size será la propiedad que contiene la cantidad de elementos en total de
+la matriz, en el caso del metodo size a sido removido.
 
 ### Matrix.forEach
 
