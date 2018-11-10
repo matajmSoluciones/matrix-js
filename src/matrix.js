@@ -964,7 +964,7 @@ Matrix.prototype.subtract = function () {
  * @return {Matrix}
  */
 Matrix.prototype.getRow = function (y) {
-    if (typeof y !== "number" || !y || y >= this.height) {
+    if (typeof y !== "number" || typeof y === "undefined" || y >= this.height) {
         throw new Error("No es valido el numero de fila");
     }
     var min = this.getIndex(0, y),
@@ -986,7 +986,7 @@ Matrix.prototype.getRow = function (y) {
  * @returns {Matrix}
  */
 Matrix.prototype.getCol = function (x) {
-    if (typeof x !== "number" || !x || x >= this.width) {
+    if (typeof x !== "number" || typeof x === "undefined" || x >= this.width) {
         throw new Error("No es valido el numero de columna");
     }
     var data = new this.instance(this.__MAX_LIMIT_HEIGHT);
