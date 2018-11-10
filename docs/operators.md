@@ -83,7 +83,15 @@ Para el caso de escalares se aplica la división de cada elemento dentro de la m
     var result = matrix.divide(2, 3, ...)
 ```
 
-**Nota**: Para la división de matrices los argumentos deben ser objetos Matrix.
+## Matrix.convolution
+
+Genera una nueva matriz aplicando filtros de convolución. Donde *filter* debe ser un objeto *Matrix* valido.
+
+
+```javascript
+    // División de matrices.
+    var result = matrix.convolution(filter);
+```
 
 ## Matrix.sqrt
 
