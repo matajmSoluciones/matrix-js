@@ -1356,8 +1356,21 @@ Matrix.prototype.convolution = function (filter) {
 Matrix.prototype.moveRow = function (row, newRow) {
     var content1 = this.getRow(row), content2 = this.getRow(newRow);
     for(var x = 0; x < this.width; x++) {
-        this.set(x, row, content1[x]);
-        this.set(x, newRow, content2[x]);
+        this.set(x, row, content2.get(x, 0));
+        this.set(x, newRow, content1.get(x, 0));
+    }
+    return this;
+};
+/**
+* @function moveRow
+* @param {Number} row fila actual
+* @param {Number} newRow fila a reemplazar
+*/
+Matrix.prototype.moveCol = function (col, newCol) {
+    var content1 = this.getCol(col), content2 = this.getCol(newCol);
+    for(var y = 0; y < this.height; y++) {
+        this.set(col, y, content2.get(0, y));
+        this.set(newCol, y, content1.get(0, y));
     }
     return this;
 };
