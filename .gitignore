@@ -30,3 +30,6 @@ node_modules
 
 #nyc Ouput
 .nyc_output
+
+# ignore package lock
+package-lock.json
