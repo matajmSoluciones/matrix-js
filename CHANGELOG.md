@@ -1,5 +1,35 @@
 # Changelog
 
+## [1.0.0-latest-1] - 2022-06-21
+
+### Added
+
+- Soporte de propiedades "width", "height", "dimension" en formato string numericos
+- Metodo "isVoid" para validar matrices vacias sin contenido.
+
+### Changed
+
+- Filtro "BLUR" separado como una constante exportable.
+- Filtro "GAUSSIAN" separado como una constante exportable.
+- Filtro "MEDIA" separado como una constante exportable.
+- Filtro "PREWITTV" separado como una constante exportable.
+- Filtro "PREWITTH" separado como una constante exportable.
+- Filtro "SOBELV" separado como una constante exportable.
+- Filtro "SOBELH" separado como una constante exportable.
+- Filtro "LAPLACIANO" separado como una constante exportable.
+- Filtro "LAGAUSSIANO" separado como una constante exportable.
+- Filtro "SHARPEN" separado como una constante exportable.
+- Filtro "EMBOSS" separado como una constante exportable.
+
+### Removed
+
+- Metodo "getField" en clase Matrix user metodo "get"
+- Metodo "setField" en clase Matrix user metodo "set"
+
+### Fixed
+
+- Objeto es "undefined" en versiones recientes de nodejs
+
 ## [1.0.0-latest-0] - 2018-11-10
 
 ### Added

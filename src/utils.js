@@ -93,6 +93,36 @@ var Utils = {
         });
         return obj;
     },
+    /**
+     * @function determinant2
+     * @private
+     * @summary calcula la determinante de una matriz 2 x 2.
+     * @param {Matrix} A - matrix 2 x 2 a calcular.
+     * @return {Number}
+     */
+    determinant2: function (A) {
+        var row1 = 1, row2 = 1, determ = 0;
+        if (!A.isSingular()) {
+            throw new Error("La matriz no es cuadrada");
+        }
+        A.forEach(function (row, x, y) {
+            if (x == y) {
+                if (A.dimension == 1) {
+                    row1 *= row;
+                } else {
+                    row1 *= sumRow(row);
+                }
+            }
+            if (x == A.width - 1 - y) {
+                if (A.dimension == 1) {
+                    row2 *= row;
+                } else {
+                    row2 *= sumRow(row);
+                }
+            }
+        });
+        return row1 - row2;
+    }
 };
 
 module.exports = Utils;

@@ -142,7 +142,7 @@ describe("class Matrix", function() {
             var matrix = new Matrix(
                 {
                     type: "float32",
-                    width: "3",
+                    width: "c",
                     height: 2,
                     data: expect
                 }
@@ -157,11 +157,10 @@ describe("class Matrix", function() {
                 {
                     type: "float32",
                     width: 3,
-                    height: "2",
+                    height: "a",
                     data: expect
                 }
             );
-            console.log(matrix);
         }), Error, "Paso de largo");
     });
     it("test Constructor 2D: options dimension type var invalid", function() {
@@ -172,7 +171,7 @@ describe("class Matrix", function() {
                     type: "float32",
                     width: 3,
                     height: 2,
-                    dimension: "1",
+                    dimension: "u",
                     data: expect
                 }
             );
@@ -1405,7 +1404,7 @@ describe("class Matrix", function() {
             9, 8, 7
         ];
         matrix.moveCol(0,2); // mueve la fila 0 a la 2.
-        for(var i = 0, n =matrix.data.length; i < n; i++){
+        for(var i = 0, n = matrix.data.length; i < n; i++){
             assert.equal(matrix.data[i], expect[i]);
         }
     });
@@ -1415,7 +1414,7 @@ describe("class Matrix", function() {
             height: 2,
             dimension: 2,
             data: [
-                1, 2,  3,4,
+                1, 2,  3, 4,
                 5, 6,  7, 8
             ]
         }), expect = [
