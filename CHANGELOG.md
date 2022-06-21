@@ -20,6 +20,7 @@
 - Filtro "LAGAUSSIANO" separado como una constante exportable.
 - Filtro "SHARPEN" separado como una constante exportable.
 - Filtro "EMBOSS" separado como una constante exportable.
+- Propiedad "typeArray" cambiado a metodo estatico "typeArray".
 
 ### Removed
 
