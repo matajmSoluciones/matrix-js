@@ -2,20 +2,6 @@
 var Utils = require("./utils");
 
 class Matrix {
-
-    static typeArray = {
-        "int8": Int8Array,
-        "uint8": Uint8Array,
-        "uint16": Uint16Array,
-        "uint32": Uint32Array,
-        "uint8_clamped": Uint8ClampedArray,
-        "int16": Int16Array,
-        "int32": Int32Array,
-        "float32": Float32Array,
-        "float64": Float64Array,
-        "buffer": ArrayBuffer
-    };
-
     constructor(data, width, height, dimension, config) {
         if (!arguments.length) {
             throw new Error("Es requerido un argumento");
@@ -55,13 +41,13 @@ class Matrix {
         }
         if (config.type) {
             config.type = config.type.toLowerCase();
-            if (!(config.type in Matrix.typeArray)) {
+            if (!(config.type in Matrix.typeArray())) {
                 throw new Error("El tipo de objeto no es valido...");
             }
         }
         this.width = Number(config.width);
         this.height = Number(config.height);
-        this.instance = Matrix.typeArray[config.type || 'float32'];
+        this.instance = Matrix.typeArray()[config.type || 'float32'];
         if (isNaN(this.width)) {
             throw new Error("El ancho no es un numero");
         }
@@ -712,8 +698,8 @@ class Matrix {
      */
     toObject() {
         var type = "float32";
-        for (var key in Matrix.typeArray) {
-            if (Matrix.typeArray[key] instanceof this.instance) {
+        for (var key in Matrix.typeArray()) {
+            if (Matrix.typeArray()[key] instanceof this.instance) {
                 type = key;
                 break;
             }
@@ -1400,11 +1386,26 @@ class Matrix {
         if (Array.isArray(data)) {
             return true;
         }
-        for (var key in Matrix.typeArray) {
-            bool = bool || data instanceof Matrix.typeArray[key];
+        for (var key in Matrix.typeArray()) {
+            bool = bool || data instanceof Matrix.typeArray()[key];
         }
         return bool;
     }
+
+    static typeArray() {
+        return  {
+            "int8": Int8Array,
+            "uint8": Uint8Array,
+            "uint16": Uint16Array,
+            "uint32": Uint32Array,
+            "uint8_clamped": Uint8ClampedArray,
+            "int16": Int16Array,
+            "int32": Int32Array,
+            "float32": Float32Array,
+            "float64": Float64Array,
+            "buffer": ArrayBuffer
+        };
+    };
 }
 
 module.exports = Matrix;
